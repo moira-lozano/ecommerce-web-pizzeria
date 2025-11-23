@@ -197,10 +197,55 @@ const compraCancelada = computed(() => {
     return props.compra.estado === 'cancelado';
 });
 
+// Función helper para obtener la fecha local en formato YYYY-MM-DD
+const obtenerFechaLocal = (fecha) => {
+    if (!fecha) {
+        const ahora = new Date();
+        const año = ahora.getFullYear();
+        const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+        const dia = String(ahora.getDate()).padStart(2, '0');
+        return `${año}-${mes}-${dia}`;
+    }
+
+    // Si la fecha viene como string en formato YYYY-MM-DD, parsearla directamente
+    // sin usar new Date() para evitar problemas de zona horaria
+    if (typeof fecha === 'string' && /^\d{4}-\d{2}-\d{2}/.test(fecha)) {
+        // Extraer solo la parte de la fecha (ignorar hora si existe)
+        const fechaParte = fecha.split('T')[0].split(' ')[0];
+        const [año, mes, dia] = fechaParte.split('-');
+        // Retornar directamente sin conversión de zona horaria
+        return `${año}-${mes}-${dia}`;
+    }
+
+    // Si es un objeto Date, crear la fecha en zona horaria local
+    if (fecha instanceof Date) {
+        const año = fecha.getFullYear();
+        const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+        const dia = String(fecha.getDate()).padStart(2, '0');
+        return `${año}-${mes}-${dia}`;
+    }
+
+    // Si es otro formato, intentar parsear como string primero
+    if (typeof fecha === 'string') {
+        // Intentar extraer fecha en formato YYYY-MM-DD
+        const match = fecha.match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if (match) {
+            return `${match[1]}-${match[2]}-${match[3]}`;
+        }
+    }
+
+    // Último recurso: usar new Date pero crear en zona horaria local
+    const fechaObj = new Date(fecha);
+    const año = fechaObj.getFullYear();
+    const mes = String(fechaObj.getMonth() + 1).padStart(2, '0');
+    const dia = String(fechaObj.getDate()).padStart(2, '0');
+    return `${año}-${mes}-${dia}`;
+};
+
 const form = useForm({
     nro_compra: props.compra.nro_compra,
     proveedor_id: props.compra.proveedor_id,
-    fecha: props.compra.fecha ? new Date(props.compra.fecha).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+    fecha: obtenerFechaLocal(props.compra.fecha),
     descripcion: props.compra.descripcion || '',
     detalles: props.compra.detalles?.map(d => ({
         producto_id: d.producto_id,

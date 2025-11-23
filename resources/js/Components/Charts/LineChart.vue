@@ -10,13 +10,14 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch, onBeforeUnmount } from 'vue';
+import { ref, computed, onMounted, watch, onBeforeUnmount, nextTick } from 'vue';
 import {
     Chart,
     CategoryScale,
     LinearScale,
     PointElement,
     LineElement,
+    LineController,
     Title,
     Tooltip,
     Legend,
@@ -28,6 +29,7 @@ Chart.register(
     LinearScale,
     PointElement,
     LineElement,
+    LineController,
     Title,
     Tooltip,
     Legend,
@@ -52,14 +54,17 @@ let chartInstance = null;
 const hasData = computed(() => {
     const labels = props.data?.labels || [];
     const values = props.data?.values || props.data?.total || [];
-    return labels.length > 0 && values.length > 0;
+    // Verificar que haya labels y values, y que tengan la misma longitud
+    return labels.length > 0 && values.length > 0 && labels.length === values.length;
 });
 
 const createChart = () => {
     if (!chartCanvas.value) return;
 
+    // Destruir gráfico anterior si existe
     if (chartInstance) {
         chartInstance.destroy();
+        chartInstance = null;
     }
 
     const labels = props.data?.labels || [];
@@ -70,7 +75,13 @@ const createChart = () => {
         return;
     }
 
-    chartInstance = new Chart(chartCanvas.value, {
+    // Verificar que el canvas no esté siendo usado por otro gráfico
+    const canvas = chartCanvas.value;
+    if (canvas && Chart.getChart(canvas)) {
+        Chart.getChart(canvas).destroy();
+    }
+
+    chartInstance = new Chart(canvas, {
         type: 'line',
         data: {
             labels: labels,
@@ -113,27 +124,36 @@ const createChart = () => {
 };
 
 onMounted(() => {
-    createChart();
+    nextTick(() => {
+        setTimeout(() => {
+            createChart();
+        }, 100);
+    });
 });
 
 watch(() => props.data, () => {
-    if (chartInstance) {
-        const labels = props.data?.labels || [];
-        const values = props.data?.values || props.data?.total || [];
+    // Pequeño delay para asegurar que el DOM esté listo
+    nextTick(() => {
+        setTimeout(() => {
+            if (chartInstance) {
+                const labels = props.data?.labels || [];
+                const values = props.data?.values || props.data?.total || [];
 
-        if (labels.length > 0 && values.length > 0) {
-            chartInstance.data.labels = labels;
-            chartInstance.data.datasets[0].data = values;
-            chartInstance.update();
-        } else {
-            chartInstance.destroy();
-            chartInstance = null;
-            createChart();
-        }
-    } else {
-        createChart();
-    }
-}, { deep: true });
+                if (labels.length > 0 && values.length > 0 && labels.length === values.length) {
+                    chartInstance.data.labels = labels;
+                    chartInstance.data.datasets[0].data = values;
+                    chartInstance.update('none');
+                } else {
+                    chartInstance.destroy();
+                    chartInstance = null;
+                    createChart();
+                }
+            } else if (hasData.value) {
+                createChart();
+            }
+        }, 100);
+    });
+}, { deep: true, immediate: false });
 
 onBeforeUnmount(() => {
     if (chartInstance) {

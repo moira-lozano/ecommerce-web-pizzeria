@@ -20,9 +20,9 @@ class EstadisticasController extends Controller
 {
     public function index(Request $request)
     {
-        // Filtros por defecto
-        $fechaInicio = $request->get('fecha_inicio', Carbon::now()->startOfMonth()->format('Y-m-d'));
-        $fechaFin = $request->get('fecha_fin', Carbon::now()->format('Y-m-d'));
+        // Filtros por defecto - fecha inicio debe ser la fecha actual
+        $fechaInicio = $request->get('fecha_inicio', Carbon::today()->format('Y-m-d'));
+        $fechaFin = $request->get('fecha_fin', Carbon::today()->format('Y-m-d'));
         $categoriaId = $request->get('categoria_id');
         $clienteId = $request->get('cliente_id');
 
@@ -88,6 +88,10 @@ class EstadisticasController extends Controller
 
     private function calcularKPIs($fechaInicio, $fechaFin)
     {
+        // Asegurar que las fechas estén en formato Y-m-d
+        $fechaInicio = Carbon::parse($fechaInicio)->format('Y-m-d');
+        $fechaFin = Carbon::parse($fechaFin)->format('Y-m-d');
+        
         // Total de ventas
         $totalVentas = Venta::whereBetween('fecha', [$fechaInicio, $fechaFin])->count();
 
@@ -109,12 +113,12 @@ class EstadisticasController extends Controller
         $saldoPendiente = Credito::where('estado', 'activo')
             ->sum('saldo');
 
-        // Total de compras
+        // Total de compras (las fechas ya están normalizadas arriba)
         $totalCompras = Compra::whereBetween('fecha', [$fechaInicio, $fechaFin])
             ->where('estado', '!=', 'cancelado')
             ->count();
 
-        // Total gastado en compras
+        // Total gastado en compras (las fechas ya están normalizadas arriba)
         $totalGastado = DB::table('compra')
             ->join('detalle_compra', 'compra.id', '=', 'detalle_compra.compra_id')
             ->whereBetween('compra.fecha', [$fechaInicio, $fechaFin])
@@ -130,9 +134,10 @@ class EstadisticasController extends Controller
         // Total de productos
         $totalProductos = Producto::count();
 
-        // Ventas de hoy
-        $ventasHoy = Venta::whereDate('fecha', today())->count();
-        $ingresosHoy = Venta::whereDate('fecha', today())->sum('monto_total');
+        // Ventas de hoy - usar comparación directa con fecha en formato Y-m-d para evitar problemas de zona horaria
+        $fechaHoy = Carbon::today()->format('Y-m-d');
+        $ventasHoy = Venta::where('fecha', $fechaHoy)->count();
+        $ingresosHoy = Venta::where('fecha', $fechaHoy)->sum('monto_total');
 
         return [
             'total_ventas' => $totalVentas,
@@ -152,6 +157,10 @@ class EstadisticasController extends Controller
 
     private function ventasPorDia($fechaInicio, $fechaFin)
     {
+        // Asegurar que las fechas estén en formato Y-m-d
+        $fechaInicio = Carbon::parse($fechaInicio)->format('Y-m-d');
+        $fechaFin = Carbon::parse($fechaFin)->format('Y-m-d');
+        
         $ventas = Venta::select(
                 DB::raw("DATE(fecha) as fecha"),
                 DB::raw('COUNT(*) as cantidad'),
@@ -162,15 +171,27 @@ class EstadisticasController extends Controller
             ->orderBy('fecha')
             ->get();
 
-        return [
-            'labels' => $ventas->pluck('fecha')->map(fn($f) => Carbon::parse($f)->format('d/m/Y'))->toArray(),
-            'cantidad' => $ventas->pluck('cantidad')->toArray(),
-            'total' => $ventas->pluck('total')->map(fn($t) => round($t, 2))->toArray(),
+        $labels = $ventas->pluck('fecha')->map(fn($f) => Carbon::parse($f)->format('d/m/Y'))->toArray();
+        $cantidad = $ventas->pluck('cantidad')->toArray();
+        $total = $ventas->pluck('total')->map(fn($t) => round($t ?? 0, 2))->toArray();
+
+        $result = [
+            'labels' => $labels ?: [],
+            'cantidad' => $cantidad ?: [],
+            'total' => $total ?: [],
         ];
+        
+        \Log::info('ventasPorDia resultado:', $result);
+        
+        return $result;
     }
 
     private function ventasPorMes($fechaInicio, $fechaFin)
     {
+        // Asegurar que las fechas estén en formato Y-m-d
+        $fechaInicio = Carbon::parse($fechaInicio)->format('Y-m-d');
+        $fechaFin = Carbon::parse($fechaFin)->format('Y-m-d');
+        
         $ventas = Venta::select(
                 DB::raw("DATE_TRUNC('month', fecha) as mes"),
                 DB::raw('COUNT(*) as cantidad'),
@@ -181,15 +202,23 @@ class EstadisticasController extends Controller
             ->orderBy('mes')
             ->get();
 
+        $labels = $ventas->pluck('mes')->map(fn($m) => Carbon::parse($m)->format('M Y'))->toArray();
+        $cantidad = $ventas->pluck('cantidad')->toArray();
+        $total = $ventas->pluck('total')->map(fn($t) => round($t ?? 0, 2))->toArray();
+
         return [
-            'labels' => $ventas->pluck('mes')->map(fn($m) => Carbon::parse($m)->format('M Y'))->toArray(),
-            'cantidad' => $ventas->pluck('cantidad')->toArray(),
-            'total' => $ventas->pluck('total')->map(fn($t) => round($t, 2))->toArray(),
+            'labels' => $labels ?: [],
+            'cantidad' => $cantidad ?: [],
+            'total' => $total ?: [],
         ];
     }
 
     private function productosMasVendidos($fechaInicio, $fechaFin, $categoriaId = null, $limit = 10)
     {
+        // Asegurar que las fechas estén en formato Y-m-d
+        $fechaInicio = Carbon::parse($fechaInicio)->format('Y-m-d');
+        $fechaFin = Carbon::parse($fechaFin)->format('Y-m-d');
+        
         $query = DetalleVenta::select(
                 'producto.id',
                 'producto.nombre',
@@ -225,6 +254,10 @@ class EstadisticasController extends Controller
 
     private function ventasPorCategoria($fechaInicio, $fechaFin)
     {
+        // Asegurar que las fechas estén en formato Y-m-d
+        $fechaInicio = Carbon::parse($fechaInicio)->format('Y-m-d');
+        $fechaFin = Carbon::parse($fechaFin)->format('Y-m-d');
+        
         $ventas = DetalleVenta::select(
                 'categoria.id',
                 'categoria.nombre',
@@ -239,15 +272,27 @@ class EstadisticasController extends Controller
             ->orderByDesc('total')
             ->get();
 
-        return [
-            'labels' => $ventas->pluck('nombre')->toArray(),
-            'cantidad' => $ventas->pluck('cantidad')->toArray(),
-            'total' => $ventas->pluck('total')->map(fn($t) => round($t, 2))->toArray(),
+        $labels = $ventas->pluck('nombre')->toArray();
+        $cantidad = $ventas->pluck('cantidad')->toArray();
+        $total = $ventas->pluck('total')->map(fn($t) => round($t ?? 0, 2))->toArray();
+
+        $result = [
+            'labels' => $labels ?: [],
+            'cantidad' => $cantidad ?: [],
+            'total' => $total ?: [],
         ];
+        
+        \Log::info('ventasPorCategoria resultado:', $result);
+        
+        return $result;
     }
 
     private function ventasPorTipo($fechaInicio, $fechaFin)
     {
+        // Asegurar que las fechas estén en formato Y-m-d
+        $fechaInicio = Carbon::parse($fechaInicio)->format('Y-m-d');
+        $fechaFin = Carbon::parse($fechaFin)->format('Y-m-d');
+        
         $ventas = Venta::select(
                 'tipo',
                 DB::raw('COUNT(*) as cantidad'),
@@ -257,15 +302,27 @@ class EstadisticasController extends Controller
             ->groupBy('tipo')
             ->get();
 
-        return [
-            'labels' => $ventas->pluck('tipo')->map(fn($t) => ucfirst($t))->toArray(),
-            'cantidad' => $ventas->pluck('cantidad')->toArray(),
-            'total' => $ventas->pluck('total')->map(fn($t) => round($t, 2))->toArray(),
+        $labels = $ventas->pluck('tipo')->map(fn($t) => ucfirst($t))->toArray();
+        $cantidad = $ventas->pluck('cantidad')->toArray();
+        $total = $ventas->pluck('total')->map(fn($t) => round($t ?? 0, 2))->toArray();
+
+        $result = [
+            'labels' => $labels ?: [],
+            'cantidad' => $cantidad ?: [],
+            'total' => $total ?: [],
         ];
+        
+        \Log::info('ventasPorTipo resultado:', $result);
+        
+        return $result;
     }
 
     private function topClientes($fechaInicio, $fechaFin, $limit = 10)
     {
+        // Asegurar que las fechas estén en formato Y-m-d
+        $fechaInicio = Carbon::parse($fechaInicio)->format('Y-m-d');
+        $fechaFin = Carbon::parse($fechaFin)->format('Y-m-d');
+        
         return Venta::select(
                 'cliente.id',
                 'cliente.nombre',
@@ -311,6 +368,10 @@ class EstadisticasController extends Controller
 
     private function comprasVsVentas($fechaInicio, $fechaFin)
     {
+        // Asegurar que las fechas estén en formato Y-m-d
+        $fechaInicio = Carbon::parse($fechaInicio)->format('Y-m-d');
+        $fechaFin = Carbon::parse($fechaFin)->format('Y-m-d');
+        
         $ventas = Venta::select(
                 DB::raw("DATE_TRUNC('month', fecha) as mes"),
                 DB::raw('SUM(monto_total) as total')
@@ -334,21 +395,33 @@ class EstadisticasController extends Controller
 
         $meses = collect($ventas->pluck('mes'))->merge($compras->pluck('mes'))->unique()->sort()->values();
 
-        return [
-            'labels' => $meses->map(fn($m) => Carbon::parse($m)->format('M Y'))->toArray(),
-            'ventas' => $meses->map(function ($mes) use ($ventas) {
-                $venta = $ventas->firstWhere('mes', $mes);
-                return round($venta->total ?? 0, 2);
-            })->toArray(),
-            'compras' => $meses->map(function ($mes) use ($compras) {
-                $compra = $compras->firstWhere('mes', $mes);
-                return round($compra->total ?? 0, 2);
-            })->toArray(),
+        $labels = $meses->map(fn($m) => Carbon::parse($m)->format('M Y'))->toArray();
+        $ventasData = $meses->map(function ($mes) use ($ventas) {
+            $venta = $ventas->firstWhere('mes', $mes);
+            return round($venta->total ?? 0, 2);
+        })->toArray();
+        $comprasData = $meses->map(function ($mes) use ($compras) {
+            $compra = $compras->firstWhere('mes', $mes);
+            return round($compra->total ?? 0, 2);
+        })->toArray();
+
+        $result = [
+            'labels' => $labels ?: [],
+            'ventas' => $ventasData ?: [],
+            'compras' => $comprasData ?: [],
         ];
+        
+        \Log::info('comprasVsVentas resultado:', $result);
+        
+        return $result;
     }
 
     private function ingresosPorUsuario($fechaInicio, $fechaFin)
     {
+        // Asegurar que las fechas estén en formato Y-m-d
+        $fechaInicio = Carbon::parse($fechaInicio)->format('Y-m-d');
+        $fechaFin = Carbon::parse($fechaFin)->format('Y-m-d');
+        
         return Venta::select(
                 'usuario.id',
                 'usuario.nombre',

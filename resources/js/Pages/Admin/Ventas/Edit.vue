@@ -238,11 +238,31 @@ const props = defineProps({
     stocks: Object
 });
 
+// Función helper para obtener la fecha local en formato YYYY-MM-DD
+const obtenerFechaLocal = (fecha) => {
+    if (!fecha) {
+        const ahora = new Date();
+        const año = ahora.getFullYear();
+        const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+        const dia = String(ahora.getDate()).padStart(2, '0');
+        return `${año}-${mes}-${dia}`;
+    }
+    
+    // Si la fecha viene del backend, puede venir como string o Date
+    const fechaObj = fecha instanceof Date ? fecha : new Date(fecha);
+    
+    // Ajustar a la zona horaria local para evitar problemas de UTC
+    const año = fechaObj.getFullYear();
+    const mes = String(fechaObj.getMonth() + 1).padStart(2, '0');
+    const dia = String(fechaObj.getDate()).padStart(2, '0');
+    return `${año}-${mes}-${dia}`;
+};
+
 const form = useForm({
     nro_venta: props.venta.nro_venta,
     cliente_id: props.venta.cliente_id,
     usuario_id: props.venta.usuario_id || page.props.auth?.user?.id || '',
-    fecha: props.venta.fecha ? new Date(props.venta.fecha).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+    fecha: obtenerFechaLocal(props.venta.fecha),
     tipo: props.venta.tipo || 'contado',
     numero_cuotas: (props.venta.tipo === 'credito' && props.venta.numero_cuotas) ? props.venta.numero_cuotas : null,
     estado: props.venta.estado || 'pendiente',

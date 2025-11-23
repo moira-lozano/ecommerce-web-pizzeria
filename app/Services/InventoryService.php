@@ -51,11 +51,30 @@ class InventoryService
         // Truncar glosa si es muy larga (máximo 200 caracteres)
         $glosa = isset($data['glosa']) ? mb_substr($data['glosa'], 0, 200) : '';
 
+        // Asegurar que la fecha se guarde correctamente sin conversión de zona horaria
+        $fechaMovimiento = $data['fecha'] ?? now();
+        
+        // Si viene como string en formato YYYY-MM-DD, mantenerlo así (Laravel lo convertirá automáticamente)
+        if (is_string($fechaMovimiento) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $fechaMovimiento)) {
+            // Ya está en formato correcto, usar directamente
+            $fechaMovimiento = $fechaMovimiento;
+        } elseif ($fechaMovimiento instanceof \DateTime || $fechaMovimiento instanceof \Carbon\Carbon) {
+            // Si es Carbon/DateTime, formatear a Y-m-d para evitar problemas de zona horaria
+            $fechaMovimiento = $fechaMovimiento->format('Y-m-d');
+        } elseif (is_string($fechaMovimiento)) {
+            // Intentar parsear y formatear
+            $fechaMovimiento = \Carbon\Carbon::parse($fechaMovimiento)->format('Y-m-d');
+        }
+        // Si es null o no definido, usar now() y formatear
+        if (!$fechaMovimiento) {
+            $fechaMovimiento = now()->format('Y-m-d');
+        }
+
         try {
             $movimiento = Inventario::create([
                 'tipo_movimiento' => $data['tipo_movimiento'],
                 'cantidad' => abs($data['cantidad']), // Siempre positivo en la BD
-                'fecha' => $data['fecha'] ?? now(),
+                'fecha' => $fechaMovimiento,
                 'stock_actual' => $stockActual,
                 'glosa' => $glosa,
                 'usuario_id' => $usuarioId,

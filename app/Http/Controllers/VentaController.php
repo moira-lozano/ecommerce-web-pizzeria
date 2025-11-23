@@ -116,11 +116,24 @@ class VentaController extends BaseController
             $cliente = Cliente::findOrFail($validated['cliente_id']);
 
             \Illuminate\Support\Facades\DB::transaction(function () use ($validated, $total, $nroVenta, $cliente, $inventoryService) {
+                // Asegurar que la fecha se guarde correctamente sin conversión de zona horaria
+                // Si viene como string YYYY-MM-DD, usarla directamente
+                $fechaVenta = $validated['fecha'];
+                if ($fechaVenta instanceof \DateTime || $fechaVenta instanceof \Carbon\Carbon) {
+                    $fechaVenta = $fechaVenta->format('Y-m-d');
+                } elseif (is_string($fechaVenta) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $fechaVenta)) {
+                    // Ya está en formato correcto, usar directamente
+                    $fechaVenta = $fechaVenta;
+                } else {
+                    // Intentar parsear y formatear
+                    $fechaVenta = \Carbon\Carbon::parse($fechaVenta)->format('Y-m-d');
+                }
+                
                 // Crear venta
                 $estadoVenta = $validated['tipo'] === 'credito' ? 'pendiente' : 'completado';
                 $venta = Venta::create([
                     'nro_venta' => $nroVenta,
-                    'fecha' => $validated['fecha'],
+                    'fecha' => $fechaVenta,
                     'tipo' => $validated['tipo'],
                     'monto_total' => $total,
                     'saldo' => $validated['tipo'] === 'credito' ? $total : 0,
@@ -144,7 +157,7 @@ class VentaController extends BaseController
                     $inventoryService->registrarMovimiento([
                         'tipo_movimiento' => 'SALIDA',
                         'cantidad' => $detalle['cantidad'],
-                        'fecha' => $validated['fecha'],
+                        'fecha' => $fechaVenta,
                         'glosa' => "Venta #{$nroVenta} - Cliente {$cliente->nombre}",
                         'producto_id' => $detalle['producto_id'],
                         'detalle_venta_id' => $detalleVenta->id
@@ -338,6 +351,19 @@ class VentaController extends BaseController
             }
 
             \Illuminate\Support\Facades\DB::transaction(function () use ($venta, $validated, $total, $detallesAntiguos, $inventoryService, $cliente) {
+                // Asegurar que la fecha se guarde correctamente sin conversión de zona horaria
+                // Si viene como string YYYY-MM-DD, usarla directamente
+                $fechaVenta = $validated['fecha'];
+                if ($fechaVenta instanceof \DateTime || $fechaVenta instanceof \Carbon\Carbon) {
+                    $fechaVenta = $fechaVenta->format('Y-m-d');
+                } elseif (is_string($fechaVenta) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $fechaVenta)) {
+                    // Ya está en formato correcto, usar directamente
+                    $fechaVenta = $fechaVenta;
+                } else {
+                    // Intentar parsear y formatear
+                    $fechaVenta = \Carbon\Carbon::parse($fechaVenta)->format('Y-m-d');
+                }
+                
                 // Revertir movimientos de inventario antiguos (crear INGRESO para compensar SALIDAS)
                 // Esto debe hacerse ANTES de eliminar los detalles porque tienen onDelete('cascade')
                 foreach ($detallesAntiguos as $detalleAntiguo) {
@@ -350,7 +376,7 @@ class VentaController extends BaseController
                             $inventoryService->registrarMovimiento([
                                 'tipo_movimiento' => 'INGRESO',
                                 'cantidad' => $movimiento->cantidad,
-                                'fecha' => $validated['fecha'],
+                                'fecha' => $fechaVenta,
                                 'glosa' => "Reversión de venta #{$venta->nro_venta} - Edición",
                                 'producto_id' => $movimiento->producto_id
                             ]);
@@ -364,7 +390,7 @@ class VentaController extends BaseController
                 // Actualizar venta
                 $venta->update([
                     'nro_venta' => $validated['nro_venta'],
-                    'fecha' => $validated['fecha'],
+                    'fecha' => $fechaVenta,
                     'tipo' => $validated['tipo'],
                     'monto_total' => $total,
                     'saldo' => $validated['tipo'] === 'credito' ? $total : 0,
@@ -388,7 +414,7 @@ class VentaController extends BaseController
                     $inventoryService->registrarMovimiento([
                         'tipo_movimiento' => 'SALIDA',
                         'cantidad' => $detalle['cantidad'],
-                        'fecha' => $validated['fecha'],
+                        'fecha' => $fechaVenta,
                         'glosa' => "Venta #{$venta->nro_venta} - Cliente {$cliente->nombre}",
                         'producto_id' => $detalle['producto_id'],
                         'detalle_venta_id' => $detalleVenta->id

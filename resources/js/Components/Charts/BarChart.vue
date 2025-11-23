@@ -10,12 +10,13 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch, onBeforeUnmount } from 'vue';
+import { ref, computed, onMounted, watch, onBeforeUnmount, nextTick } from 'vue';
 import {
     Chart,
     CategoryScale,
     LinearScale,
     BarElement,
+    BarController,
     Title,
     Tooltip,
     Legend
@@ -25,6 +26,7 @@ Chart.register(
     CategoryScale,
     LinearScale,
     BarElement,
+    BarController,
     Title,
     Tooltip,
     Legend
@@ -47,18 +49,23 @@ let chartInstance = null;
 
 const hasData = computed(() => {
     if (props.data?.datasets) {
-        return props.data.datasets.some(ds => ds.data && ds.data.length > 0);
+        const hasValidDataset = props.data.datasets.some(ds => ds.data && Array.isArray(ds.data) && ds.data.length > 0);
+        const labels = props.data?.labels || [];
+        return hasValidDataset && labels.length > 0;
     }
     const labels = props.data?.labels || [];
     const values = props.data?.values || props.data?.total || [];
-    return labels.length > 0 && values.length > 0;
+    // Verificar que haya labels y values, y que tengan la misma longitud
+    return labels.length > 0 && values.length > 0 && labels.length === values.length;
 });
 
 const createChart = () => {
     if (!chartCanvas.value) return;
 
+    // Destruir gráfico anterior si existe
     if (chartInstance) {
         chartInstance.destroy();
+        chartInstance = null;
     }
 
     const labels = props.data?.labels || [];
@@ -88,7 +95,13 @@ const createChart = () => {
         });
     }
 
-    chartInstance = new Chart(chartCanvas.value, {
+    // Verificar que el canvas no esté siendo usado por otro gráfico
+    const canvas = chartCanvas.value;
+    if (canvas && Chart.getChart(canvas)) {
+        Chart.getChart(canvas).destroy();
+    }
+
+    chartInstance = new Chart(canvas, {
         type: 'bar',
         data: {
             labels: props.data.labels || [],
@@ -122,36 +135,47 @@ const createChart = () => {
 };
 
 onMounted(() => {
-    createChart();
+    nextTick(() => {
+        setTimeout(() => {
+            createChart();
+        }, 100);
+    });
 });
 
 watch(() => props.data, () => {
-    if (hasData.value) {
-        if (chartInstance) {
-            const labels = props.data?.labels || [];
-            chartInstance.data.labels = labels;
-            if (props.data?.datasets) {
-                props.data.datasets.forEach((dataset, index) => {
-                    if (chartInstance.data.datasets[index]) {
-                        chartInstance.data.datasets[index].data = dataset.data || [];
-                        chartInstance.data.datasets[index].label = dataset.label;
+    // Pequeño delay para asegurar que el DOM esté listo
+    nextTick(() => {
+        setTimeout(() => {
+            if (hasData.value) {
+                if (chartInstance) {
+                    const labels = props.data?.labels || [];
+                    chartInstance.data.labels = labels;
+                    if (props.data?.datasets) {
+                        props.data.datasets.forEach((dataset, index) => {
+                            if (chartInstance.data.datasets[index]) {
+                                chartInstance.data.datasets[index].data = dataset.data || [];
+                                chartInstance.data.datasets[index].label = dataset.label;
+                            }
+                        });
+                    } else {
+                        const values = props.data?.values || props.data?.total || [];
+                        if (chartInstance.data.datasets[0]) {
+                            chartInstance.data.datasets[0].data = values;
+                        }
                     }
-                });
+                    chartInstance.update('none');
+                } else {
+                    createChart();
+                }
             } else {
-                const values = props.data?.values || props.data?.total || [];
-                chartInstance.data.datasets[0].data = values;
+                if (chartInstance) {
+                    chartInstance.destroy();
+                    chartInstance = null;
+                }
             }
-            chartInstance.update();
-        } else {
-            createChart();
-        }
-    } else {
-        if (chartInstance) {
-            chartInstance.destroy();
-            chartInstance = null;
-        }
-    }
-}, { deep: true });
+        }, 100);
+    });
+}, { deep: true, immediate: false });
 
 onBeforeUnmount(() => {
     if (chartInstance) {

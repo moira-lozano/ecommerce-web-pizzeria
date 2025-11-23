@@ -67,10 +67,10 @@
                                 <span>Productos ({{ cart.itemCount }})</span>
                                 <span>Bs. {{ Number(cart.total).toFixed(2) }}</span>
                             </div>
-                            <div class="flex justify-between text-gray-600">
+                            <!-- <div class="flex justify-between text-gray-600">
                                 <span>Envío</span>
                                 <span>Gratis</span>
-                            </div>
+                            </div> -->
                             <div class="border-t pt-3 flex justify-between text-xl font-bold">
                                 <span>Total</span>
                                 <span class="text-green-600">Bs. {{ Number(cart.total).toFixed(2) }}</span>

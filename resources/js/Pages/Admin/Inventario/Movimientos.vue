@@ -17,7 +17,7 @@
                     </tr></thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         <tr v-for="mov in movimientos.data" :key="mov.id">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">{{ new Date(mov.fecha).toLocaleDateString('es-ES') }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">{{ formatearFecha(mov.fecha) }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">{{ mov.producto?.nombre || '-' }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm">
                                 <span
@@ -54,6 +54,34 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
+
 defineProps({ movimientos: Object });
+
+// Función helper para formatear fecha sin problemas de zona horaria
+// Cuando Laravel devuelve 'YYYY-MM-DD', JavaScript lo interpreta como UTC
+// Esta función parsea la fecha manualmente para evitar conversiones de zona horaria
+const formatearFecha = (fecha) => {
+    if (!fecha) return '-';
+    
+    // Si ya es un string en formato YYYY-MM-DD, parsearlo manualmente
+    if (typeof fecha === 'string' && /^\d{4}-\d{2}-\d{2}/.test(fecha)) {
+        const [año, mes, dia] = fecha.split('T')[0].split('-');
+        // Crear fecha en zona horaria local para evitar problemas de UTC
+        const fechaLocal = new Date(parseInt(año), parseInt(mes) - 1, parseInt(dia));
+        return fechaLocal.toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        });
+    }
+    
+    // Si es un objeto Date u otro formato, usar el método estándar
+    const fechaObj = fecha instanceof Date ? fecha : new Date(fecha);
+    return fechaObj.toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    });
+};
 </script>
 

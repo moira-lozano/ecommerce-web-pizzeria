@@ -174,37 +174,12 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useForm, Link } from '@inertiajs/vue3';
 import ShopLayout from '@/Layouts/ShopLayout.vue';
 import SelectInput from '@/Components/Form/SelectInput.vue';
 import RadioInput from '@/Components/Form/RadioInput.vue';
 import Button from '@/Components/Button.vue';
-
-const metodoPagoOptions = [
-    { value: 'efectivo', label: 'Efectivo', icon: '💵' },
-    { value: 'qr', label: 'QR PagoFácil', icon: '📱', description: 'Pago con código QR' }
-];
-
-const tipoPagoOptions = computed(() => {
-    const options = [
-        {
-            value: 'contado',
-            label: 'Pago al Contado',
-            description: 'Pago inmediato completo'
-        }
-    ];
-
-    if (props.puedeCredito) {
-        options.push({
-            value: 'credito',
-            label: 'Pago a Crédito',
-            description: `Crédito disponible: Bs. ${props.cliente?.limite_credito || 0}`
-        });
-    }
-
-    return options;
-});
 
 const props = defineProps({
     cart: Object,
@@ -223,13 +198,57 @@ const props = defineProps({
     }
 });
 
+const metodoPagoOptions = [
+    { value: 'efectivo', label: 'Efectivo', icon: '💵' },
+    { value: 'qr', label: 'QR PagoFácil', icon: '📱', description: 'Pago con código QR' }
+];
+
+const tipoPagoOptions = computed(() => {
+    const options = [
+        {
+            value: 'contado',
+            label: 'Pago al Contado',
+            description: 'Pago inmediato completo'
+        }
+    ];
+
+    // Verificar si puede crédito y si hay opciones de crédito disponibles
+    if (props.puedeCredito && props.opcionesCredito && props.opcionesCredito.length > 0) {
+        options.push({
+            value: 'credito',
+            label: 'Pago a Crédito',
+            description: `Crédito disponible: Bs. ${props.cliente?.limite_credito || 0}`
+        });
+    }
+
+    return options;
+});
+
 const form = useForm({
     tipo_pago: 'contado',
     metodo_pago: '',
     numero_cuotas: null
 });
 
+// Watch para limpiar numero_cuotas cuando cambia el tipo de pago
+watch(() => form.tipo_pago, (newTipo) => {
+    if (newTipo === 'contado') {
+        form.numero_cuotas = null;
+    }
+});
+
 const submit = () => {
-    form.post('/checkout/process');
+    // Si es pago al contado, no enviar numero_cuotas
+    const dataToSubmit = {
+        tipo_pago: form.tipo_pago,
+        metodo_pago: form.metodo_pago
+    };
+
+    // Solo incluir numero_cuotas si es crédito
+    if (form.tipo_pago === 'credito' && form.numero_cuotas) {
+        dataToSubmit.numero_cuotas = form.numero_cuotas;
+    }
+
+    form.transform(() => dataToSubmit).post('/checkout/process');
 };
 </script>

@@ -71,10 +71,14 @@
                     <h3 class="text-lg font-bold mb-4 text-gray-800">Ventas por Día</h3>
                     <div class="h-64">
                         <LineChart
-                            :data="{ labels: ventasPorDia.labels, values: ventasPorDia.total }"
+                            v-if="ventasPorDiaData.labels.length > 0 && ventasPorDiaData.total.length > 0"
+                            :data="{ labels: ventasPorDiaData.labels, values: ventasPorDiaData.total }"
                             title="Ingresos por Día"
                             color="rgb(59, 130, 246)"
                         />
+                        <div v-else class="flex items-center justify-center h-full text-gray-500">
+                            <p class="text-sm">No hay datos para el período seleccionado</p>
+                        </div>
                     </div>
                 </div>
 
@@ -83,9 +87,13 @@
                     <h3 class="text-lg font-bold mb-4 text-gray-800">Ventas por Tipo de Pago</h3>
                     <div class="h-64">
                         <DoughnutChart
-                            :data="{ labels: ventasPorTipo.labels, values: ventasPorTipo.total }"
+                            v-if="ventasPorTipoData.labels.length > 0 && ventasPorTipoData.total.length > 0"
+                            :data="{ labels: ventasPorTipoData.labels, values: ventasPorTipoData.total }"
                             title="Distribución de Ventas"
                         />
+                        <div v-else class="flex items-center justify-center h-full text-gray-500">
+                            <p class="text-sm">No hay datos para el período seleccionado</p>
+                        </div>
                     </div>
                 </div>
 
@@ -94,9 +102,13 @@
                     <h3 class="text-lg font-bold mb-4 text-gray-800">Ventas por Categoría</h3>
                     <div class="h-64">
                         <BarChart
-                            :data="{ labels: ventasPorCategoria.labels, values: ventasPorCategoria.total }"
+                            v-if="ventasPorCategoriaData.labels.length > 0 && ventasPorCategoriaData.total.length > 0"
+                            :data="{ labels: ventasPorCategoriaData.labels, values: ventasPorCategoriaData.total }"
                             title="Ingresos por Categoría"
                         />
+                        <div v-else class="flex items-center justify-center h-full text-gray-500">
+                            <p class="text-sm">No hay datos para el período seleccionado</p>
+                        </div>
                     </div>
                 </div>
 
@@ -105,15 +117,19 @@
                     <h3 class="text-lg font-bold mb-4 text-gray-800">Compras vs Ventas</h3>
                     <div class="h-64">
                         <BarChart
+                            v-if="comprasVsVentasData.labels.length > 0 && (comprasVsVentasData.ventas.length > 0 || comprasVsVentasData.compras.length > 0)"
                             :data="{
-                                labels: comprasVsVentas.labels,
+                                labels: comprasVsVentasData.labels,
                                 datasets: [
-                                    { label: 'Ventas', data: comprasVsVentas.ventas },
-                                    { label: 'Compras', data: comprasVsVentas.compras }
+                                    { label: 'Ventas', data: comprasVsVentasData.ventas },
+                                    { label: 'Compras', data: comprasVsVentasData.compras }
                                 ]
                             }"
                             title="Comparación Mensual"
                         />
+                        <div v-else class="flex items-center justify-center h-full text-gray-500">
+                            <p class="text-sm">No hay datos para el período seleccionado</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -272,9 +288,34 @@ const props = defineProps({
     filtros: Object
 });
 
+// Función helper para obtener la fecha local en formato YYYY-MM-DD
+const obtenerFechaLocal = (fecha) => {
+    if (!fecha) {
+        const ahora = new Date();
+        const año = ahora.getFullYear();
+        const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+        const dia = String(ahora.getDate()).padStart(2, '0');
+        return `${año}-${mes}-${dia}`;
+    }
+
+    // Si la fecha viene como string en formato YYYY-MM-DD, parsearlo directamente
+    if (typeof fecha === 'string' && /^\d{4}-\d{2}-\d{2}/.test(fecha)) {
+        const fechaParte = fecha.split('T')[0].split(' ')[0];
+        const [año, mes, dia] = fechaParte.split('-');
+        return `${año}-${mes}-${dia}`;
+    }
+
+    // Si es un objeto Date, crear la fecha en zona horaria local
+    const fechaObj = fecha instanceof Date ? fecha : new Date(fecha);
+    const año = fechaObj.getFullYear();
+    const mes = String(fechaObj.getMonth() + 1).padStart(2, '0');
+    const dia = String(fechaObj.getDate()).padStart(2, '0');
+    return `${año}-${mes}-${dia}`;
+};
+
 const filtros = ref({
-    fecha_inicio: props.filtros?.fecha_inicio || new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
-    fecha_fin: props.filtros?.fecha_fin || new Date().toISOString().split('T')[0],
+    fecha_inicio: props.filtros?.fecha_inicio || obtenerFechaLocal(),
+    fecha_fin: props.filtros?.fecha_fin || obtenerFechaLocal(),
     categoria_id: props.filtros?.categoria_id || '',
     cliente_id: props.filtros?.cliente_id || ''
 });
@@ -313,10 +354,126 @@ const kpisCards = computed(() => [
     }
 ]);
 
+// Computed para asegurar que los datos siempre sean arrays válidos
+const ventasPorDiaData = computed(() => {
+    if (!props.ventasPorDia) {
+        return { labels: [], total: [] };
+    }
+    const labels = Array.isArray(props.ventasPorDia.labels) ? props.ventasPorDia.labels : (props.ventasPorDia.labels ? [props.ventasPorDia.labels] : []);
+    const total = Array.isArray(props.ventasPorDia.total) ? props.ventasPorDia.total : (props.ventasPorDia.total !== undefined ? [props.ventasPorDia.total] : []);
+
+    // Asegurar que labels y total tengan la misma longitud
+    const minLength = Math.min(labels.length, total.length);
+    const finalLabels = labels.slice(0, minLength);
+    const finalTotal = total.slice(0, minLength);
+
+    if (process.env.NODE_ENV === 'development') {
+        console.log('[Estadisticas] ventasPorDiaData:', {
+            labels: finalLabels,
+            total: finalTotal,
+            lengths: { labels: finalLabels.length, total: finalTotal.length },
+            original: props.ventasPorDia
+        });
+    }
+
+    return { labels: finalLabels, total: finalTotal };
+});
+
+const ventasPorTipoData = computed(() => {
+    if (!props.ventasPorTipo) {
+        return { labels: [], total: [] };
+    }
+    const labels = Array.isArray(props.ventasPorTipo.labels) ? props.ventasPorTipo.labels : (props.ventasPorTipo.labels ? [props.ventasPorTipo.labels] : []);
+    const total = Array.isArray(props.ventasPorTipo.total) ? props.ventasPorTipo.total : (props.ventasPorTipo.total !== undefined ? [props.ventasPorTipo.total] : []);
+
+    // Asegurar que labels y total tengan la misma longitud
+    const minLength = Math.min(labels.length, total.length);
+    const finalLabels = labels.slice(0, minLength);
+    const finalTotal = total.slice(0, minLength);
+
+    if (process.env.NODE_ENV === 'development') {
+        console.log('[Estadisticas] ventasPorTipoData:', {
+            labels: finalLabels,
+            total: finalTotal,
+            lengths: { labels: finalLabels.length, total: finalTotal.length },
+            original: props.ventasPorTipo
+        });
+    }
+
+    return { labels: finalLabels, total: finalTotal };
+});
+
+const ventasPorCategoriaData = computed(() => {
+    if (!props.ventasPorCategoria) {
+        return { labels: [], total: [] };
+    }
+    const labels = Array.isArray(props.ventasPorCategoria.labels) ? props.ventasPorCategoria.labels : (props.ventasPorCategoria.labels ? [props.ventasPorCategoria.labels] : []);
+    const total = Array.isArray(props.ventasPorCategoria.total) ? props.ventasPorCategoria.total : (props.ventasPorCategoria.total !== undefined ? [props.ventasPorCategoria.total] : []);
+
+    // Asegurar que labels y total tengan la misma longitud
+    const minLength = Math.min(labels.length, total.length);
+    const finalLabels = labels.slice(0, minLength);
+    const finalTotal = total.slice(0, minLength);
+
+    if (process.env.NODE_ENV === 'development') {
+        console.log('[Estadisticas] ventasPorCategoriaData:', {
+            labels: finalLabels,
+            total: finalTotal,
+            lengths: { labels: finalLabels.length, total: finalTotal.length },
+            original: props.ventasPorCategoria
+        });
+    }
+
+    return { labels: finalLabels, total: finalTotal };
+});
+
+const comprasVsVentasData = computed(() => {
+    if (!props.comprasVsVentas) {
+        return { labels: [], ventas: [], compras: [] };
+    }
+    const labels = Array.isArray(props.comprasVsVentas.labels) ? props.comprasVsVentas.labels : (props.comprasVsVentas.labels ? [props.comprasVsVentas.labels] : []);
+    const ventas = Array.isArray(props.comprasVsVentas.ventas) ? props.comprasVsVentas.ventas : (props.comprasVsVentas.ventas !== undefined ? [props.comprasVsVentas.ventas] : []);
+    const compras = Array.isArray(props.comprasVsVentas.compras) ? props.comprasVsVentas.compras : (props.comprasVsVentas.compras !== undefined ? [props.comprasVsVentas.compras] : []);
+
+    // Asegurar que todos tengan la misma longitud
+    const maxLength = Math.max(labels.length, ventas.length, compras.length);
+    const finalLabels = labels.length < maxLength ? [...labels, ...Array(maxLength - labels.length).fill('')] : labels.slice(0, maxLength);
+    const finalVentas = ventas.length < maxLength ? [...ventas, ...Array(maxLength - ventas.length).fill(0)] : ventas.slice(0, maxLength);
+    const finalCompras = compras.length < maxLength ? [...compras, ...Array(maxLength - compras.length).fill(0)] : compras.slice(0, maxLength);
+
+    if (process.env.NODE_ENV === 'development') {
+        console.log('[Estadisticas] comprasVsVentasData:', {
+            labels: finalLabels,
+            ventas: finalVentas,
+            compras: finalCompras,
+            lengths: { labels: finalLabels.length, ventas: finalVentas.length, compras: finalCompras.length },
+            original: props.comprasVsVentas
+        });
+    }
+
+    return { labels: finalLabels, ventas: finalVentas, compras: finalCompras };
+});
+
 const aplicarFiltros = () => {
-    router.get('/admin/estadisticas', filtros.value, {
-        preserveState: true,
-        preserveScroll: true
+    // Asegurar que las fechas estén en formato correcto
+    const filtrosEnviar = {
+        fecha_inicio: filtros.value.fecha_inicio || obtenerFechaLocal(),
+        fecha_fin: filtros.value.fecha_fin || obtenerFechaLocal(),
+        categoria_id: filtros.value.categoria_id || '',
+        cliente_id: filtros.value.cliente_id || ''
+    };
+
+    console.log('[Estadisticas] Aplicando filtros:', filtrosEnviar);
+
+    router.get('/admin/estadisticas', filtrosEnviar, {
+        preserveState: false,
+        preserveScroll: true,
+        onSuccess: () => {
+            console.log('[Estadisticas] Filtros aplicados exitosamente');
+        },
+        onError: (errors) => {
+            console.error('[Estadisticas] Error al aplicar filtros:', errors);
+        }
     });
 };
 

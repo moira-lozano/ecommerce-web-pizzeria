@@ -8,6 +8,127 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-joven: 'Inter', 'Poppins', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+/* Configuración de Dark Mode - Tailwind v4 usa la clase 'dark' en el elemento raíz */
+/* Asegurar que el dark mode se aplique correctamente */
+.dark {
+    color-scheme: dark;
+}
+
+/* Estilos de Dark Mode más visibles */
+.dark body {
+    background-color: #111827;
+    color: #f9fafb;
+}
+
+/* Aplicar dark mode a elementos principales - Override más específico */
+html.dark,
+html.dark body {
+    background-color: #111827 !important;
+    color: #f9fafb !important;
+}
+
+.dark .bg-white {
+    background-color: #1f2937 !important;
+}
+
+.dark .bg-gray-50 {
+    background-color: #111827 !important;
+}
+
+.dark .bg-gray-100 {
+    background-color: #1f2937 !important;
+}
+
+.dark .text-gray-900 {
+    color: #f9fafb !important;
+}
+
+.dark .text-gray-800 {
+    color: #e5e7eb !important;
+}
+
+.dark .text-gray-700 {
+    color: #d1d5db !important;
+}
+
+.dark .text-gray-600 {
+    color: #9ca3af !important;
+}
+
+.dark .text-gray-500 {
+    color: #9ca3af !important;
+}
+
+.dark .text-gray-400 {
+    color: #6b7280 !important;
+}
+
+.dark .border-gray-200 {
+    border-color: #374151 !important;
+}
+
+.dark .border-gray-300 {
+    border-color: #4b5563 !important;
+}
+
+.dark .border-gray-400 {
+    border-color: #6b7280 !important;
+}
+
+/* Cards y contenedores en dark mode */
+.dark [class*="bg-white"],
+.dark [class*="bg-gray-50"],
+.dark [class*="bg-gray-100"] {
+    background-color: #1f2937 !important;
+}
+
+/* Inputs y formularios en dark mode */
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="password"],
+.dark input[type="date"],
+.dark input[type="number"],
+.dark textarea,
+.dark select {
+    background-color: #374151 !important;
+    border-color: #4b5563 !important;
+    color: #f9fafb !important;
+}
+
+.dark input[type="text"]::placeholder,
+.dark input[type="email"]::placeholder,
+.dark textarea::placeholder {
+    color: #9ca3af !important;
+}
+
+/* Tipo de letra para tema Joven - Fuente más moderna y dinámica */
+[data-theme="jovenes"] {
+    font-family: var(--font-joven);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+}
+
+[data-theme="jovenes"] * {
+    font-family: inherit;
+}
+
+[data-theme="jovenes"] h1,
+[data-theme="jovenes"] h2,
+[data-theme="jovenes"] h3,
+[data-theme="jovenes"] h4,
+[data-theme="jovenes"] h5,
+[data-theme="jovenes"] h6 {
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+[data-theme="jovenes"] button,
+[data-theme="jovenes"] .font-medium {
+    font-weight: 600;
 }
 
 /* Estilos de Accesibilidad - Contraste */
@@ -92,4 +213,81 @@
     outline: 4px solid currentColor;
     outline-offset: 3px;
     box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Estilos de Tamaño de Fuente para Adultos */
+[data-font-size="large"] {
+    font-size: 1.125rem; /* 18px base */
+    line-height: 1.75;
+}
+
+[data-font-size="large"] p,
+[data-font-size="large"] span,
+[data-font-size="large"] div,
+[data-font-size="large"] label,
+[data-font-size="large"] a {
+    font-size: 1.125rem;
+    line-height: 1.75;
+}
+
+[data-font-size="large"] h1 {
+    font-size: 2.5rem;
+    line-height: 1.2;
+}
+
+[data-font-size="large"] h2 {
+    font-size: 2rem;
+    line-height: 1.3;
+}
+
+[data-font-size="large"] h3 {
+    font-size: 1.75rem;
+    line-height: 1.4;
+}
+
+[data-font-size="large"] h4 {
+    font-size: 1.5rem;
+    line-height: 1.5;
+}
+
+[data-font-size="large"] h5 {
+    font-size: 1.25rem;
+    line-height: 1.6;
+}
+
+[data-font-size="large"] h6 {
+    font-size: 1.125rem;
+    line-height: 1.7;
+}
+
+[data-font-size="large"] input,
+[data-font-size="large"] textarea,
+[data-font-size="large"] select,
+[data-font-size="large"] button {
+    font-size: 1.125rem;
+    padding: 0.625rem 0.875rem;
+}
+
+[data-font-size="large"] .text-xs {
+    font-size: 1rem;
+}
+
+[data-font-size="large"] .text-sm {
+    font-size: 1.125rem;
+}
+
+[data-font-size="large"] .text-base {
+    font-size: 1.25rem;
+}
+
+[data-font-size="large"] .text-lg {
+    font-size: 1.5rem;
+}
+
+[data-font-size="large"] .text-xl {
+    font-size: 1.75rem;
+}
+
+[data-font-size="large"] .text-2xl {
+    font-size: 2rem;
 }

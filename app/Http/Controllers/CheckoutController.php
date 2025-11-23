@@ -127,7 +127,7 @@ class CheckoutController extends Controller
         $request->validate([
             'tipo_pago' => 'required|in:contado,credito',
             'metodo_pago' => 'required|in:efectivo,qr',
-            'numero_cuotas' => 'required_if:tipo_pago,credito|integer|min:2|max:12'
+            'numero_cuotas' => 'required_if:tipo_pago,credito|nullable|integer|min:2|max:12'
         ]);
 
         $cart = $this->cartService->getCartWithDetails();

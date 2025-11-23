@@ -79,6 +79,19 @@ class CompraController extends BaseController
 
         try {
             DB::transaction(function () use ($validated) {
+                // Asegurar que la fecha se guarde correctamente sin conversión de zona horaria
+                // Si viene como string YYYY-MM-DD, usarla directamente
+                $fechaCompra = $validated['fecha'];
+                if ($fechaCompra instanceof \DateTime || $fechaCompra instanceof \Carbon\Carbon) {
+                    $fechaCompra = $fechaCompra->format('Y-m-d');
+                } elseif (is_string($fechaCompra) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $fechaCompra)) {
+                    // Ya está en formato correcto, usar directamente
+                    $fechaCompra = $fechaCompra;
+                } else {
+                    // Intentar parsear y formatear
+                    $fechaCompra = \Carbon\Carbon::parse($fechaCompra)->format('Y-m-d');
+                }
+                
                 // Generar número de compra si no se proporciona usando CounterService
                 if (empty($validated['nro_compra'])) {
                     $counterService = app(\App\Services\CounterService::class);
@@ -90,7 +103,7 @@ class CompraController extends BaseController
                     'nro_compra' => $validated['nro_compra'],
                     'descripcion' => $validated['descripcion'] ?? null,
                     'proveedor_id' => $validated['proveedor_id'],
-                    'fecha' => $validated['fecha'],
+                    'fecha' => $fechaCompra,
                     'estado' => 'pendiente',
                 ]);
 
@@ -192,12 +205,25 @@ class CompraController extends BaseController
 
         try {
             DB::transaction(function () use ($compra, $validated) {
+                // Asegurar que la fecha se guarde correctamente sin conversión de zona horaria
+                // Si viene como string YYYY-MM-DD, usarla directamente
+                $fechaCompra = $validated['fecha'];
+                if ($fechaCompra instanceof \DateTime || $fechaCompra instanceof \Carbon\Carbon) {
+                    $fechaCompra = $fechaCompra->format('Y-m-d');
+                } elseif (is_string($fechaCompra) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $fechaCompra)) {
+                    // Ya está en formato correcto, usar directamente
+                    $fechaCompra = $fechaCompra;
+                } else {
+                    // Intentar parsear y formatear
+                    $fechaCompra = \Carbon\Carbon::parse($fechaCompra)->format('Y-m-d');
+                }
+                
                 // Actualizar compra
                 $compra->update([
                     'nro_compra' => $validated['nro_compra'],
                     'descripcion' => $validated['descripcion'] ?? null,
                     'proveedor_id' => $validated['proveedor_id'],
-                    'fecha' => $validated['fecha'],
+                    'fecha' => $fechaCompra,
                 ]);
 
                 // Eliminar detalles antiguos

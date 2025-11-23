@@ -1,9 +1,9 @@
 <template>
-    <div :class="themeClasses.body" class="min-h-screen transition-colors duration-300">
+    <div :class="[themeClasses.body, fontSize === 'large' ? 'text-lg' : '']" class="min-h-screen transition-all duration-300" :data-font-size="fontSize" :data-theme="currentTheme">
         <!-- Mobile Menu Button -->
         <button
             @click="sidebarOpen = !sidebarOpen"
-            class="lg:hidden fixed top-4 left-4 z-50 p-2 bg-slate-900 text-white rounded-lg shadow-lg"
+            class="lg:hidden fixed top-4 left-4 z-50 p-2 bg-slate-900 dark:bg-slate-700 text-white rounded-lg shadow-lg"
         >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -35,16 +35,16 @@
                 ]"
             >
                 <!-- Logo -->
-                <div class="p-4 lg:p-6 border-b border-slate-700 flex items-center justify-between">
+                <div class="p-4 lg:p-6 border-b border-slate-700 dark:border-slate-600 flex items-center justify-between">
                     <Link href="/admin/dashboard" @click="sidebarOpen = false" class="flex-1">
                         <h1 class="text-xl lg:text-2xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent hover:scale-105 transition-transform duration-200">
                             🏢 TecnoWeb
                         </h1>
-                        <p class="text-xs lg:text-sm text-slate-400 mt-1 hidden lg:block">Panel Administrativo</p>
+                        <p class="text-xs lg:text-sm text-slate-400 dark:text-slate-300 mt-1 hidden lg:block">Panel Administrativo</p>
                     </Link>
                     <button
                         @click="sidebarOpen = false"
-                        class="lg:hidden p-2 hover:bg-slate-700 rounded-lg"
+                        class="lg:hidden p-2 hover:bg-slate-700 dark:hover:bg-slate-600 rounded-lg"
                     >
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -62,8 +62,8 @@
                         :class="[
                             'flex items-center gap-2 lg:gap-3 px-3 lg:px-4 py-2 lg:py-3 rounded-lg transition-all duration-200 group text-sm lg:text-base',
                             $page.url.startsWith(item.href)
-                                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg'
-                                : 'text-slate-300 hover:bg-slate-700 hover:text-white'
+                                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-500 dark:to-indigo-500 text-white shadow-lg'
+                                : 'text-slate-300 dark:text-slate-400 hover:bg-slate-700 dark:hover:bg-slate-600 hover:text-white'
                         ]"
                     >
                         <span class="text-lg lg:text-xl">{{ item.icon }}</span>
@@ -75,7 +75,7 @@
                 </nav>
 
                 <!-- User Info -->
-                <div class="p-3 lg:p-4 border-t border-slate-700">
+                <div class="p-3 lg:p-4 border-t border-slate-700 dark:border-slate-600">
                     <div class="flex items-center gap-2 lg:gap-3 mb-2 lg:mb-3">
                         <div class="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-semibold text-xs lg:text-sm flex-shrink-0">
                             {{ userInitials }}
@@ -86,18 +86,18 @@
                         </div>
                     </div>
                     <div class="space-y-1">
-                        <Link
+                        <!-- <Link
                             href="/profile"
                             @click="sidebarOpen = false"
-                            class="flex items-center gap-2 px-3 py-2 text-xs lg:text-sm text-slate-300 hover:bg-slate-700 rounded-lg transition-colors"
+                            class="flex items-center gap-2 px-3 py-2 text-xs lg:text-sm text-slate-300 dark:text-slate-400 hover:bg-slate-700 dark:hover:bg-slate-600 rounded-lg transition-colors"
                         >
                             <span>👤</span>
                             <span class="hidden lg:inline">Mi Perfil</span>
-                        </Link>
+                        </Link> -->
                         <Link
                             href="/shop"
                             @click="sidebarOpen = false"
-                            class="flex items-center gap-2 px-3 py-2 text-xs lg:text-sm text-slate-300 hover:bg-slate-700 rounded-lg transition-colors"
+                            class="flex items-center gap-2 px-3 py-2 text-xs lg:text-sm text-slate-300 dark:text-slate-400 hover:bg-slate-700 dark:hover:bg-slate-600 rounded-lg transition-colors"
                         >
                             <span>🛒</span>
                             <span class="hidden lg:inline">Ver Tienda</span>
@@ -107,7 +107,7 @@
                             method="post"
                             as="button"
                             @click="sidebarOpen = false"
-                            class="flex items-center gap-2 w-full text-left px-3 py-2 text-xs lg:text-sm text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
+                            class="flex items-center gap-2 w-full text-left px-3 py-2 text-xs lg:text-sm text-red-400 dark:text-red-300 hover:bg-red-900/20 dark:hover:bg-red-800/30 rounded-lg transition-colors"
                         >
                             <span>🚪</span>
                             <span class="hidden lg:inline">Cerrar Sesión</span>
@@ -117,7 +117,7 @@
             </aside>
 
             <!-- Main Content -->
-            <main class="flex-1 overflow-y-auto lg:ml-0">
+            <main class="flex-1 overflow-y-auto lg:ml-0 bg-white dark:bg-gray-900 transition-colors duration-300">
                 <!-- Top Bar -->
                 <header :class="`${themeClasses.header} backdrop-blur-sm border-b sticky top-0 z-30 shadow-sm transition-colors duration-300`">
                     <div class="px-3 sm:px-4 lg:px-6 py-2.5 lg:py-3">
@@ -130,8 +130,18 @@
                                 </h2>
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <!-- Mobile Theme & Contrast Buttons -->
+                                    <!-- Mobile Theme, Contrast & Dark Mode Buttons -->
                                     <div class="flex items-center gap-1.5">
+                                        <div class="relative" data-dark-mode-menu>
+                                            <button
+                                                @click.stop="showDarkModeMenu = !showDarkModeMenu"
+                                                class="p-2 rounded-lg border transition-all duration-200"
+                                                :class="[themeClasses.input, themeClasses.contrast.border]"
+                                                title="Modo Día/Noche"
+                                            >
+                                                <span class="text-base">{{ darkMode ? '🌙' : '☀️' }}</span>
+                                            </button>
+                                        </div>
                                         <div class="relative" data-contrast-menu>
                                             <button
                                                 @click.stop="showContrastMenu = !showContrastMenu"
@@ -177,18 +187,18 @@
                                         ]"
                                     />
                                 <div class="absolute left-2.5 top-1/2 transform -translate-y-1/2">
-                                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                     </svg>
                                 </div>
                                 <div class="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
-                                    <kbd v-if="!searchQuery" class="hidden sm:inline-flex items-center px-1.5 py-0.5 text-xs font-semibold text-gray-500 bg-gray-100 border border-gray-200 rounded">
+                                    <kbd v-if="!searchQuery" class="hidden sm:inline-flex items-center px-1.5 py-0.5 text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded">
                                         ⌘K
                                     </kbd>
                                     <button
                                         v-if="searchQuery"
                                         @click="clearSearch"
-                                        class="text-gray-400 hover:text-gray-600 p-1 transition-colors"
+                                        class="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 p-1 transition-colors"
                                     >
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -210,13 +220,13 @@
                                     >
                                         <!-- Loading State -->
                                         <div v-if="isSearching" class="p-4 text-center">
-                                            <div class="inline-block animate-spin rounded-full h-5 w-5 border-2 border-gray-300 border-t-blue-600"></div>
-                                            <p class="text-xs text-gray-500 mt-2">Buscando...</p>
+                                            <div class="inline-block animate-spin rounded-full h-5 w-5 border-2 border-gray-300 dark:border-gray-600 border-t-blue-600 dark:border-t-blue-400"></div>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Buscando...</p>
                                         </div>
 
                                         <!-- Results -->
                                         <template v-else-if="searchResults.length > 0">
-                                            <div class="px-3 py-2 text-xs font-semibold text-gray-500 border-b">
+                                            <div class="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 border-b dark:border-gray-700">
                                                 {{ searchQuery ? 'Resultados' : 'Búsquedas recientes' }}
                                             </div>
                                             <div
@@ -224,7 +234,7 @@
                                                 :key="result.href"
                                                 @click="navigateTo(result.href)"
                                                 :class="[
-                                                    'p-2.5 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors',
+                                                    'p-2.5 cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-b-0 transition-colors',
                                                     selectedResultIndex === index ? 'bg-blue-50 dark:bg-blue-900/20' : 'hover:bg-gray-50 dark:hover:bg-gray-700'
                                                 ]"
                                             >
@@ -241,14 +251,14 @@
 
                                         <!-- No Results -->
                                         <div v-else-if="searchQuery && !isSearching" class="p-4 text-center">
-                                            <p class="text-sm text-gray-500">No se encontraron resultados</p>
-                                            <p class="text-xs text-gray-400 mt-1">Intenta con otros términos</p>
+                                            <p class="text-sm text-gray-500 dark:text-gray-400">No se encontraron resultados</p>
+                                            <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Intenta con otros términos</p>
                                         </div>
 
                                         <!-- Empty State -->
                                         <div v-else-if="!searchQuery && searchHistory.length === 0" class="p-4 text-center">
-                                            <p class="text-sm text-gray-500">Comienza a buscar en el sistema</p>
-                                            <p class="text-xs text-gray-400 mt-1">Usa Ctrl+K para buscar rápidamente</p>
+                                            <p class="text-sm text-gray-500 dark:text-gray-400">Comienza a buscar en el sistema</p>
+                                            <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Usa Ctrl+K para buscar rápidamente</p>
                                         </div>
                                     </div>
                                 </Transition>
@@ -287,6 +297,59 @@
                                             <span class="text-lg">{{ contrast.icon }}</span>
                                             <span class="flex-1 text-left text-xs font-medium">{{ contrast.name }}</span>
                                             <svg v-if="currentContrast === key" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </Transition>
+
+                            <!-- Mobile Dark Mode Menu -->
+                            <Transition
+                                enter-active-class="transition ease-out duration-200"
+                                enter-from-class="opacity-0 transform scale-95"
+                                enter-to-class="opacity-100 transform scale-100"
+                                leave-active-class="transition ease-in duration-150"
+                                leave-from-class="opacity-100 transform scale-100"
+                                leave-to-class="opacity-0 transform scale-95"
+                            >
+                                <div
+                                    v-if="showDarkModeMenu"
+                                    @click.stop
+                                    class="rounded-lg shadow-xl border overflow-hidden"
+                                    :class="[themeClasses.card, themeClasses.contrast.border]"
+                                >
+                                    <div class="p-2 space-y-1">
+                                        <div class="px-2 py-1 text-xs font-semibold" :class="themeClasses.textSecondary">
+                                            Modo
+                                        </div>
+                                        <button
+                                            @click="selectDarkMode(false)"
+                                            class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all duration-200"
+                                            :class="[
+                                                !darkMode
+                                                    ? 'bg-blue-100 text-blue-700 border-2 border-blue-300 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-600'
+                                                    : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+                                            ]"
+                                        >
+                                            <span class="text-lg">☀️</span>
+                                            <span class="flex-1 text-left text-xs font-medium">Día</span>
+                                            <svg v-if="!darkMode" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        </button>
+                                        <button
+                                            @click="selectDarkMode(true)"
+                                            class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all duration-200"
+                                            :class="[
+                                                darkMode
+                                                    ? 'bg-blue-100 text-blue-700 border-2 border-blue-300 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-600'
+                                                    : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+                                            ]"
+                                        >
+                                            <span class="text-lg">🌙</span>
+                                            <span class="flex-1 text-left text-xs font-medium">Noche</span>
+                                            <svg v-if="darkMode" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                             </svg>
                                         </button>
@@ -467,8 +530,74 @@
                                 </div>
                             </div>
 
-                            <!-- Theme & Contrast Selectors -->
+                            <!-- Theme, Contrast & Dark Mode Selectors -->
                             <div class="flex items-center gap-2">
+                                <!-- Dark Mode Selector -->
+                                <div class="flex-shrink-0 relative" data-dark-mode-menu>
+                                    <button
+                                        @click.stop="showDarkModeMenu = !showDarkModeMenu"
+                                        class="flex items-center gap-1.5 px-2.5 py-2 rounded-lg border transition-all duration-200 hover:shadow-md"
+                                        :class="[themeClasses.input, themeClasses.contrast.border]"
+                                        title="Modo Día/Noche"
+                                    >
+                                        <span class="text-base">{{ darkMode ? '🌙' : '☀️' }}</span>
+                                        <span class="hidden lg:inline text-xs font-medium">{{ darkMode ? 'Noche' : 'Día' }}</span>
+                                    </button>
+
+                                    <!-- Dark Mode Menu -->
+                                    <Transition
+                                        enter-active-class="transition ease-out duration-200"
+                                        enter-from-class="opacity-0 transform scale-95"
+                                        enter-to-class="opacity-100 transform scale-100"
+                                        leave-active-class="transition ease-in duration-150"
+                                        leave-from-class="opacity-100 transform scale-100"
+                                        leave-to-class="opacity-0 transform scale-95"
+                                    >
+                                        <div
+                                            v-if="showDarkModeMenu"
+                                            @click.stop
+                                            class="absolute right-0 mt-2 w-40 rounded-lg shadow-xl border z-50 overflow-hidden"
+                                            :class="[themeClasses.card, themeClasses.contrast.border]"
+                                        >
+                                            <div class="p-2 space-y-1">
+                                                <div class="px-2 py-1 text-xs font-semibold" :class="themeClasses.textSecondary">
+                                                    Modo
+                                                </div>
+                                                <button
+                                                    @click="selectDarkMode(false)"
+                                                    class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all duration-200"
+                                                    :class="[
+                                                        !darkMode
+                                                            ? 'bg-blue-100 text-blue-700 border-2 border-blue-300 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-600'
+                                                            : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+                                                    ]"
+                                                >
+                                                    <span class="text-lg">☀️</span>
+                                                    <span class="flex-1 text-left text-xs font-medium">Día</span>
+                                                    <svg v-if="!darkMode" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                </button>
+                                                <button
+                                                    @click="selectDarkMode(true)"
+                                                    class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all duration-200"
+                                                    :class="[
+                                                        darkMode
+                                                            ? 'bg-blue-100 text-blue-700 border-2 border-blue-300 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-600'
+                                                            : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+                                                    ]"
+                                                >
+                                                    <span class="text-lg">🌙</span>
+                                                    <span class="flex-1 text-left text-xs font-medium">Noche</span>
+                                                    <svg v-if="darkMode" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </Transition>
+                                </div>
+
                                 <!-- Contrast Selector -->
                                 <div class="flex-shrink-0 relative" data-contrast-menu>
                                     <button
@@ -592,7 +721,7 @@
                 </header>
 
                 <!-- Page Content -->
-                <div class="p-3 sm:p-4 lg:p-6">
+                <div class="p-3 sm:p-4 lg:p-6 bg-white dark:bg-gray-900 transition-colors duration-300">
                     <slot />
                 </div>
 
@@ -639,7 +768,7 @@ const props = defineProps({
 });
 
 const page = usePage();
-const { currentTheme, currentContrast, themes, contrastLevels, setTheme, setContrast, getThemeClasses } = useTheme();
+const { currentTheme, currentContrast, darkMode, fontSize, themes, contrastLevels, setTheme, setContrast, setDarkMode, setFontSize, getThemeClasses } = useTheme();
 const { tienePermiso, tieneAccesoModulo, esPropietario } = usePermissions();
 
 const sidebarOpen = ref(false);
@@ -652,6 +781,7 @@ const isSearching = ref(false);
 let searchTimeout = null;
 const showThemeMenu = ref(false);
 const showContrastMenu = ref(false);
+const showDarkModeMenu = ref(false);
 
 const themeClasses = computed(() => getThemeClasses());
 
@@ -683,6 +813,20 @@ const selectContrast = (contrastLevel) => {
     showContrastMenu.value = false;
 };
 
+const selectDarkMode = (isDark) => {
+    setDarkMode(isDark);
+    showDarkModeMenu.value = false;
+};
+
+// Aplicar tamaño de fuente cuando cambia el tema
+watch([currentTheme, fontSize], ([newTheme, currentFontSize]) => {
+    if (newTheme === 'adultos' && currentFontSize === 'normal') {
+        setFontSize('large');
+    } else if (newTheme !== 'adultos' && currentFontSize === 'large') {
+        setFontSize('normal');
+    }
+}, { immediate: true });
+
 // Cerrar menús al hacer clic fuera
 const handleClickOutside = (e) => {
     if (!e.target.closest('[data-theme-menu]')) {
@@ -690,6 +834,9 @@ const handleClickOutside = (e) => {
     }
     if (!e.target.closest('[data-contrast-menu]')) {
         showContrastMenu.value = false;
+    }
+    if (!e.target.closest('[data-dark-mode-menu]')) {
+        showDarkModeMenu.value = false;
     }
 };
 

@@ -14,7 +14,7 @@ class CategoriaSeeder extends Seeder
     public function run(): void
     {
         $categorias = [
-            ['nombre' => 'Retorables'],
+            ['nombre' => 'Retornables'],
             ['nombre' => 'Licores'],
             ['nombre' => 'Vinos'],
             ['nombre' => 'Sin alcohol'],
