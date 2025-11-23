@@ -9,8 +9,14 @@
                     <div class="bg-white rounded-lg shadow-md">
                         <div v-for="(item, index) in cart.items" :key="index" class="p-6 border-b last:border-b-0">
                             <div class="flex gap-4">
-                                <div class="w-24 h-24 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                    <div class="text-4xl">🍷</div>
+                                <div class="w-24 h-24 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                    <img
+                                        v-if="item.imagen"
+                                        :src="`/storage/${item.imagen}`"
+                                        :alt="item.nombre"
+                                        class="w-full h-full object-cover"
+                                    />
+                                    <div v-else class="text-4xl">📦</div>
                                 </div>
 
                                 <div class="flex-1">

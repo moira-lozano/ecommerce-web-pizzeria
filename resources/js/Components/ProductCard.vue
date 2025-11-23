@@ -2,8 +2,14 @@
     <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
         <!-- Imagen del producto -->
         <Link :href="`/shop/product/${producto.id}`" class="block">
-            <div class="h-48 bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
-                <div class="text-6xl">🍷</div>
+            <div class="h-48 bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center overflow-hidden">
+                <img
+                    v-if="producto.imagen"
+                    :src="`/storage/${producto.imagen}`"
+                    :alt="producto.nombre"
+                    class="w-full h-full object-cover"
+                />
+                <div v-else class="text-6xl">📦</div>
             </div>
         </Link>
 

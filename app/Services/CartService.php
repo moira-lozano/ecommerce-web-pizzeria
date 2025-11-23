@@ -29,6 +29,7 @@ class CartService
                 'cantidad' => $cantidad,
                 'marca' => $producto->marca,
                 'codigo' => $producto->codigo,
+                'imagen' => $producto->imagen,
             ];
         }
 
@@ -94,8 +95,21 @@ class CartService
     {
         $cart = $this->getCart();
 
+        // Asegurar que todos los items tengan la imagen actualizada
+        $items = [];
+        foreach ($cart as $productoId => $item) {
+            // Si el item no tiene imagen o la imagen cambió, obtenerla del producto
+            if (!isset($item['imagen']) || empty($item['imagen'])) {
+                $producto = Producto::find($productoId);
+                if ($producto) {
+                    $item['imagen'] = $producto->imagen;
+                }
+            }
+            $items[] = $item;
+        }
+
         return [
-            'items' => array_values($cart),
+            'items' => $items,
             'total' => $this->getTotal(),
             'itemCount' => $this->getItemCount()
         ];

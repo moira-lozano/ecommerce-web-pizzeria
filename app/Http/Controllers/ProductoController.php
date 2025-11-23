@@ -6,6 +6,7 @@ use App\Models\Producto;
 use App\Models\Categoria;
 use Illuminate\Http\Request;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class ProductoController extends BaseController
@@ -38,7 +39,8 @@ class ProductoController extends BaseController
             'descripcion' => 'nullable|string',
             'precio' => 'required|numeric|min:0',
             'marca' => 'nullable|string|max:50',
-            'categoria_id' => 'required|exists:categoria,id'
+            'categoria_id' => 'required|exists:categoria,id',
+            'imagen' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:5120'
         ]);
 
         // Generar código automáticamente usando CounterService
@@ -51,6 +53,12 @@ class ProductoController extends BaseController
         }
 
         $validated['codigo'] = $codigo;
+
+        // Guardar imagen si se subió
+        if ($request->hasFile('imagen')) {
+            $path = $request->file('imagen')->store('productos', 'public');
+            $validated['imagen'] = $path;
+        }
 
         Producto::create($validated);
 
@@ -91,11 +99,33 @@ class ProductoController extends BaseController
             'descripcion' => 'nullable|string',
             'precio' => 'required|numeric|min:0',
             'marca' => 'nullable|string|max:50',
-            'categoria_id' => 'required|exists:categoria,id'
+            'categoria_id' => 'required|exists:categoria,id',
+            'imagen' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:5120'
         ]);
 
         // Mantener el código original (no se puede modificar)
         $validated['codigo'] = $producto->codigo;
+
+        // Manejar imagen: si se sube una nueva, eliminar la anterior
+        if ($request->hasFile('imagen')) {
+            // Eliminar imagen anterior si existe
+            if ($producto->imagen && Storage::disk('public')->exists($producto->imagen)) {
+                Storage::disk('public')->delete($producto->imagen);
+            }
+            
+            // Guardar nueva imagen
+            $path = $request->file('imagen')->store('productos', 'public');
+            $validated['imagen'] = $path;
+        } elseif ($request->has('remove_imagen') && ($request->remove_imagen === '1' || $request->remove_imagen === true || $request->remove_imagen === 'true')) {
+            // Si se solicita eliminar la imagen
+            if ($producto->imagen && Storage::disk('public')->exists($producto->imagen)) {
+                Storage::disk('public')->delete($producto->imagen);
+            }
+            $validated['imagen'] = null;
+        } else {
+            // Mantener la imagen existente
+            $validated['imagen'] = $producto->imagen;
+        }
 
         $producto->update($validated);
 
@@ -118,7 +148,7 @@ class ProductoController extends BaseController
 
             if ($tieneCompras || $tieneVentas || $tieneCarrito || $tieneInventario) {
                 $relaciones = [];
-                
+
                 if ($tieneCompras) {
                     $relaciones[] = 'compras';
                 }
@@ -133,7 +163,7 @@ class ProductoController extends BaseController
                 }
 
                 $mensaje = 'No se puede eliminar el producto "' . $producto->nombre . '" porque está siendo utilizado en: ' . implode(', ', $relaciones) . '.';
-                
+
                 return redirect('/admin/productos')
                     ->with('error', $mensaje);
             }
@@ -149,7 +179,7 @@ class ProductoController extends BaseController
                 return redirect('/admin/productos')
                     ->with('error', 'No se puede eliminar el producto "' . $productoNombre . '" porque está siendo utilizado en otras operaciones del sistema (compras, ventas o inventario).');
             }
-            
+
             // Re-lanzar otras excepciones
             throw $e;
         }

@@ -79,6 +79,16 @@
                         option-label="nombre"
                     />
 
+                    <ImageUpload
+                        v-model="form.imagen"
+                        label="Imagen del Producto"
+                        :current-image="producto.imagen"
+                        hint="Se recomienda una imagen de 800x800px. La imagen se comprimirá automáticamente."
+                        :max-width="1200"
+                        :max-height="1200"
+                        :quality="0.85"
+                    />
+
                     <div class="flex gap-4 pt-4">
                         <Button
                             type="submit"
@@ -106,12 +116,14 @@
 </template>
 
 <script setup>
-import { useForm, Link } from '@inertiajs/vue3';
+import { ref, watch } from 'vue';
+import { useForm, Link, router } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import TextInput from '@/Components/Form/TextInput.vue';
 import TextareaInput from '@/Components/Form/TextareaInput.vue';
 import NumberInput from '@/Components/Form/NumberInput.vue';
 import SelectInput from '@/Components/Form/SelectInput.vue';
+import ImageUpload from '@/Components/Form/ImageUpload.vue';
 import Button from '@/Components/Button.vue';
 
 const props = defineProps({
@@ -124,10 +136,61 @@ const form = useForm({
     descripcion: props.producto.descripcion || '',
     precio: props.producto.precio,
     marca: props.producto.marca || '',
-    categoria_id: props.producto.categoria_id
+    categoria_id: props.producto.categoria_id,
+    imagen: null,
+    remove_imagen: false
+});
+
+// Variable para rastrear si el usuario interactuó con la imagen
+const imagenFueModificada = ref(false);
+
+// Detectar cuando se elimina o cambia la imagen
+watch(() => form.imagen, (newValue, oldValue) => {
+    imagenFueModificada.value = true;
+    
+    // Si había una imagen original y ahora es null, marcar para eliminar
+    if (props.producto.imagen && newValue === null) {
+        form.remove_imagen = true;
+    } else if (newValue instanceof File) {
+        // Si se sube una nueva imagen, no eliminar
+        form.remove_imagen = false;
+    }
 });
 
 const submit = () => {
-    form.put(`/admin/productos/${props.producto.id}`);
+    // Si el usuario no modificó la imagen, no enviar remove_imagen
+    if (!imagenFueModificada.value) {
+        form.remove_imagen = false;
+    }
+    
+    // Construir FormData manualmente para asegurar que todos los campos se incluyan
+    const formData = new FormData();
+    
+    // Incluir todos los campos del formulario
+    formData.append('nombre', form.nombre || '');
+    formData.append('descripcion', form.descripcion || '');
+    formData.append('precio', form.precio || '');
+    formData.append('marca', form.marca || '');
+    formData.append('categoria_id', form.categoria_id || '');
+    
+    // Incluir imagen si es un archivo
+    if (form.imagen instanceof File) {
+        formData.append('imagen', form.imagen);
+    }
+    
+    // Incluir remove_imagen
+    formData.append('remove_imagen', form.remove_imagen ? '1' : '0');
+    
+    // Incluir método PUT para Laravel method spoofing
+    formData.append('_method', 'PUT');
+    
+    // Usar router.post directamente con FormData
+    router.post(`/admin/productos/${props.producto.id}`, formData, {
+        preserveScroll: true,
+        onSuccess: () => {
+            // Resetear el flag de imagen modificada después de éxito
+            imagenFueModificada.value = false;
+        }
+    });
 };
 </script>

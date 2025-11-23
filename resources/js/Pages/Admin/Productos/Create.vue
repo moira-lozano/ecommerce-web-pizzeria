@@ -71,6 +71,15 @@
                         option-label="nombre"
                     />
 
+                    <ImageUpload
+                        v-model="form.imagen"
+                        label="Imagen del Producto"
+                        hint="Se recomienda una imagen de 800x800px. La imagen se comprimirá automáticamente."
+                        :max-width="1200"
+                        :max-height="1200"
+                        :quality="0.85"
+                    />
+
                     <div class="flex gap-4 pt-4">
                         <Button
                             type="submit"
@@ -104,6 +113,7 @@ import TextInput from '@/Components/Form/TextInput.vue';
 import TextareaInput from '@/Components/Form/TextareaInput.vue';
 import NumberInput from '@/Components/Form/NumberInput.vue';
 import SelectInput from '@/Components/Form/SelectInput.vue';
+import ImageUpload from '@/Components/Form/ImageUpload.vue';
 import Button from '@/Components/Button.vue';
 
 const props = defineProps({
@@ -115,11 +125,14 @@ const form = useForm({
     descripcion: '',
     precio: '',
     marca: '',
-    categoria_id: ''
+    categoria_id: '',
+    imagen: null
 });
 
 const submit = () => {
-    form.post('/admin/productos');
+    form.post('/admin/productos', {
+        forceFormData: true
+    });
 };
 </script>
 

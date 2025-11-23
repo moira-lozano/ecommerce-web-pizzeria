@@ -4,8 +4,14 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <!-- Imagen del producto -->
                 <div>
-                    <div class="bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg h-96 flex items-center justify-center">
-                        <div class="text-9xl">🍷</div>
+                    <div class="bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg h-96 flex items-center justify-center overflow-hidden">
+                        <img
+                            v-if="producto.imagen"
+                            :src="`/storage/${producto.imagen}`"
+                            :alt="producto.nombre"
+                            class="w-full h-full object-contain"
+                        />
+                        <div v-else class="text-9xl">📦</div>
                     </div>
                 </div>
 

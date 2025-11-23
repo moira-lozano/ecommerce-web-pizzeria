@@ -30,6 +30,7 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Imagen</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Código</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Categoría</th>
@@ -40,6 +41,17 @@
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         <tr v-for="producto in productos.data" :key="producto.id">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="w-16 h-16 flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden">
+                                    <img
+                                        v-if="producto.imagen"
+                                        :src="`/storage/${producto.imagen}`"
+                                        :alt="producto.nombre"
+                                        class="w-full h-full object-cover"
+                                    />
+                                    <span v-else class="text-gray-400 text-2xl">📦</span>
+                                </div>
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm">{{ producto.codigo }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm">{{ producto.nombre }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm">{{ producto.categoria?.nombre || '-' }}</td>

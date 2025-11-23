@@ -105,6 +105,13 @@
                         <span v-if="checking">Verificando...</span>
                         <span v-else>Verificar Estado del Pago</span>
                     </button>
+                    <button
+                        v-if="paymentInfo"
+                        @click="showPaymentInfoModal = true"
+                        class="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium"
+                    >
+                        Ver Detalles del Estado
+                    </button>
                     <Link
                         v-if="pago.estado === 'completado'"
                         :href="pago.cuota_pago && pago.cuota_pago.credito ? `/my-credit/${pago.cuota_pago.credito.id}` : '/my-orders'"
@@ -129,6 +136,130 @@
                 </div>
             </div>
         </div>
+
+        <!-- Modal de Información de Estado del Pago -->
+        <div v-if="showPaymentInfoModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @click.self="showPaymentInfoModal = false">
+            <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                <div class="p-6">
+                    <!-- Header del Modal -->
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold text-gray-800">Información del Estado del Pago</h2>
+                        <button
+                            @click="showPaymentInfoModal = false"
+                            class="text-gray-400 hover:text-gray-600 transition-colors"
+                        >
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Contenido del Modal -->
+                    <div v-if="paymentInfo" class="space-y-4">
+                        <!-- Estado del Pago -->
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h3 class="font-semibold text-lg mb-3 text-gray-800">Estado del Pago</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div>
+                                    <p class="text-sm text-gray-600">Estado:</p>
+                                    <p class="font-medium" :class="{
+                                        'text-green-600': paymentInfo.paymentStatus === 1,
+                                        'text-yellow-600': paymentInfo.paymentStatus === 2,
+                                        'text-red-600': paymentInfo.paymentStatus === 3 || paymentInfo.paymentStatus === 4
+                                    }">
+                                        {{ paymentInfo.paymentStatusDescription || getStatusText(paymentInfo.paymentStatus) }}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-600">Código de Estado:</p>
+                                    <p class="font-medium">{{ paymentInfo.paymentStatus }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Información de Transacción -->
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h3 class="font-semibold text-lg mb-3 text-gray-800">Información de Transacción</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div v-if="paymentInfo.pagofacilTransactionId">
+                                    <p class="text-sm text-gray-600">ID Transacción PagoFácil:</p>
+                                    <p class="font-medium">{{ paymentInfo.pagofacilTransactionId }}</p>
+                                </div>
+                                <div v-if="paymentInfo.companyTransactionId">
+                                    <p class="text-sm text-gray-600">ID Transacción Interna:</p>
+                                    <p class="font-medium">{{ paymentInfo.companyTransactionId }}</p>
+                                </div>
+                                <div v-if="paymentInfo.amount">
+                                    <p class="text-sm text-gray-600">Monto:</p>
+                                    <p class="font-medium text-green-600">{{ paymentInfo.currencyCode }} {{ Number(paymentInfo.amount).toFixed(2) }}</p>
+                                </div>
+                                <div v-if="paymentInfo.paymentMethodDetail">
+                                    <p class="text-sm text-gray-600">Método de Pago:</p>
+                                    <p class="font-medium">{{ paymentInfo.paymentMethodDetail }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Fechas -->
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h3 class="font-semibold text-lg mb-3 text-gray-800">Fechas</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div v-if="paymentInfo.requestDate && paymentInfo.requestTime">
+                                    <p class="text-sm text-gray-600">Fecha de Solicitud:</p>
+                                    <p class="font-medium">{{ formatDateTime(paymentInfo.requestDate, paymentInfo.requestTime) }}</p>
+                                </div>
+                                <div v-if="paymentInfo.paymentDate && paymentInfo.paymentTime">
+                                    <p class="text-sm text-gray-600">Fecha de Pago:</p>
+                                    <p class="font-medium text-green-600">{{ formatDateTime(paymentInfo.paymentDate, paymentInfo.paymentTime) }}</p>
+                                </div>
+                                <div v-else-if="paymentInfo.paymentStatus === 2">
+                                    <p class="text-sm text-gray-600">Fecha de Pago:</p>
+                                    <p class="font-medium text-yellow-600">Pendiente</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Información del Pagador (si está disponible) -->
+                        <div v-if="paymentInfo.payerName || paymentInfo.payerDocument" class="bg-gray-50 rounded-lg p-4">
+                            <h3 class="font-semibold text-lg mb-3 text-gray-800">Información del Pagador</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div v-if="paymentInfo.payerName">
+                                    <p class="text-sm text-gray-600">Nombre:</p>
+                                    <p class="font-medium">{{ paymentInfo.payerName }}</p>
+                                </div>
+                                <div v-if="paymentInfo.payerDocument">
+                                    <p class="text-sm text-gray-600">Documento:</p>
+                                    <p class="font-medium">{{ paymentInfo.payerDocument }}</p>
+                                </div>
+                                <div v-if="paymentInfo.payerAccount">
+                                    <p class="text-sm text-gray-600">Cuenta:</p>
+                                    <p class="font-medium">{{ paymentInfo.payerAccount }}</p>
+                                </div>
+                                <div v-if="paymentInfo.payerBank">
+                                    <p class="text-sm text-gray-600">Banco:</p>
+                                    <p class="font-medium">{{ paymentInfo.payerBank }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sin información disponible -->
+                    <div v-else class="text-center py-8">
+                        <p class="text-gray-500">No hay información de estado disponible</p>
+                    </div>
+
+                    <!-- Botón Cerrar -->
+                    <div class="mt-6 flex justify-end">
+                        <button
+                            @click="showPaymentInfoModal = false"
+                            class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+                        >
+                            Cerrar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </ShopLayout>
 </template>
 
@@ -138,11 +269,14 @@ import { Link, router } from '@inertiajs/vue3';
 import ShopLayout from '@/Layouts/ShopLayout.vue';
 
 const props = defineProps({
-    pago: Object
+    pago: Object,
+    paymentInfo: Object
 });
 
 const checking = ref(false);
 const autoCheck = ref(true);
+const showPaymentInfoModal = ref(false);
+const paymentInfo = ref(props.paymentInfo || null);
 let intervalId = null;
 
 const checkStatus = async () => {
@@ -152,6 +286,15 @@ const checkStatus = async () => {
             preserveState: true,
             preserveScroll: true,
             onSuccess: (page) => {
+                // Actualizar paymentInfo si viene en la respuesta
+                if (page.props.paymentInfo) {
+                    paymentInfo.value = page.props.paymentInfo;
+                    // Mostrar modal automáticamente cuando hay nueva información
+                    if (paymentInfo.value) {
+                        showPaymentInfoModal.value = true;
+                    }
+                }
+                
                 // El estado se actualizará automáticamente cuando se recargue la página
                 if (page.props.pago?.estado === 'completado') {
                     autoCheck.value = false;
@@ -165,6 +308,43 @@ const checkStatus = async () => {
         console.error('Error verificando estado:', error);
     } finally {
         checking.value = false;
+    }
+};
+
+const getStatusText = (status) => {
+    const statusMap = {
+        1: 'PAGADO',
+        2: 'PENDIENTE',
+        3: 'EXPIRADO',
+        4: 'CANCELADO'
+    };
+    return statusMap[status] || 'DESCONOCIDO';
+};
+
+const formatDateTime = (date, time) => {
+    if (!date || !time) return 'N/A';
+    try {
+        // Formato de PagoFácil: "2025-11-23" y "01:58:17"
+        // Convertir a formato ISO para Date
+        const dateTime = `${date}T${time}`;
+        const dateObj = new Date(dateTime);
+        
+        // Verificar que la fecha sea válida
+        if (isNaN(dateObj.getTime())) {
+            return `${date} ${time}`;
+        }
+        
+        const formatted = dateObj.toLocaleString('es-BO', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+        return formatted;
+    } catch (e) {
+        return `${date} ${time}`;
     }
 };
 
