@@ -120,9 +120,15 @@ defineProps({
 const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     try {
-        // Parsear la fecha manualmente para evitar problemas de zona horaria
-        // Formato esperado: "2025-11-23" o "2025-11-23 12:00:00"
-        const datePart = dateString.split(' ')[0]; // Obtener solo la parte de la fecha
+        // Manejar formato ISO con timezone (ej: "2025-11-23T00:00:00.000000Z")
+        // Extraer solo la parte de la fecha antes de 'T' o espacio
+        let datePart = dateString;
+        if (dateString.includes('T')) {
+            datePart = dateString.split('T')[0];
+        } else if (dateString.includes(' ')) {
+            datePart = dateString.split(' ')[0];
+        }
+        
         const [year, month, day] = datePart.split('-').map(Number);
         
         // Crear Date usando componentes locales (no UTC) para evitar el desfase de un día
