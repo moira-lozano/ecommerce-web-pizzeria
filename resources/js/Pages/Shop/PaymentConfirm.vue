@@ -294,7 +294,7 @@ const checkStatus = async () => {
                         showPaymentInfoModal.value = true;
                     }
                 }
-                
+
                 // El estado se actualizará automáticamente cuando se recargue la página
                 if (page.props.pago?.estado === 'completado') {
                     autoCheck.value = false;
@@ -325,15 +325,18 @@ const formatDateTime = (date, time) => {
     if (!date || !time) return 'N/A';
     try {
         // Formato de PagoFácil: "2025-11-23" y "01:58:17"
-        // Convertir a formato ISO para Date
-        const dateTime = `${date}T${time}`;
-        const dateObj = new Date(dateTime);
-        
+        // Parsear la fecha y hora manualmente para evitar problemas de zona horaria
+        const [year, month, day] = date.split('-').map(Number);
+        const [hour, minute, second] = time.split(':').map(Number);
+
+        // Crear Date usando componentes locales (no UTC) para evitar el desfase de un día
+        const dateObj = new Date(year, month - 1, day, hour, minute, second || 0);
+
         // Verificar que la fecha sea válida
         if (isNaN(dateObj.getTime())) {
             return `${date} ${time}`;
         }
-        
+
         const formatted = dateObj.toLocaleString('es-BO', {
             year: 'numeric',
             month: 'long',

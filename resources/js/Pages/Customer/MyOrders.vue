@@ -21,7 +21,7 @@
                                 </span>
                             </div>
                             <p class="text-sm text-gray-500 mb-2">
-                                Fecha: {{ new Date(venta.fecha).toLocaleDateString('es-ES') }}
+                                Fecha: {{ formatDate(venta.fecha) }}
                             </p>
                             <p class="text-sm text-gray-600 mb-2">
                                 Tipo: <span class="font-medium">{{ venta.tipo === 'contado' ? 'Contado' : 'Crédito' }}</span>
@@ -83,4 +83,30 @@ import ShopLayout from '@/Layouts/ShopLayout.vue';
 defineProps({
     ventas: Object
 });
+
+const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    try {
+        // Parsear la fecha manualmente para evitar problemas de zona horaria
+        // Formato esperado: "2025-11-23" o "2025-11-23 12:00:00"
+        const datePart = dateString.split(' ')[0]; // Obtener solo la parte de la fecha
+        const [year, month, day] = datePart.split('-').map(Number);
+        
+        // Crear Date usando componentes locales (no UTC) para evitar el desfase de un día
+        const dateObj = new Date(year, month - 1, day);
+        
+        // Verificar que la fecha sea válida
+        if (isNaN(dateObj.getTime())) {
+            return dateString;
+        }
+        
+        return dateObj.toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    } catch (e) {
+        return dateString;
+    }
+};
 </script>

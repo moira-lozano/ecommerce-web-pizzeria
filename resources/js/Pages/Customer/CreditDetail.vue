@@ -49,7 +49,7 @@
                             </div>
                             <div>
                                 <dt class="text-sm text-gray-600">Fecha Inicio:</dt>
-                                <dd class="font-medium">{{ new Date(credito.fecha_inicio).toLocaleDateString('es-ES') }}</dd>
+                                <dd class="font-medium">{{ formatDate(credito.fecha_inicio) }}</dd>
                             </div>
                             <div>
                                 <dt class="text-sm text-gray-600">Número de Cuotas:</dt>
@@ -70,7 +70,7 @@
                             </div>
                             <div>
                                 <dt class="text-sm text-gray-600">Fecha:</dt>
-                                <dd class="font-medium">{{ new Date(credito.venta.fecha).toLocaleDateString('es-ES') }}</dd>
+                                <dd class="font-medium">{{ formatDate(credito.venta.fecha) }}</dd>
                             </div>
                             <div>
                                 <Link
@@ -108,7 +108,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm">Bs. {{ Number(pago.monto).toFixed(2) }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                                     <span v-if="pago.fecha_pago">
-                                        {{ new Date(pago.fecha_pago).toLocaleDateString('es-ES') }}
+                                        {{ formatDate(pago.fecha_pago) }}
                                     </span>
                                     <span v-else class="text-gray-400">Pendiente</span>
                                 </td>
@@ -229,6 +229,32 @@ import ShopLayout from '@/Layouts/ShopLayout.vue';
 const props = defineProps({
     credito: Object
 });
+
+const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    try {
+        // Parsear la fecha manualmente para evitar problemas de zona horaria
+        // Formato esperado: "2025-11-23" o "2025-11-23 12:00:00"
+        const datePart = dateString.split(' ')[0]; // Obtener solo la parte de la fecha
+        const [year, month, day] = datePart.split('-').map(Number);
+        
+        // Crear Date usando componentes locales (no UTC) para evitar el desfase de un día
+        const dateObj = new Date(year, month - 1, day);
+        
+        // Verificar que la fecha sea válida
+        if (isNaN(dateObj.getTime())) {
+            return dateString;
+        }
+        
+        return dateObj.toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    } catch (e) {
+        return dateString;
+    }
+};
 
 const showPaymentModal = ref(false);
 const selectedPago = ref(null);
