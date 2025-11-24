@@ -1,0 +1,18 @@
+[2025-11-23 07:14:17] local.INFO: Permisos cargados para usuario 3 (Rol: cliente): 0 permisos  
+[2025-11-23 07:14:17] local.DEBUG: Permisos: []  
+[2025-11-23 07:14:17] local.INFO: [RoleMiddleware] Verificando roles: cliente para usuario 3 (Rol: cliente)  
+[2025-11-23 07:14:17] local.INFO: [RoleMiddleware] Usuario 3 tiene rol: cliente  
+[2025-11-23 07:14:18] local.INFO: Permisos cargados para usuario 3 (Rol: cliente): 0 permisos  
+[2025-11-23 07:14:18] local.DEBUG: Permisos: []  
+[2025-11-23 07:14:42] local.INFO: Permisos cargados para usuario 3 (Rol: cliente): 0 permisos  
+[2025-11-23 07:14:42] local.DEBUG: Permisos: []  
+[2025-11-23 07:14:42] local.INFO: [RoleMiddleware] Verificando roles: cliente para usuario 3 (Rol: cliente)  
+[2025-11-23 07:14:42] local.INFO: [RoleMiddleware] Usuario 3 tiene rol: cliente  
+[2025-11-23 07:14:42] local.INFO: Permisos cargados para usuario 3 (Rol: cliente): 0 permisos  
+[2025-11-23 07:14:42] local.DEBUG: Permisos: []  
+[2025-11-23 07:31:23] local.INFO: Permisos cargados para usuario 3 (Rol: cliente): 0 permisos  
+[2025-11-23 07:31:23] local.DEBUG: Permisos: []  
+[2025-11-23 07:31:23] local.INFO: [RoleMiddleware] Verificando roles: cliente para usuario 3 (Rol: cliente)  
+[2025-11-23 07:31:23] local.INFO: [RoleMiddleware] Usuario 3 tiene rol: cliente  
+[2025-11-23 07:31:23] local.INFO: Permisos cargados para usuario 3 (Rol: cliente): 0 permisos  
+[2025-11-23 07:31:23] local.DEBUG: Permisos: []  
