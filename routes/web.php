@@ -24,6 +24,26 @@ use App\Http\Controllers\PaymentController;
 // ====================================
 // RUTAS PÚBLICAS
 // ====================================
+// RUTA DE PRUEBA - Agregar al inicio
+Route::get('/test-routes', function () {
+    return response()->json([
+        'status' => 'OK',
+        'message' => 'Laravel está funcionando correctamente',
+        'timestamp' => now(),
+        'url' => url('/'),
+        'app_url' => config('app.url'),
+        'routes_count' => count(Route::getRoutes()),
+        'sample_routes' => [
+            'home' => url('/'),
+            'login' => url('/login'),
+            'shop' => url('/shop'),
+        ]
+    ]);
+})->name('test.routes');
+
+
+
+
 
 // Ruta de prueba para pasarela de pagos (TEMPORAL - ELIMINAR EN PRODUCCIÓN)
 Route::get('/test-payment-gateway', function () {
