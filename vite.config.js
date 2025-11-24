@@ -30,7 +30,7 @@ export default defineConfig(({ mode }) => {
             },
         },
         // Base path para producción (subdirectorio)
-        base: isProduction ? '/inf513/grupo12sa/' : '/',
+        base: isProduction ? '/inf513/grupo12sa/proyecto2/public/' : '/',
 
         // Server solo para desarrollo
         server: isProduction ? undefined : {
