@@ -3,7 +3,7 @@
         <div class="container mx-auto px-4 py-8">
             <div class="flex justify-between items-center mb-6">
                 <h1 class="text-3xl font-bold">Proveedores de Licores</h1>
-                <Link v-if="puedeCrear" href="/admin/proveedores/create" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium">
+                <Link v-if="puedeCrear" :href="route('admin.proveedores.create')" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium">
                     ➕ Nuevo Proveedor
                 </Link>
             </div>
@@ -49,8 +49,8 @@
                                     </span>
                                 </td>
                                 <td class="px-4 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                    <Link v-if="puedeVer" :href="`/admin/proveedores/${proveedor.id}`" class="text-blue-600 hover:text-blue-900">Ver</Link>
-                                    <Link v-if="puedeEditar" :href="`/admin/proveedores/${proveedor.id}/edit`" class="text-indigo-600 hover:text-indigo-900">Editar</Link>
+                                    <Link v-if="puedeVer" :href="route('admin.proveedores.show', proveedor.id)" class="text-blue-600 hover:text-blue-900">Ver</Link>
+                                    <Link v-if="puedeEditar" :href="route('admin.proveedores.edit', proveedor.id)" class="text-indigo-600 hover:text-indigo-900">Editar</Link>
                                     <button v-if="puedeEliminar" @click="deleteItem(proveedor.id)" class="text-red-600 hover:text-red-900">Eliminar</button>
                                 </td>
                             </tr>
@@ -98,10 +98,10 @@
                     </div>
 
                     <div class="mt-4 pt-3 border-t border-gray-200 flex flex-wrap gap-2">
-                        <Link v-if="puedeVer" :href="`/admin/proveedores/${proveedor.id}`" class="px-3 py-1.5 bg-blue-50 text-blue-600 rounded text-sm font-medium hover:bg-blue-100">
+                        <Link v-if="puedeVer" :href="route('admin.proveedores.show', proveedor.id)" class="px-3 py-1.5 bg-blue-50 text-blue-600 rounded text-sm font-medium hover:bg-blue-100">
                             Ver
                         </Link>
-                        <Link v-if="puedeEditar" :href="`/admin/proveedores/${proveedor.id}/edit`" class="px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded text-sm font-medium hover:bg-indigo-100">
+                        <Link v-if="puedeEditar" :href="route('admin.proveedores.edit', proveedor.id)" class="px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded text-sm font-medium hover:bg-indigo-100">
                             Editar
                         </Link>
                         <button v-if="puedeEliminar" @click="deleteItem(proveedor.id)" class="px-3 py-1.5 bg-red-50 text-red-600 rounded text-sm font-medium hover:bg-red-100">
@@ -133,6 +133,7 @@
 <script setup>
 import { computed } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { usePermissions } from '@/composables/usePermissions';
 
@@ -150,7 +151,7 @@ const puedeEliminar = computed(() => tienePermiso('proveedores.eliminar'));
 
 const deleteItem = (id) => {
     if(confirm('¿Está seguro de eliminar este proveedor?')) {
-        router.delete(`/admin/proveedores/${id}`);
+        router.delete(route('admin.proveedores.destroy', id));
     }
 };
 </script>

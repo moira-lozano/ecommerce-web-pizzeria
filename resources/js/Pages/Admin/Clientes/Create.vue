@@ -68,7 +68,7 @@
                         >
                             Guardar Cliente
                         </Button>
-                        <Link href="/admin/clientes">
+                        <Link :href="route('admin.clientes.index')">
                             <Button
                                 type="button"
                                 variant="outline"
@@ -86,6 +86,7 @@
 
 <script setup>
 import { useForm, Link } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import TextInput from '@/Components/Form/TextInput.vue';
 import SelectInput from '@/Components/Form/SelectInput.vue';
@@ -116,6 +117,6 @@ const validateTelefono = (value) => {
     return telefonoRegex.test(value) || 'Teléfono inválido';
 };
 
-const submit = () => form.post('/admin/clientes');
+const submit = () => form.post(route('admin.clientes.store'));
 </script>
 

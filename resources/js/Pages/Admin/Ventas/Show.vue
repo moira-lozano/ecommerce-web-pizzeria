@@ -2,7 +2,7 @@
     <AdminLayout>
         <div class="container mx-auto px-4 py-8">
             <div class="mb-6">
-                <Link href="/admin/ventas" class="text-blue-600 hover:text-blue-800 flex items-center gap-2">
+                <Link :href="route('admin.ventas.index')" class="text-blue-600 hover:text-blue-800 flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
@@ -105,7 +105,7 @@
                             </p>
                         </div>
                         <Link
-                            :href="`/admin/creditos/${venta.credito.id}`"
+                            :href="route('admin.creditos.show', venta.credito.id)"
                             class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium text-sm"
                         >
                             Ver Detalle del Crédito →
@@ -158,6 +158,7 @@
 <script setup>
 import { computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 
 const props = defineProps({

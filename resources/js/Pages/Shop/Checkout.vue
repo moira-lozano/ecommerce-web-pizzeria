@@ -91,7 +91,7 @@
                             <p class="text-sm text-yellow-700">
                                 Para realizar compras a crédito, primero debes subir y verificar tus documentos.
                             </p>
-                            <Link href="/verificar-credito" class="inline-block mt-2 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg text-sm font-medium transition-colors">
+                            <Link :href="route('customer.verificar-credito')" class="inline-block mt-2 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg text-sm font-medium transition-colors">
                                 Subir Documentos
                             </Link>
                         </div>
@@ -113,7 +113,7 @@
                             <p class="text-sm text-red-700" v-else>
                                 Tu solicitud de crédito fue rechazada. Contacta al administrador para más información.
                             </p>
-                            <Link href="/verificar-credito" class="inline-block mt-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors">
+                            <Link :href="route('customer.verificar-credito')" class="inline-block mt-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors">
                                 Actualizar Documentos
                             </Link>
                         </div>
@@ -134,7 +134,7 @@
 
                     <!-- Botones -->
                     <div class="flex gap-4 pt-4">
-                        <Link href="/cart" class="flex-1">
+                        <Link :href="route('cart.index')" class="flex-1">
                             <Button
                                 type="button"
                                 variant="outline"
@@ -163,7 +163,7 @@
                 <div class="text-8xl mb-4">🛒</div>
                 <h2 class="text-2xl font-semibold text-gray-800 mb-2">Tu carrito está vacío</h2>
                 <Link
-                    href="/shop"
+                    :href="route('shop.index')"
                     class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium mt-4"
                 >
                     Ir al Catálogo
@@ -176,6 +176,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
 import { useForm, Link } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import ShopLayout from '@/Layouts/ShopLayout.vue';
 import SelectInput from '@/Components/Form/SelectInput.vue';
 import RadioInput from '@/Components/Form/RadioInput.vue';
@@ -249,6 +250,6 @@ const submit = () => {
         dataToSubmit.numero_cuotas = form.numero_cuotas;
     }
 
-    form.transform(() => dataToSubmit).post('/checkout/process');
+    form.transform(() => dataToSubmit).post(route('checkout.process'));
 };
 </script>

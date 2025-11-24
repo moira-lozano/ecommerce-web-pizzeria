@@ -26,7 +26,7 @@
                         >
                             Guardar Categoría
                         </Button>
-                        <Link href="/admin/categorias">
+                        <Link :href="route('admin.categorias.index')">
                             <Button
                                 type="button"
                                 variant="outline"
@@ -45,10 +45,11 @@
 
 <script setup>
 import { useForm, Link } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import TextInput from '@/Components/Form/TextInput.vue';
 import Button from '@/Components/Button.vue';
 
 const form = useForm({ nombre: '' });
-const submit = () => form.post('/admin/categorias');
+const submit = () => form.post(route('admin.categorias.store'));
 </script>

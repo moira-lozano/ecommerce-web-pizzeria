@@ -33,7 +33,7 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <Link v-if="puedeVer" :href="`/admin/creditos/${credito.id}`" class="text-blue-600 hover:text-blue-900">Ver Detalle</Link>
+                                <Link v-if="puedeVer" :href="route('admin.creditos.show', credito.id)" class="text-blue-600 hover:text-blue-900">Ver Detalle</Link>
                             </td>
                         </tr>
                     </tbody>
@@ -61,6 +61,7 @@
 <script setup>
 import { computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { usePermissions } from '@/composables/usePermissions';
 

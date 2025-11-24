@@ -6,7 +6,7 @@
                     <h1 class="text-3xl font-bold">Kardex de Producto</h1>
                     <p class="text-gray-600 mt-1">{{ producto?.nombre }} - {{ producto?.codigo }}</p>
                 </div>
-                <Link href="/admin/inventario" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium">Volver</Link>
+                <Link :href="route('admin.inventario.index')" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium">Volver</Link>
             </div>
             <div class="bg-white shadow rounded-lg overflow-hidden">
                 <table class="min-w-full divide-y divide-gray-200">
@@ -40,6 +40,7 @@
 </template>
 <script setup>
 import { Link } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 
 defineProps({ producto: Object, movimientos: Array });

@@ -99,7 +99,7 @@
                 </Button>
 
                 <div class="mt-6 text-center">
-                    <Link href="/login" class="text-blue-600 hover:text-blue-700 font-medium transition-colors duration-200">
+                    <Link :href="route('login')" class="text-blue-600 hover:text-blue-700 font-medium transition-colors duration-200">
                         ¿Ya tienes cuenta? <span class="underline">Inicia sesión</span>
                     </Link>
                 </div>
@@ -111,6 +111,7 @@
 <script setup>
 import { computed } from 'vue';
 import { useForm, Link } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import TextInput from '@/Components/Form/TextInput.vue';
 import Button from '@/Components/Button.vue';
 
@@ -155,7 +156,7 @@ const passwordMatchError = computed(() => {
 });
 
 const submit = () => {
-    form.post('/register');
+    form.post(route('register'));
 };
 
 defineOptions({

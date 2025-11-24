@@ -331,6 +331,7 @@
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue';
 import { Link, router, useForm, usePage } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 
 const props = defineProps({
@@ -391,7 +392,7 @@ const cancelarAccion = () => {
 };
 
 const aprobarCliente = (clienteId) => {
-    formAprobar.post(`/admin/clientes/${clienteId}/aprobar-documentos`, {
+    formAprobar.post(route('admin.clientes.aprobar-documentos', clienteId), {
         onSuccess: () => {
             cancelarAccion();
         }
@@ -399,7 +400,7 @@ const aprobarCliente = (clienteId) => {
 };
 
 const rechazarCliente = (clienteId) => {
-    formRechazar.post(`/admin/clientes/${clienteId}/rechazar-documentos`, {
+    formRechazar.post(route('admin.clientes.rechazar-documentos', clienteId), {
         onSuccess: () => {
             cancelarAccion();
         }

@@ -99,7 +99,7 @@
                         >
                             Actualizar Producto
                         </Button>
-                        <Link href="/admin/productos">
+                        <Link :href="route('admin.productos.index')">
                             <Button
                                 type="button"
                                 variant="outline"
@@ -118,6 +118,7 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { useForm, Link, router } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import TextInput from '@/Components/Form/TextInput.vue';
 import TextareaInput from '@/Components/Form/TextareaInput.vue';
@@ -147,7 +148,7 @@ const imagenFueModificada = ref(false);
 // Detectar cuando se elimina o cambia la imagen
 watch(() => form.imagen, (newValue, oldValue) => {
     imagenFueModificada.value = true;
-    
+
     // Si había una imagen original y ahora es null, marcar para eliminar
     if (props.producto.imagen && newValue === null) {
         form.remove_imagen = true;
@@ -162,30 +163,30 @@ const submit = () => {
     if (!imagenFueModificada.value) {
         form.remove_imagen = false;
     }
-    
+
     // Construir FormData manualmente para asegurar que todos los campos se incluyan
     const formData = new FormData();
-    
+
     // Incluir todos los campos del formulario
     formData.append('nombre', form.nombre || '');
     formData.append('descripcion', form.descripcion || '');
     formData.append('precio', form.precio || '');
     formData.append('marca', form.marca || '');
     formData.append('categoria_id', form.categoria_id || '');
-    
+
     // Incluir imagen si es un archivo
     if (form.imagen instanceof File) {
         formData.append('imagen', form.imagen);
     }
-    
+
     // Incluir remove_imagen
     formData.append('remove_imagen', form.remove_imagen ? '1' : '0');
-    
+
     // Incluir método PUT para Laravel method spoofing
     formData.append('_method', 'PUT');
-    
+
     // Usar router.post directamente con FormData
-    router.post(`/admin/productos/${props.producto.id}`, formData, {
+    router.post(route('admin.productos.update', props.producto.id), formData, {
         preserveScroll: true,
         onSuccess: () => {
             // Resetear el flag de imagen modificada después de éxito

@@ -210,6 +210,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useForm, router } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import Button from '@/Components/Button.vue';
 import TextInput from '@/Components/Form/TextInput.vue';
@@ -265,7 +266,7 @@ const actualizarContador = () => {
 
 const sincronizar = () => {
     sincronizando.value = true;
-    router.post('/admin/contadores/sincronizar', {}, {
+    router.post(route('admin.contadores.sincronizar'), {}, {
         preserveScroll: true,
         onFinish: () => {
             sincronizando.value = false;

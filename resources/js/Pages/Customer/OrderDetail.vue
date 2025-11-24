@@ -2,7 +2,7 @@
     <ShopLayout>
         <div class="container mx-auto px-4 py-8">
             <div class="mb-6">
-                <Link href="/my-orders" class="text-blue-600 hover:text-blue-800 flex items-center gap-2">
+                <Link :href="route('customer.orders')" class="text-blue-600 hover:text-blue-800 flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
@@ -63,7 +63,7 @@
 
                 <div v-if="venta.credito" class="mb-6 p-4 bg-blue-50 rounded-lg">
                     <Link
-                        :href="`/my-credit/${venta.credito.id}`"
+                        :href="route('customer.credit.detail', venta.credito.id)"
                         class="text-blue-600 hover:text-blue-800 font-medium"
                     >
                         Ver detalles del crédito →
@@ -111,6 +111,7 @@
 
 <script setup>
 import { Link } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import ShopLayout from '@/Layouts/ShopLayout.vue';
 
 defineProps({

@@ -227,7 +227,7 @@
 
                 <!-- Botones -->
                 <div class="flex gap-4 pt-4">
-                    <Link href="/profile" class="flex-1">
+                    <Link :href="route('customer.profile')" class="flex-1">
                         <Button
                             type="button"
                             variant="outline"
@@ -256,6 +256,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useForm, Link } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import ShopLayout from '@/Layouts/ShopLayout.vue';
 import Button from '@/Components/Button.vue';
 
@@ -432,7 +433,7 @@ const todosDocumentosSubidos = computed(() => {
 });
 
 const submit = () => {
-    form.post('/verificar-credito', {
+    form.post(route('customer.subir-documentos'), {
         forceFormData: true,
         onSuccess: () => {
             // Limpiar previews si se subieron nuevos archivos

@@ -6,7 +6,7 @@
                     <h1 class="text-3xl font-bold">Compras</h1>
                     <p v-if="esProveedor" class="text-sm text-gray-600 mt-1">Viendo solo las compras donde está involucrado como proveedor</p>
                 </div>
-                <Link v-if="puedeCrear && !esProveedor" href="/admin/compras/create" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium">
+                <Link v-if="puedeCrear && !esProveedor" :href="route('admin.compras.create')" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium">
                     ➕ Nueva Compra
                 </Link>
             </div>
@@ -37,10 +37,10 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                <Link v-if="puedeVer" :href="`/admin/compras/${compra.id}`" class="text-blue-600 hover:text-blue-900">Ver</Link>
+                                <Link v-if="puedeVer" :href="route('admin.compras.show', compra.id)" class="text-blue-600 hover:text-blue-900">Ver</Link>
                                 <Link
                                     v-if="!esProveedor && puedeEditar && compra.estado !== 'validado'"
-                                    :href="`/admin/compras/${compra.id}/edit`"
+                                    :href="route('admin.compras.edit', compra.id)"
                                     class="text-indigo-600 hover:text-indigo-900"
                                 >
                                     Editar
@@ -73,6 +73,7 @@
 <script setup>
 import { computed } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { usePermissions } from '@/composables/usePermissions';
 
@@ -118,7 +119,7 @@ const puedeEliminar = computed(() => tienePermiso('compras.eliminar'));
 
 const deleteItem = (id) => {
     if(confirm('¿Está seguro de eliminar esta compra?')) {
-        router.delete(`/admin/compras/${id}`);
+        router.delete(route('admin.compras.destroy', id));
     }
 };
 </script>

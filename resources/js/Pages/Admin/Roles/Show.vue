@@ -10,7 +10,7 @@
                     </div>
                     <Link
                         v-if="puedeEditar"
-                        :href="`/admin/roles/${rol.id}/edit`"
+                        :href="route('admin.roles.edit', rol.id)"
                         class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
                     >
                         Editar Rol
@@ -101,6 +101,7 @@
 <script setup>
 import { computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { usePermissions } from '@/composables/usePermissions';
 

@@ -4,10 +4,10 @@
             <div class="flex justify-between items-center mb-6">
                 <h1 class="text-3xl font-bold">Detalle del Proveedor</h1>
                 <div class="space-x-2">
-                    <Link v-if="puedeEditar" :href="`/admin/proveedores/${proveedor.id}/edit`" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium">
+                    <Link v-if="puedeEditar" :href="route('admin.proveedores.edit', proveedor.id)" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium">
                         Editar
                     </Link>
-                    <Link href="/admin/proveedores" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium">
+                    <Link :href="route('admin.proveedores.index')" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium">
                         Volver
                     </Link>
                 </div>
@@ -45,7 +45,7 @@
                                     <p class="text-xs text-gray-600">{{ proveedor.usuario.email }}</p>
                                     <p class="text-xs text-blue-600">Rol: {{ proveedor.usuario.rol?.nombre || 'Sin rol' }}</p>
                                 </div>
-                                <Link v-if="puedeVerUsuario" :href="`/admin/usuarios/${proveedor.usuario.id}`" class="ml-2 text-blue-600 hover:text-blue-900 text-sm">
+                                <Link v-if="puedeVerUsuario" :href="route('admin.usuarios.show', proveedor.usuario.id)" class="ml-2 text-blue-600 hover:text-blue-900 text-sm">
                                     Ver Usuario →
                                 </Link>
                             </div>
@@ -78,7 +78,7 @@
                                     Bs. {{ Number(compra.total).toFixed(2) }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <Link v-if="puedeVerCompras" :href="`/admin/compras/${compra.id}`" class="text-blue-600 hover:text-blue-900">
+                                    <Link v-if="puedeVerCompras" :href="route('admin.compras.show', compra.id)" class="text-blue-600 hover:text-blue-900">
                                         Ver Detalle
                                     </Link>
                                     <span v-else class="text-gray-400">-</span>
@@ -99,6 +99,7 @@
 <script setup>
 import { computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { usePermissions } from '@/composables/usePermissions';
 

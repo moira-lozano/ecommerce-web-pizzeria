@@ -18,11 +18,11 @@
                 <!-- Información del producto -->
                 <div>
                     <nav class="text-sm mb-4">
-                        <Link href="/shop" class="text-blue-600 hover:underline">Catálogo</Link>
+                        <Link :href="route('shop.index')" class="text-blue-600 hover:underline">Catálogo</Link>
                         <span class="mx-2">/</span>
                         <Link
                             v-if="producto.categoria"
-                            :href="`/shop/category/${producto.categoria.id}`"
+                            :href="route('shop.category', producto.categoria.id)"
                             class="text-blue-600 hover:underline"
                         >
                             {{ producto.categoria.nombre }}
@@ -91,7 +91,7 @@
 
                     <!-- Botón ir al carrito -->
                     <Link
-                        href="/cart"
+                        :href="route('cart.index')"
                         class="block text-center text-blue-600 hover:text-blue-800 font-medium"
                     >
                         Ver mi carrito
@@ -118,6 +118,7 @@
 <script setup>
 import { ref } from 'vue';
 import { router, Link } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import ShopLayout from '@/Layouts/ShopLayout.vue';
 import ProductCard from '@/Components/ProductCard.vue';
 
@@ -129,7 +130,7 @@ const props = defineProps({
 const cantidad = ref(1);
 
 const addToCart = () => {
-    router.post('/cart/add', {
+    router.post(route('cart.add'), {
         producto_id: props.producto.id,
         cantidad: cantidad.value
     }, {
@@ -148,7 +149,7 @@ const addToCart = () => {
 };
 
 const addToCartRelated = (productoId) => {
-    router.post('/cart/add', {
+    router.post(route('cart.add'), {
         producto_id: productoId,
         cantidad: 1
     }, {

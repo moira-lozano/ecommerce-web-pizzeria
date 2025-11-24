@@ -36,7 +36,7 @@
             >
                 <!-- Logo -->
                 <div class="p-4 lg:p-6 border-b border-slate-700 dark:border-slate-600 flex items-center justify-between">
-                    <Link href="/admin/dashboard" @click="sidebarOpen = false" class="flex-1">
+                    <Link :href="route('admin.dashboard')" @click="sidebarOpen = false" class="flex-1">
                         <h1 class="text-xl lg:text-2xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent hover:scale-105 transition-transform duration-200">
                             🏢 TecnoWeb
                         </h1>
@@ -95,7 +95,7 @@
                             <span class="hidden lg:inline">Mi Perfil</span>
                         </Link> -->
                         <Link
-                            href="/shop"
+                            :href="route('shop.index')"
                             @click="sidebarOpen = false"
                             class="flex items-center gap-2 px-3 py-2 text-xs lg:text-sm text-slate-300 dark:text-slate-400 hover:bg-slate-700 dark:hover:bg-slate-600 rounded-lg transition-colors"
                         >
@@ -103,7 +103,7 @@
                             <span class="hidden lg:inline">Ver Tienda</span>
                         </Link>
                         <Link
-                            href="/logout"
+                            :href="route('logout')"
                             method="post"
                             as="button"
                             @click="sidebarOpen = false"
@@ -759,6 +759,7 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { Link, usePage, router } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import { useTheme } from '@/composables/useTheme';
 import { usePermissions } from '@/composables/usePermissions';
 
@@ -924,61 +925,61 @@ const menuItems = computed(() => {
 
     // Dashboard - verificar permiso
     if (tienePermiso('dashboard.ver')) {
-        items.push({ href: '/admin/dashboard', icon: '📊', label: 'Dashboard', description: 'Panel principal', permiso: 'dashboard.ver' });
+        items.push({ href: route('admin.dashboard'), icon: '📊', label: 'Dashboard', description: 'Panel principal', permiso: 'dashboard.ver' });
     }
 
     // Productos
     if (tieneAccesoModulo('productos')) {
-        items.push({ href: '/admin/productos', icon: '📦', label: 'Productos', description: 'Gestionar productos', permiso: 'productos.listar' });
+        items.push({ href: route('admin.productos.index'), icon: '📦', label: 'Productos', description: 'Gestionar productos', permiso: 'productos.listar' });
     }
 
     // Categorías
     if (tieneAccesoModulo('categorias')) {
-        items.push({ href: '/admin/categorias', icon: '🏷️', label: 'Categorías', description: 'Gestionar categorías', permiso: 'categorias.listar' });
+        items.push({ href: route('admin.categorias.index'), icon: '🏷️', label: 'Categorías', description: 'Gestionar categorías', permiso: 'categorias.listar' });
     }
 
     // Clientes
     if (tieneAccesoModulo('clientes')) {
-        items.push({ href: '/admin/clientes', icon: '👥', label: 'Clientes', description: 'Gestionar clientes', permiso: 'clientes.listar' });
+        items.push({ href: route('admin.clientes.index'), icon: '👥', label: 'Clientes', description: 'Gestionar clientes', permiso: 'clientes.listar' });
         if (tienePermiso('clientes.ver')) {
-            items.push({ href: '/admin/clientes/verificar-documentos', icon: '📋', label: 'Verificar Documentos', description: 'Revisar documentos de crédito', permiso: 'clientes.ver' });
+            items.push({ href: route('admin.clientes.verificar-documentos'), icon: '📋', label: 'Verificar Documentos', description: 'Revisar documentos de crédito', permiso: 'clientes.ver' });
         }
     }
 
     // Ventas
     if (tieneAccesoModulo('ventas')) {
-        items.push({ href: '/admin/ventas', icon: '💰', label: 'Ventas', description: 'Ver ventas', permiso: 'ventas.listar' });
+        items.push({ href: route('admin.ventas.index'), icon: '💰', label: 'Ventas', description: 'Ver ventas', permiso: 'ventas.listar' });
     }
 
     // Compras
     if (tieneAccesoModulo('compras')) {
-        items.push({ href: '/admin/compras', icon: '🛒', label: 'Compras', description: 'Ver compras', permiso: 'compras.listar' });
+        items.push({ href: route('admin.compras.index'), icon: '🛒', label: 'Compras', description: 'Ver compras', permiso: 'compras.listar' });
     }
 
     // Proveedores
     if (tieneAccesoModulo('proveedores')) {
-        items.push({ href: '/admin/proveedores', icon: '🏢', label: 'Proveedores', description: 'Gestionar proveedores', permiso: 'proveedores.listar' });
+        items.push({ href: route('admin.proveedores.index'), icon: '🏢', label: 'Proveedores', description: 'Gestionar proveedores', permiso: 'proveedores.listar' });
     }
 
     // Inventario
     if (tieneAccesoModulo('inventario')) {
-        items.push({ href: '/admin/inventario', icon: '📊', label: 'Inventario', description: 'Control de inventario', permiso: 'inventario.listar' });
+        items.push({ href: route('admin.inventario.index'), icon: '📊', label: 'Inventario', description: 'Control de inventario', permiso: 'inventario.listar' });
     }
 
     // Créditos
     if (tieneAccesoModulo('creditos')) {
-        items.push({ href: '/admin/creditos', icon: '💳', label: 'Créditos', description: 'Gestionar créditos', permiso: 'creditos.listar' });
+        items.push({ href: route('admin.creditos.index'), icon: '💳', label: 'Créditos', description: 'Gestionar créditos', permiso: 'creditos.listar' });
     }
 
     // Estadísticas, Usuarios y Roles - verificar permisos
     if (tieneAccesoModulo('estadisticas')) {
-        items.push({ href: '/admin/estadisticas', icon: '📊', label: 'Estadísticas', description: 'Reportes y análisis', permiso: 'estadisticas.ver' });
+        items.push({ href: route('admin.estadisticas.index'), icon: '📊', label: 'Estadísticas', description: 'Reportes y análisis', permiso: 'estadisticas.ver' });
     }
     if (tieneAccesoModulo('usuarios')) {
-        items.push({ href: '/admin/usuarios', icon: '👤', label: 'Usuarios', description: 'Gestionar usuarios', permiso: 'usuarios.listar' });
+        items.push({ href: route('admin.usuarios.index'), icon: '👤', label: 'Usuarios', description: 'Gestionar usuarios', permiso: 'usuarios.listar' });
     }
     if (tieneAccesoModulo('roles')) {
-        items.push({ href: '/admin/roles', icon: '🔐', label: 'Roles', description: 'Gestionar roles', permiso: 'roles.listar' });
+        items.push({ href: route('admin.roles.index'), icon: '🔐', label: 'Roles', description: 'Gestionar roles', permiso: 'roles.listar' });
     }
 
     return items;
@@ -989,28 +990,28 @@ const allSearchableItems = computed(() => {
 
     // Agregar acciones según permisos (siempre verificar permisos, incluso para propietarios)
     if (tienePermiso('productos.crear')) {
-        items.push({ href: '/admin/productos/create', icon: '➕', label: 'Nuevo Producto', description: 'Crear nuevo producto' });
+        items.push({ href: route('admin.productos.create'), icon: '➕', label: 'Nuevo Producto', description: 'Crear nuevo producto' });
     }
     if (tienePermiso('ventas.crear')) {
-        items.push({ href: '/admin/ventas/create', icon: '➕', label: 'Nueva Venta', description: 'Registrar nueva venta' });
+        items.push({ href: route('admin.ventas.create'), icon: '➕', label: 'Nueva Venta', description: 'Registrar nueva venta' });
     }
     if (tienePermiso('compras.crear')) {
-        items.push({ href: '/admin/compras/create', icon: '➕', label: 'Nueva Compra', description: 'Registrar nueva compra' });
+        items.push({ href: route('admin.compras.create'), icon: '➕', label: 'Nueva Compra', description: 'Registrar nueva compra' });
     }
     if (tienePermiso('clientes.crear')) {
-        items.push({ href: '/admin/clientes/create', icon: '➕', label: 'Nuevo Cliente', description: 'Registrar nuevo cliente' });
+        items.push({ href: route('admin.clientes.create'), icon: '➕', label: 'Nuevo Cliente', description: 'Registrar nuevo cliente' });
     }
     if (tienePermiso('clientes.ver')) {
-        items.push({ href: '/admin/clientes/verificar-documentos', icon: '📋', label: 'Verificar Documentos', description: 'Revisar documentos de crédito' });
+        items.push({ href: route('admin.clientes.verificar-documentos'), icon: '📋', label: 'Verificar Documentos', description: 'Revisar documentos de crédito' });
     }
     if (tienePermiso('categorias.crear')) {
-        items.push({ href: '/admin/categorias/create', icon: '➕', label: 'Nueva Categoría', description: 'Crear nueva categoría' });
+        items.push({ href: route('admin.categorias.create'), icon: '➕', label: 'Nueva Categoría', description: 'Crear nueva categoría' });
     }
     if (tienePermiso('proveedores.crear')) {
-        items.push({ href: '/admin/proveedores/create', icon: '➕', label: 'Nuevo Proveedor', description: 'Registrar nuevo proveedor' });
+        items.push({ href: route('admin.proveedores.create'), icon: '➕', label: 'Nuevo Proveedor', description: 'Registrar nuevo proveedor' });
     }
     if (tienePermiso('inventario.ver')) {
-        items.push({ href: '/admin/inventario/movimientos', icon: '📋', label: 'Movimientos de Inventario', description: 'Ver movimientos' });
+        items.push({ href: route('admin.inventario.movimientos'), icon: '📋', label: 'Movimientos de Inventario', description: 'Ver movimientos' });
     }
 
     return items;

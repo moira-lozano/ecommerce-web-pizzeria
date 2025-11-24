@@ -264,6 +264,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import * as XLSX from 'xlsx';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import Button from '@/Components/Button.vue';
@@ -465,7 +466,7 @@ const aplicarFiltros = () => {
 
     console.log('[Estadisticas] Aplicando filtros:', filtrosEnviar);
 
-    router.get('/admin/estadisticas', filtrosEnviar, {
+    router.get(route('admin.estadisticas.index'), filtrosEnviar, {
         preserveState: false,
         preserveScroll: true,
         onSuccess: () => {

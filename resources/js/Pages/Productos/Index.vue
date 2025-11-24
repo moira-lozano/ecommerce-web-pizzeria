@@ -77,6 +77,7 @@
 <script setup>
 import MainLayout from '@/Layouts/MainLayout.vue';
 import { Link, router } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 
 defineProps({
     productos: Object,

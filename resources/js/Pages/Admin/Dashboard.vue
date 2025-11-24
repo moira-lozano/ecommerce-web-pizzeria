@@ -151,6 +151,7 @@
 <script setup>
 import { computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import StatCard from '@/Components/StatCard.vue';
 
@@ -168,7 +169,7 @@ const statsData = computed(() => [
         value: props.stats.productos || 0,
         icon: '📦',
         color: 'from-blue-500 to-cyan-500',
-        link: '/admin/productos',
+        link: route('admin.productos.index'),
         trend: '+12%'
     },
     {
@@ -176,7 +177,7 @@ const statsData = computed(() => [
         value: props.stats.ventas || 0,
         icon: '💰',
         color: 'from-green-500 to-emerald-500',
-        link: '/admin/ventas',
+        link: route('admin.ventas.index'),
         trend: '+8%'
     },
     {
@@ -184,7 +185,7 @@ const statsData = computed(() => [
         value: props.stats.clientes || 0,
         icon: '👥',
         color: 'from-purple-500 to-pink-500',
-        link: '/admin/clientes',
+        link: route('admin.clientes.index'),
         trend: '+5%'
     },
     {
@@ -192,26 +193,26 @@ const statsData = computed(() => [
         value: props.stats.creditos || 0,
         icon: '💳',
         color: 'from-orange-500 to-red-500',
-        link: '/admin/creditos',
+        link: route('admin.creditos.index'),
         trend: '+3%'
     }
 ]);
 
 const quickActions = [
-    { href: '/admin/productos/create', icon: '➕', label: 'Nuevo Producto' },
-    { href: '/admin/ventas/create', icon: '🛒', label: 'Nueva Venta' },
-    { href: '/admin/compras/create', icon: '📥', label: 'Nueva Compra' },
-    { href: '/admin/inventario', icon: '📊', label: 'Inventario' }
+    { href: route('admin.productos.create'), icon: '➕', label: 'Nuevo Producto' },
+    { href: route('admin.ventas.create'), icon: '🛒', label: 'Nueva Venta' },
+    { href: route('admin.compras.create'), icon: '📥', label: 'Nueva Compra' },
+    { href: route('admin.inventario.index'), icon: '📊', label: 'Inventario' }
 ];
 
 const modules = [
-    { href: '/admin/productos', icon: '📦', label: 'Productos', description: 'Gestionar catálogo' },
-    { href: '/admin/categorias', icon: '🏷️', label: 'Categorías', description: 'Organizar productos' },
-    { href: '/admin/clientes', icon: '👥', label: 'Clientes', description: 'Base de datos clientes' },
-    { href: '/admin/proveedores', icon: '🏢', label: 'Proveedores', description: 'Gestión proveedores' },
-    { href: '/admin/ventas', icon: '💰', label: 'Ventas', description: 'Historial de ventas' },
-    { href: '/admin/compras', icon: '🛒', label: 'Compras', description: 'Registro de compras' },
-    { href: '/admin/inventario', icon: '📊', label: 'Inventario', description: 'Control de stock' },
-    { href: '/admin/creditos', icon: '💳', label: 'Créditos', description: 'Gestión de créditos' }
+    { href: route('admin.productos.index'), icon: '📦', label: 'Productos', description: 'Gestionar catálogo' },
+    { href: route('admin.categorias.index'), icon: '🏷️', label: 'Categorías', description: 'Organizar productos' },
+    { href: route('admin.clientes.index'), icon: '👥', label: 'Clientes', description: 'Base de datos clientes' },
+    { href: route('admin.proveedores.index'), icon: '🏢', label: 'Proveedores', description: 'Gestión proveedores' },
+    { href: route('admin.ventas.index'), icon: '💰', label: 'Ventas', description: 'Historial de ventas' },
+    { href: route('admin.compras.index'), icon: '🛒', label: 'Compras', description: 'Registro de compras' },
+    { href: route('admin.inventario.index'), icon: '📊', label: 'Inventario', description: 'Control de stock' },
+    { href: route('admin.creditos.index'), icon: '💳', label: 'Créditos', description: 'Gestión de créditos' }
 ];
 </script>

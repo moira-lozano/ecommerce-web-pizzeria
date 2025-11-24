@@ -114,14 +114,14 @@
                     </button>
                     <Link
                         v-if="pago.estado === 'completado'"
-                        :href="pago.cuota_pago && pago.cuota_pago.credito ? `/my-credit/${pago.cuota_pago.credito.id}` : '/my-orders'"
+                        :href="pago.cuota_pago && pago.cuota_pago.credito ? route('customer.credit.detail', pago.cuota_pago.credito.id) : route('customer.orders')"
                         class="flex-1 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium text-center"
                     >
                         <span v-if="pago.cuota_pago">Volver al Crédito</span>
                         <span v-else>Ver Mis Compras</span>
                     </Link>
                     <Link
-                        href="/shop"
+                        :href="route('shop.index')"
                         class="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium text-center"
                     >
                         Continuar Comprando
@@ -266,6 +266,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import ShopLayout from '@/Layouts/ShopLayout.vue';
 
 const props = defineProps({
@@ -282,7 +283,7 @@ let intervalId = null;
 const checkStatus = async () => {
     checking.value = true;
     try {
-        await router.get(`/payment/check-status/${props.pago.id}`, {}, {
+        await router.get(route('payment.check-status', props.pago.id), {}, {
             preserveState: true,
             preserveScroll: true,
             onSuccess: (page) => {

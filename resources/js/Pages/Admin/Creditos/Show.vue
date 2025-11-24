@@ -2,7 +2,7 @@
     <AdminLayout>
         <div class="container mx-auto px-4 py-8">
             <div class="mb-6">
-                <Link href="/admin/creditos" class="text-blue-600 hover:text-blue-800 flex items-center gap-2">
+                <Link :href="route('admin.creditos.index')" class="text-blue-600 hover:text-blue-800 flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
@@ -16,7 +16,7 @@
                     <div class="space-x-2">
                         <Link
                             v-if="puedeEditar"
-                            :href="`/admin/creditos/${credito.id}/edit`"
+                            :href="route('admin.creditos.edit', credito.id)"
                             class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium"
                         >
                             Editar
@@ -248,6 +248,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useForm, Link, router } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { usePermissions } from '@/composables/usePermissions';
 

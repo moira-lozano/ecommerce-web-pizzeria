@@ -2,7 +2,7 @@
     <AdminLayout>
         <div class="container mx-auto px-4 py-8">
             <div class="mb-6 flex justify-between items-center">
-                <Link href="/admin/compras" class="text-blue-600 hover:text-blue-800 flex items-center gap-2">
+                <Link :href="route('admin.compras.index')" class="text-blue-600 hover:text-blue-800 flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
@@ -10,7 +10,7 @@
                 </Link>
                 <Link
                     v-if="!esProveedor && puedeEditar && compra.estado !== 'validado'"
-                    :href="`/admin/compras/${compra.id}/edit`"
+                    :href="route('admin.compras.edit', compra.id)"
                     class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium"
                 >
                     ✏️ Editar Compra
@@ -139,6 +139,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { usePermissions } from '@/composables/usePermissions';
 
@@ -202,7 +203,7 @@ const cancelling = ref(false);
 const validarCompra = () => {
     if (confirm('¿Está seguro de validar esta compra? Esto actualizará el inventario.')) {
         validating.value = true;
-        router.post(`/admin/compras/${props.compra.id}/validar`, {}, {
+        router.post(route('admin.compras.validar', props.compra.id), {}, {
             preserveScroll: true,
             onFinish: () => {
                 validating.value = false;
@@ -214,7 +215,7 @@ const validarCompra = () => {
 const cancelarCompra = () => {
     if (confirm('¿Está seguro de cancelar esta compra? Una vez cancelada, no podrá ser validada ni editada.')) {
         cancelling.value = true;
-        router.post(`/admin/compras/${props.compra.id}/cancelar`, {}, {
+        router.post(route('admin.compras.cancelar', props.compra.id), {}, {
             preserveScroll: true,
             onFinish: () => {
                 cancelling.value = false;

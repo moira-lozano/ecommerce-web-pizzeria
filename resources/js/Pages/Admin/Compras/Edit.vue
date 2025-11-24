@@ -2,7 +2,7 @@
     <AdminLayout>
         <div class="container mx-auto px-4 py-8">
             <div class="mb-6">
-                <Link href="/admin/compras" class="text-blue-600 hover:text-blue-800 flex items-center gap-2">
+                <Link :href="route('admin.compras.index')" class="text-blue-600 hover:text-blue-800 flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
@@ -167,7 +167,7 @@
                         <span v-else>Actualizar Compra</span>
                     </button>
                     <Link
-                        href="/admin/compras"
+                        :href="route('admin.compras.index')"
                         class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium"
                     >
                         Cancelar
@@ -181,6 +181,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useForm, Link, router } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 
 const props = defineProps({
@@ -284,7 +285,7 @@ const total = computed(() => {
 });
 
 const submit = () => {
-    form.put(`/admin/compras/${props.compra.id}`);
+    form.put(route('admin.compras.update', props.compra.id));
 };
 
 // Los productos ya vienen en props

@@ -90,7 +90,7 @@
                         >
                             Guardar Producto
                         </Button>
-                        <Link href="/admin/productos">
+                        <Link :href="route('admin.productos.index')">
                             <Button
                                 type="button"
                                 variant="outline"
@@ -108,6 +108,7 @@
 
 <script setup>
 import { useForm, Link } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import TextInput from '@/Components/Form/TextInput.vue';
 import TextareaInput from '@/Components/Form/TextareaInput.vue';
@@ -130,7 +131,7 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.post('/admin/productos', {
+    form.post(route('admin.productos.store'), {
         forceFormData: true
     });
 };

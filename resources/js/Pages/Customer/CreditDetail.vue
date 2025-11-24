@@ -2,7 +2,7 @@
     <ShopLayout>
         <div class="container mx-auto px-4 py-8">
             <div class="mb-6">
-                <Link href="/my-credits" class="text-blue-600 hover:text-blue-800 flex items-center gap-2">
+                <Link :href="route('customer.credits')" class="text-blue-600 hover:text-blue-800 flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
@@ -74,7 +74,7 @@
                             </div>
                             <div>
                                 <Link
-                                    :href="`/my-order/${credito.venta.id}`"
+                                    :href="route('customer.order.detail', credito.venta.id)"
                                     class="text-blue-600 hover:text-blue-800 text-sm font-medium"
                                 >
                                     Ver detalle de la venta →
@@ -224,6 +224,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useForm, Link, router } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import ShopLayout from '@/Layouts/ShopLayout.vue';
 
 const props = defineProps({
@@ -273,7 +274,7 @@ const paymentForm = useForm({
 });
 
 const submitPayment = () => {
-    paymentForm.post(`/credit/pay-cuota/${props.credito.id}`, {
+    paymentForm.post(route('customer.credit.pay', props.credito.id), {
         preserveScroll: true,
         onSuccess: (page) => {
             // Si es QR, la redirección se maneja en el backend

@@ -2,7 +2,7 @@
     <AdminLayout>
         <div class="container mx-auto px-4 py-8">
             <div class="mb-6">
-                <Link href="/admin/ventas" class="text-blue-600 hover:text-blue-800 flex items-center gap-2">
+                <Link :href="route('admin.ventas.index')" class="text-blue-600 hover:text-blue-800 flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
@@ -214,7 +214,7 @@
                         <span v-else>Actualizar Venta</span>
                     </button>
                     <Link
-                        href="/admin/ventas"
+                        :href="route('admin.ventas.index')"
                         class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium"
                     >
                         Cancelar
@@ -228,6 +228,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useForm, Link, usePage } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 
 const page = usePage();
@@ -327,7 +328,7 @@ const submit = () => {
         form.numero_cuotas = null;
     }
     
-    form.put(`/admin/ventas/${props.venta.id}`);
+    form.put(route('admin.ventas.update', props.venta.id));
 };
 </script>
 

@@ -2,7 +2,7 @@
     <AdminLayout title="Productos" subtitle="Gestiona el catálogo de productos">
         <div class="space-y-6">
             <div class="flex justify-between items-center" v-if="puedeCrear">
-                <Link href="/admin/productos/create">
+                <Link :href="route('admin.productos.create')">
                     <Button variant="primary" size="md">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -58,8 +58,8 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm">Bs. {{ Number(producto.precio).toFixed(2) }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm">{{ producto.marca || '-' }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                <Link v-if="puedeVer" :href="`/admin/productos/${producto.id}`" class="text-blue-600 hover:text-blue-900">Ver</Link>
-                                <Link v-if="puedeEditar" :href="`/admin/productos/${producto.id}/edit`" class="text-indigo-600 hover:text-indigo-900">Editar</Link>
+                                <Link v-if="puedeVer" :href="route('admin.productos.show', producto.id)" class="text-blue-600 hover:text-blue-900">Ver</Link>
+                                <Link v-if="puedeEditar" :href="route('admin.productos.edit', producto.id)" class="text-indigo-600 hover:text-indigo-900">Editar</Link>
                                 <button v-if="puedeEliminar" @click="deleteProducto(producto.id)" class="text-red-600 hover:text-red-900">Eliminar</button>
                             </td>
                         </tr>
@@ -88,6 +88,7 @@
 <script setup>
 import { computed } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import Button from '@/Components/Button.vue';
 import { usePermissions } from '@/composables/usePermissions';
@@ -106,7 +107,7 @@ const puedeEliminar = computed(() => tienePermiso('productos.eliminar'));
 
 const deleteProducto = (id) => {
     if (confirm('¿Está seguro de eliminar este producto?')) {
-        router.delete(`/admin/productos/${id}`);
+        router.delete(route('admin.productos.destroy', id));
     }
 };
 </script>

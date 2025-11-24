@@ -3,7 +3,7 @@
         <div class="container mx-auto px-4 py-8">
             <div class="flex justify-between items-center mb-6">
                 <h1 class="text-3xl font-bold">Ventas</h1>
-                <Link v-if="puedeCrear" href="/admin/ventas/create" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium">
+                <Link v-if="puedeCrear" :href="route('admin.ventas.create')" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium">
                     ➕ Nueva Venta
                 </Link>
             </div>
@@ -49,8 +49,8 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                <Link v-if="puedeVer" :href="`/admin/ventas/${venta.id}`" class="text-blue-600 hover:text-blue-900">Ver</Link>
-                                <Link v-if="puedeEditar" :href="`/admin/ventas/${venta.id}/edit`" class="text-indigo-600 hover:text-indigo-900">Editar</Link>
+                                <Link v-if="puedeVer" :href="route('admin.ventas.show', venta.id)" class="text-blue-600 hover:text-blue-900">Ver</Link>
+                                <Link v-if="puedeEditar" :href="route('admin.ventas.edit', venta.id)" class="text-indigo-600 hover:text-indigo-900">Editar</Link>
                                 <button v-if="puedeEliminar" @click="deleteItem(venta.id)" class="text-red-600 hover:text-red-900">Eliminar</button>
                             </td>
                         </tr>
@@ -79,6 +79,7 @@
 <script setup>
 import { computed } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { usePermissions } from '@/composables/usePermissions';
 
@@ -121,7 +122,7 @@ const puedeEliminar = computed(() => tienePermiso('ventas.eliminar'));
 
 const deleteItem = (id) => {
     if(confirm('¿Está seguro de eliminar esta venta?')) {
-        router.delete(`/admin/ventas/${id}`);
+        router.delete(route('admin.ventas.destroy', id));
     }
 };
 </script>

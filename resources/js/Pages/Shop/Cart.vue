@@ -85,21 +85,21 @@
 
                         <Link
                             v-if="$page.props.auth?.user"
-                            href="/checkout"
+                            :href="route('checkout.index')"
                             class="block w-full bg-blue-500 hover:bg-blue-600 text-white text-center px-6 py-3 rounded-lg font-medium transition-colors duration-200 mb-3"
                         >
                             Proceder al Pago
                         </Link>
                         <Link
                             v-else
-                            href="/login"
+                            :href="route('login')"
                             class="block w-full bg-blue-500 hover:bg-blue-600 text-white text-center px-6 py-3 rounded-lg font-medium transition-colors duration-200 mb-3"
                         >
                             Iniciar Sesión para Comprar
                         </Link>
 
                         <Link
-                            href="/shop"
+                            :href="route('shop.index')"
                             class="block w-full text-center text-blue-600 hover:text-blue-800 font-medium"
                         >
                             Continuar Comprando
@@ -114,7 +114,7 @@
                 <h2 class="text-2xl font-semibold text-gray-800 mb-2">Tu carrito está vacío</h2>
                 <p class="text-gray-600 mb-6">Agrega productos para comenzar tu compra</p>
                 <Link
-                    href="/shop"
+                    :href="route('shop.index')"
                     class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium"
                 >
                     Ir al Catálogo
@@ -126,6 +126,7 @@
 
 <script setup>
 import { router, Link } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import ShopLayout from '@/Layouts/ShopLayout.vue';
 
 defineProps({
@@ -137,7 +138,7 @@ const updateQuantity = (productoId, cantidad) => {
         removeItem(productoId);
         return;
     }
-    router.put('/cart/update', {
+    router.put(route('cart.update'), {
         producto_id: productoId,
         cantidad: cantidad
     }, {
@@ -151,7 +152,7 @@ const updateQuantity = (productoId, cantidad) => {
 };
 
 const removeItem = (productoId) => {
-    router.delete(`/cart/remove/${productoId}`, {
+    router.delete(route('cart.remove', productoId), {
         preserveScroll: true,
         onSuccess: () => {
             if (window.updateCartCount) {
