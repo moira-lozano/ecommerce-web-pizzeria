@@ -5,7 +5,7 @@
             <div class="h-48 bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center overflow-hidden">
                 <img
                     v-if="producto.imagen"
-                    :src="`/storage/${producto.imagen}`"
+                    :src="storageUrl(producto.imagen)"
                     :alt="producto.nombre"
                     class="w-full h-full object-cover"
                 />
@@ -55,7 +55,9 @@
 
 <script setup>
 import { Link } from '@inertiajs/vue3';
+import { useStorage } from '@/composables/useStorage';
 
+const { storageUrl } = useStorage();
 defineProps({
     producto: {
         type: Object,

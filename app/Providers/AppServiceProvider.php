@@ -27,5 +27,9 @@ class AppServiceProvider extends ServiceProvider
 
         // Forzar URL raíz
         URL::forceRootUrl('https://www.tecnoweb.org.bo/inf513/grupo12sa/proyecto2/public');
+                // Agregar esto para forzar URL de storage
+        \Illuminate\Support\Facades\URL::macro('storage', function ($path) {
+            return config('app.url') . '/storage/' . ltrim($path, '/');
+        });
     }
 }

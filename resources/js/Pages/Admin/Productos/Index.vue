@@ -45,7 +45,8 @@
                                 <div class="w-16 h-16 flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden">
                                     <img
                                         v-if="producto.imagen"
-                                        :src="`/storage/${producto.imagen}`"
+                                         :src="storageUrl(producto.imagen)"
+
                                         :alt="producto.nombre"
                                         class="w-full h-full object-cover"
                                     />
@@ -92,7 +93,8 @@ import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import Button from '@/Components/Button.vue';
 import { usePermissions } from '@/composables/usePermissions';
-
+import { useStorage } from '@/composables/useStorage';
+const { storageUrl } = useStorage();
 defineProps({
     productos: Object
 });

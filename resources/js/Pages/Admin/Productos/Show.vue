@@ -18,7 +18,8 @@
                 <div v-if="producto.imagen" class="mb-6 flex justify-center">
                     <div class="relative">
                         <img
-                            :src="`/storage/${producto.imagen}`"
+                        :src="storageUrl(producto.imagen)"
+
                             :alt="producto.nombre"
                             class="max-w-full h-auto max-h-96 rounded-lg shadow-lg object-contain"
                         />
@@ -67,6 +68,9 @@ import { Link } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { usePermissions } from '@/composables/usePermissions';
+import { useStorage } from '@/composables/useStorage';
+const { storageUrl } = useStorage();
+
 
 defineProps({
     producto: Object

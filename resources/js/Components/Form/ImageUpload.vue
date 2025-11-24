@@ -9,7 +9,7 @@
         <div v-if="preview || currentImage" class="mb-4">
             <div class="relative inline-block">
                 <img
-                    :src="preview || (currentImage ? `/storage/${currentImage}` : null)"
+                    :src="preview || (currentImage ? storageUrl(currentImage) : null)"
                     :alt="label || 'Imagen'"
                     class="w-48 h-48 object-contain border-2 border-gray-300 rounded-lg bg-gray-50"
                 />
@@ -72,6 +72,9 @@
 
 <script setup>
 import { ref, watch } from 'vue';
+import { useStorage } from '@/composables/useStorage';
+
+const { storageUrl } = useStorage();
 
 const props = defineProps({
     modelValue: File | null,
@@ -248,4 +251,3 @@ watch(() => props.modelValue, (newValue) => {
     }
 });
 </script>
-

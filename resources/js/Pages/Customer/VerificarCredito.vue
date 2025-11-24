@@ -186,8 +186,8 @@
                     <div class="flex items-center gap-4">
                         <div v-if="preview.foto_garantia || cliente.foto_garantia" class="flex-1">
                             <img
-                                :src="preview.foto_garantia || `/storage/${cliente.foto_garantia}`"
-                                alt="Objeto de Garantía"
+                            :src="preview.foto_garantia || storageUrl(cliente.foto_garantia)"
+                            alt="Objeto de Garantía"
                                 class="w-full max-w-xs h-48 object-contain border rounded-lg bg-gray-50"
                             />
                         </div>
@@ -259,6 +259,9 @@ import { useForm, Link } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
 import ShopLayout from '@/Layouts/ShopLayout.vue';
 import Button from '@/Components/Button.vue';
+import { useStorage } from '@/composables/useStorage';
+const { storageUrl } = useStorage();
+
 
 const props = defineProps({
     cliente: Object
