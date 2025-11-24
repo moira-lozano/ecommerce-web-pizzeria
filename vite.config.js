@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
 import vue from '@vitejs/plugin-vue';
+import path from 'path';
 
 export default defineConfig(({ mode }) => {
     const isProduction = mode === 'production';
@@ -26,6 +27,8 @@ export default defineConfig(({ mode }) => {
         resolve: {
             alias: {
                 '@': '/resources/js',
+                'ziggy': path.resolve(__dirname, 'vendor/tightenco/ziggy/dist/index.esm.js'),
+                'ziggy-js': path.resolve(__dirname, 'vendor/tightenco/ziggy/dist/index.js'),
             },
         },
         // Cambiar a ruta relativa
