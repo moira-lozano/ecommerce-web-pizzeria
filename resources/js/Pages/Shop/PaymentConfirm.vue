@@ -70,7 +70,10 @@
                     <h2 class="text-xl font-semibold mb-4">Escanea el Código QR</h2>
                     <div class="flex justify-center">
                         <div class="bg-white p-4 rounded-lg border-2 border-gray-200">
-                            <img :src="pago.qr_image" alt="Código QR" class="w-64 h-64 mx-auto" />
+                            <img
+                            :src="storageUrl(pago.qr_image)"
+
+                            alt="Código QR" class="w-64 h-64 mx-auto" />
                         </div>
                     </div>
                     <p class="text-center text-sm text-gray-600 mt-4">
@@ -268,6 +271,8 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
 import ShopLayout from '@/Layouts/ShopLayout.vue';
+import { useStorage } from '@/composables/useStorage';
+const { storageUrl } = useStorage();
 
 const props = defineProps({
     pago: Object,

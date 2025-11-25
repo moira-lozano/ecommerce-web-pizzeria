@@ -12,7 +12,9 @@
                                 <div class="w-24 h-24 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
                                     <img
                                         v-if="item.imagen"
-                                        :src="`/storage/${item.imagen}`"
+
+                                        :src="storageUrl(item.imagen)"
+
                                         :alt="item.nombre"
                                         class="w-full h-full object-cover"
                                     />
@@ -128,7 +130,8 @@
 import { router, Link } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
 import ShopLayout from '@/Layouts/ShopLayout.vue';
-
+import { useStorage } from '@/composables/useStorage';
+const { storageUrl } = useStorage();
 defineProps({
     cart: Object
 });

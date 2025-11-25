@@ -7,7 +7,8 @@
                     <div class="bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg h-96 flex items-center justify-center overflow-hidden">
                         <img
                             v-if="producto.imagen"
-                            :src="`/storage/${producto.imagen}`"
+                            :src="storageUrl(producto.imagen)"
+
                             :alt="producto.nombre"
                             class="w-full h-full object-contain"
                         />
@@ -121,7 +122,8 @@ import { router, Link } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
 import ShopLayout from '@/Layouts/ShopLayout.vue';
 import ProductCard from '@/Components/ProductCard.vue';
-
+import { useStorage } from '@/composables/useStorage';
+const { storageUrl } = useStorage();
 const props = defineProps({
     producto: Object,
     relacionados: Array
