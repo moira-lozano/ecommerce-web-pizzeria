@@ -1,7 +1,7 @@
 <template>
     <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
         <!-- Imagen del producto -->
-        <Link :href="`/shop/product/${producto.id}`" class="block">
+        <Link :href="route('shop.product', producto.id)" class="block">
             <div class="h-48 bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center overflow-hidden">
                 <img
                     v-if="producto.imagen"
@@ -15,7 +15,7 @@
 
         <!-- Información del producto -->
         <div class="p-4">
-            <Link :href="`/shop/product/${producto.id}`">
+            <Link :href="route('shop.product', producto.id)">
                 <h3 class="text-lg font-semibold text-gray-800 hover:text-blue-600 mb-1">
                     {{ producto.nombre }}
                 </h3>
@@ -55,6 +55,7 @@
 
 <script setup>
 import { Link } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import { useStorage } from '@/composables/useStorage';
 
 const { storageUrl } = useStorage();
