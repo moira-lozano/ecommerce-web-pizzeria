@@ -318,23 +318,24 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('creditos/{id}/registrar-pago', [CreditoController::class, 'registrarPago'])->name('creditos.registrar-pago');
 
     // Gestión de Usuarios (verificar permisos)
-    Route::middleware('permiso:usuarios.listar')->group(function () {
-        Route::get('usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
-    });
-    Route::middleware('permiso:usuarios.ver')->group(function () {
-        Route::get('usuarios/{id}', [UsuarioController::class, 'show'])->name('usuarios.show');
-    });
-    Route::middleware('permiso:usuarios.crear')->group(function () {
-        Route::get('usuarios/create', [UsuarioController::class, 'create'])->name('usuarios.create');
-        Route::post('usuarios', [UsuarioController::class, 'store'])->name('usuarios.store');
-    });
-    Route::middleware('permiso:usuarios.editar')->group(function () {
-        Route::get('usuarios/{id}/edit', [UsuarioController::class, 'edit'])->name('usuarios.edit');
-        Route::put('usuarios/{id}', [UsuarioController::class, 'update'])->name('usuarios.update');
-    });
-    Route::middleware('permiso:usuarios.eliminar')->group(function () {
-        Route::delete('usuarios/{id}', [UsuarioController::class, 'destroy'])->name('usuarios.destroy');
-    });
+    // ✅ SOLUCIÓN: Rutas específicas ANTES de las rutas con parámetros
+Route::middleware('permiso:usuarios.listar')->group(function () {
+    Route::get('usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
+});
+Route::middleware('permiso:usuarios.crear')->group(function () {
+    Route::get('usuarios/create', [UsuarioController::class, 'create'])->name('usuarios.create');
+    Route::post('usuarios', [UsuarioController::class, 'store'])->name('usuarios.store');
+});
+Route::middleware('permiso:usuarios.editar')->group(function () {
+    Route::get('usuarios/{id}/edit', [UsuarioController::class, 'edit'])->name('usuarios.edit');
+    Route::put('usuarios/{id}', [UsuarioController::class, 'update'])->name('usuarios.update');
+});
+Route::middleware('permiso:usuarios.ver')->group(function () {
+    Route::get('usuarios/{id}', [UsuarioController::class, 'show'])->name('usuarios.show');
+});
+Route::middleware('permiso:usuarios.eliminar')->group(function () {
+    Route::delete('usuarios/{id}', [UsuarioController::class, 'destroy'])->name('usuarios.destroy');
+});
 
     // Gestión de Roles (solo propietario)
     Route::middleware('role:propietario')->group(function () {
