@@ -71,8 +71,7 @@
                     <div class="flex justify-center">
                         <div class="bg-white p-4 rounded-lg border-2 border-gray-200">
                             <img
-                            :src="storageUrl(pago.qr_image)"
-
+                            :src="storageUrlSafe(pago.qr_image)"
                             alt="Código QR" class="w-64 h-64 mx-auto" />
                         </div>
                     </div>
@@ -272,7 +271,7 @@ import { Link, router } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
 import ShopLayout from '@/Layouts/ShopLayout.vue';
 import { useStorage } from '@/composables/useStorage';
-const { storageUrl } = useStorage();
+const { storageUrlSafe } = useStorage();
 
 const props = defineProps({
     pago: Object,
