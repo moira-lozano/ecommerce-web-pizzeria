@@ -180,14 +180,14 @@
                             </p>
                         </div>
 
-                        <div class="mb-4">
+                        <!-- <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Número de Transacción</label>
                             <input
                                 v-model="paymentForm.nro_transaccion"
                                 type="text"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                             />
-                        </div>
+                        </div> -->
 
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Observación</label>
@@ -242,17 +242,17 @@ const formatDate = (dateString) => {
         } else if (dateString.includes(' ')) {
             datePart = dateString.split(' ')[0];
         }
-        
+
         const [year, month, day] = datePart.split('-').map(Number);
-        
+
         // Crear Date usando componentes locales (no UTC) para evitar el desfase de un día
         const dateObj = new Date(year, month - 1, day);
-        
+
         // Verificar que la fecha sea válida
         if (isNaN(dateObj.getTime())) {
             return dateString;
         }
-        
+
         return dateObj.toLocaleDateString('es-ES', {
             year: 'numeric',
             month: 'long',
@@ -269,7 +269,7 @@ const selectedPago = ref(null);
 const paymentForm = useForm({
     monto: 0,
     metodo: '',
-    nro_transaccion: '',
+    nro_transaccion: '1234',
     observacion: ''
 });
 

@@ -133,7 +133,7 @@
                 <!-- Auto-refresh para pagos pendientes -->
                 <div v-if="(pago.estado === 'pendiente' || pago.estado === 'procesando') && autoCheck" class="mt-4 text-center">
                     <p class="text-sm text-gray-500">
-                        Verificando automáticamente cada 10 segundos...
+                        Verificando automáticamente cada 30 segundos...
                     </p>
                 </div>
             </div>
@@ -357,11 +357,11 @@ const formatDateTime = (date, time) => {
 };
 
 onMounted(() => {
-    // Auto-verificar cada 10 segundos si el pago está pendiente
+    // Auto-verificar cada 30 segundos si el pago está pendiente
     if (props.pago.estado === 'pendiente' || props.pago.estado === 'procesando') {
         intervalId = setInterval(() => {
             checkStatus();
-        }, 10000);
+        }, 30000);
     }
 });
 

@@ -90,7 +90,7 @@
                             <div>
                                 <Link
                                     v-if="puedeVerVenta"
-                                    :href="`/admin/ventas/${credito.venta.id}`"
+                                    :href="route('admin.ventas.show', credito.venta.id)"
                                     class="text-blue-600 hover:text-blue-800 text-sm font-medium"
                                 >
                                     Ver detalle de la venta →
@@ -204,14 +204,14 @@
                             </select>
                         </div>
 
-                        <div class="mb-4">
+                        <!-- <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Número de Transacción</label>
                             <input
                                 v-model="paymentForm.nro_transaccion"
                                 type="text"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                             />
-                        </div>
+                        </div> -->
 
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Observación</label>
@@ -337,7 +337,7 @@ const montoCuota = computed(() => {
 const paymentForm = useForm({
     monto: '',
     metodo: '',
-    nro_transaccion: '',
+    nro_transaccion: '1234',
     observacion: ''
 });
 
@@ -371,7 +371,7 @@ const submitPayment = () => {
         return;
     }
 
-    paymentForm.post(`/admin/creditos/${props.credito.id}/registrar-pago`, {
+    paymentForm.post(route('admin.creditos.registrar-pago', props.credito.id), {
         preserveScroll: true,
         onSuccess: () => {
             showPaymentModal.value = false;
