@@ -16,7 +16,7 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nro Compra</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Proveedor</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Esta    do</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acciones</th>
                     </tr></thead>
                     <tbody class="bg-white divide-y divide-gray-200">
