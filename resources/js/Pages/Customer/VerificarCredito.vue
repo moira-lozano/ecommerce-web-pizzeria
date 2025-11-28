@@ -7,7 +7,7 @@
             </div>
 
             <!-- Estado de Verificación -->
-            <div v-if="cliente.estado_verificacion && cliente.estado_verificacion !== 'pendiente'" 
+            <div v-if="cliente.estado_verificacion && cliente.estado_verificacion !== 'pendiente'"
                  class="mb-6 p-4 rounded-lg"
                  :class="{
                      'bg-blue-50 border border-blue-200': cliente.estado_verificacion === 'en_revision',
@@ -45,8 +45,8 @@
                     </label>
                     <div class="flex items-center gap-4">
                         <div v-if="preview.carnet_anverso || cliente.carnet_anverso" class="flex-1">
-                            <img 
-                                :src="preview.carnet_anverso || `/storage/${cliente.carnet_anverso}`" 
+                            <img
+                                :src="preview.carnet_anverso || `/storage/${cliente.carnet_anverso}`"
                                 alt="Carnet Anverso"
                                 class="w-full max-w-xs h-48 object-contain border rounded-lg bg-gray-50"
                             />
@@ -56,9 +56,18 @@
                                 type="file"
                                 @change="handleFileChange('carnet_anverso', $event)"
                                 accept="image/*"
-                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                :disabled="compressing.carnet_anverso"
+                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50"
                             />
-                            <p class="text-xs text-gray-500 mt-1">Formato: JPG, PNG. Tamaño máximo: 5MB</p>
+                            <div v-if="compressing.carnet_anverso" class="mt-2 text-sm text-blue-600 flex items-center gap-2">
+                                <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Comprimiendo imagen...
+                            </div>
+                            <p v-if="compressionInfo.carnet_anverso" class="text-xs text-gray-500 mt-1">{{ compressionInfo.carnet_anverso }}</p>
+                            <p v-else class="text-xs text-gray-500 mt-1">Formato: JPG, PNG. Tamaño máximo: 5MB</p>
                         </div>
                     </div>
                     <p v-if="form.errors.carnet_anverso" class="mt-1 text-sm text-red-600">{{ form.errors.carnet_anverso }}</p>
@@ -71,8 +80,8 @@
                     </label>
                     <div class="flex items-center gap-4">
                         <div v-if="preview.carnet_reverso || cliente.carnet_reverso" class="flex-1">
-                            <img 
-                                :src="preview.carnet_reverso || `/storage/${cliente.carnet_reverso}`" 
+                            <img
+                                :src="preview.carnet_reverso || `/storage/${cliente.carnet_reverso}`"
                                 alt="Carnet Reverso"
                                 class="w-full max-w-xs h-48 object-contain border rounded-lg bg-gray-50"
                             />
@@ -82,9 +91,18 @@
                                 type="file"
                                 @change="handleFileChange('carnet_reverso', $event)"
                                 accept="image/*"
-                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                :disabled="compressing.carnet_reverso"
+                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50"
                             />
-                            <p class="text-xs text-gray-500 mt-1">Formato: JPG, PNG. Tamaño máximo: 5MB</p>
+                            <div v-if="compressing.carnet_reverso" class="mt-2 text-sm text-blue-600 flex items-center gap-2">
+                                <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Comprimiendo imagen...
+                            </div>
+                            <p v-if="compressionInfo.carnet_reverso" class="text-xs text-gray-500 mt-1">{{ compressionInfo.carnet_reverso }}</p>
+                            <p v-else class="text-xs text-gray-500 mt-1">Formato: JPG, PNG. Tamaño máximo: 5MB</p>
                         </div>
                     </div>
                     <p v-if="form.errors.carnet_reverso" class="mt-1 text-sm text-red-600">{{ form.errors.carnet_reverso }}</p>
@@ -97,8 +115,8 @@
                     </label>
                     <div class="flex items-center gap-4">
                         <div v-if="preview.foto_luz || cliente.foto_luz" class="flex-1">
-                            <img 
-                                :src="preview.foto_luz || `/storage/${cliente.foto_luz}`" 
+                            <img
+                                :src="preview.foto_luz || `/storage/${cliente.foto_luz}`"
                                 alt="Factura de Luz"
                                 class="w-full max-w-xs h-48 object-contain border rounded-lg bg-gray-50"
                             />
@@ -108,9 +126,18 @@
                                 type="file"
                                 @change="handleFileChange('foto_luz', $event)"
                                 accept="image/*"
-                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                :disabled="compressing.foto_luz"
+                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50"
                             />
-                            <p class="text-xs text-gray-500 mt-1">Formato: JPG, PNG. Tamaño máximo: 5MB</p>
+                            <div v-if="compressing.foto_luz" class="mt-2 text-sm text-blue-600 flex items-center gap-2">
+                                <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Comprimiendo imagen...
+                            </div>
+                            <p v-if="compressionInfo.foto_luz" class="text-xs text-gray-500 mt-1">{{ compressionInfo.foto_luz }}</p>
+                            <p v-else class="text-xs text-gray-500 mt-1">Formato: JPG, PNG. Tamaño máximo: 5MB</p>
                         </div>
                     </div>
                     <p v-if="form.errors.foto_luz" class="mt-1 text-sm text-red-600">{{ form.errors.foto_luz }}</p>
@@ -123,8 +150,8 @@
                     </label>
                     <div class="flex items-center gap-4">
                         <div v-if="preview.foto_agua || cliente.foto_agua" class="flex-1">
-                            <img 
-                                :src="preview.foto_agua || `/storage/${cliente.foto_agua}`" 
+                            <img
+                                :src="preview.foto_agua || `/storage/${cliente.foto_agua}`"
                                 alt="Factura de Agua"
                                 class="w-full max-w-xs h-48 object-contain border rounded-lg bg-gray-50"
                             />
@@ -134,9 +161,18 @@
                                 type="file"
                                 @change="handleFileChange('foto_agua', $event)"
                                 accept="image/*"
-                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                :disabled="compressing.foto_agua"
+                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50"
                             />
-                            <p class="text-xs text-gray-500 mt-1">Formato: JPG, PNG. Tamaño máximo: 5MB</p>
+                            <div v-if="compressing.foto_agua" class="mt-2 text-sm text-blue-600 flex items-center gap-2">
+                                <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Comprimiendo imagen...
+                            </div>
+                            <p v-if="compressionInfo.foto_agua" class="text-xs text-gray-500 mt-1">{{ compressionInfo.foto_agua }}</p>
+                            <p v-else class="text-xs text-gray-500 mt-1">Formato: JPG, PNG. Tamaño máximo: 5MB</p>
                         </div>
                     </div>
                     <p v-if="form.errors.foto_agua" class="mt-1 text-sm text-red-600">{{ form.errors.foto_agua }}</p>
@@ -149,9 +185,9 @@
                     </label>
                     <div class="flex items-center gap-4">
                         <div v-if="preview.foto_garantia || cliente.foto_garantia" class="flex-1">
-                            <img 
-                                :src="preview.foto_garantia || `/storage/${cliente.foto_garantia}`" 
-                                alt="Objeto de Garantía"
+                            <img
+                            :src="preview.foto_garantia || storageUrl(cliente.foto_garantia)"
+                            alt="Objeto de Garantía"
                                 class="w-full max-w-xs h-48 object-contain border rounded-lg bg-gray-50"
                             />
                         </div>
@@ -160,9 +196,18 @@
                                 type="file"
                                 @change="handleFileChange('foto_garantia', $event)"
                                 accept="image/*"
-                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                :disabled="compressing.foto_garantia"
+                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50"
                             />
-                            <p class="text-xs text-gray-500 mt-1">Formato: JPG, PNG. Tamaño máximo: 5MB</p>
+                            <div v-if="compressing.foto_garantia" class="mt-2 text-sm text-blue-600 flex items-center gap-2">
+                                <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Comprimiendo imagen...
+                            </div>
+                            <p v-if="compressionInfo.foto_garantia" class="text-xs text-gray-500 mt-1">{{ compressionInfo.foto_garantia }}</p>
+                            <p v-else class="text-xs text-gray-500 mt-1">Formato: JPG, PNG. Tamaño máximo: 5MB</p>
                         </div>
                     </div>
                     <p v-if="form.errors.foto_garantia" class="mt-1 text-sm text-red-600">{{ form.errors.foto_garantia }}</p>
@@ -182,7 +227,7 @@
 
                 <!-- Botones -->
                 <div class="flex gap-4 pt-4">
-                    <Link href="/profile" class="flex-1">
+                    <Link :href="route('customer.profile')" class="flex-1">
                         <Button
                             type="button"
                             variant="outline"
@@ -211,14 +256,34 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useForm, Link } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import ShopLayout from '@/Layouts/ShopLayout.vue';
 import Button from '@/Components/Button.vue';
+import { useStorage } from '@/composables/useStorage';
+const { storageUrl } = useStorage();
+
 
 const props = defineProps({
     cliente: Object
 });
 
 const preview = ref({
+    carnet_anverso: null,
+    carnet_reverso: null,
+    foto_luz: null,
+    foto_agua: null,
+    foto_garantia: null
+});
+
+const compressing = ref({
+    carnet_anverso: false,
+    carnet_reverso: false,
+    foto_luz: false,
+    foto_agua: false,
+    foto_garantia: false
+});
+
+const compressionInfo = ref({
     carnet_anverso: null,
     carnet_reverso: null,
     foto_luz: null,
@@ -234,31 +299,131 @@ const form = useForm({
     foto_garantia: null
 });
 
-const handleFileChange = (field, event) => {
+// Función para comprimir imagen usando Canvas API (igual que en ImageUpload.vue)
+const compressImage = (file, field) => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+            const img = new Image();
+
+            img.onload = () => {
+                compressing.value[field] = true;
+
+                // Configuración de compresión (igual que en productos)
+                const maxWidth = 1200;
+                const maxHeight = 1200;
+                const quality = 0.85;
+
+                // Calcular nuevas dimensiones manteniendo la proporción
+                let width = img.width;
+                let height = img.height;
+
+                if (width > maxWidth || height > maxHeight) {
+                    const ratio = Math.min(maxWidth / width, maxHeight / height);
+                    width = width * ratio;
+                    height = height * ratio;
+                }
+
+                // Crear canvas para redimensionar y comprimir
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // Convertir a blob con compresión
+                canvas.toBlob(
+                    (blob) => {
+                        compressing.value[field] = false;
+
+                        if (!blob) {
+                            reject(new Error('Error al comprimir la imagen'));
+                            return;
+                        }
+
+                        // Crear nuevo File desde el blob
+                        const compressedFile = new File([blob], file.name, {
+                            type: 'image/jpeg',
+                            lastModified: Date.now()
+                        });
+
+                        // Calcular información de compresión
+                        const originalSize = (file.size / 1024 / 1024).toFixed(2);
+                        const compressedSize = (blob.size / 1024 / 1024).toFixed(2);
+                        const reduction = ((1 - blob.size / file.size) * 100).toFixed(1);
+
+                        compressionInfo.value[field] = `Original: ${originalSize}MB → Comprimido: ${compressedSize}MB (${reduction}% reducción)`;
+
+                        resolve(compressedFile);
+                    },
+                    'image/jpeg',
+                    quality
+                );
+            };
+
+            img.onerror = () => {
+                compressing.value[field] = false;
+                reject(new Error('Error al cargar la imagen'));
+            };
+
+            img.src = e.target.result;
+        };
+
+        reader.onerror = () => {
+            compressing.value[field] = false;
+            reject(new Error('Error al leer el archivo'));
+        };
+
+        reader.readAsDataURL(file);
+    });
+};
+
+const handleFileChange = async (field, event) => {
     const file = event.target.files[0];
-    if (file) {
-        // Validar tamaño (5MB)
-        if (file.size > 5 * 1024 * 1024) {
-            alert('El archivo es demasiado grande. El tamaño máximo es 5MB.');
-            event.target.value = '';
-            return;
-        }
 
-        // Validar tipo
-        if (!file.type.startsWith('image/')) {
-            alert('Solo se permiten archivos de imagen.');
-            event.target.value = '';
-            return;
-        }
+    if (!file) {
+        form[field] = null;
+        preview.value[field] = null;
+        compressionInfo.value[field] = null;
+        return;
+    }
 
-        form[field] = file;
+    // Validar tipo
+    if (!file.type.startsWith('image/')) {
+        alert('Solo se permiten archivos de imagen.');
+        event.target.value = '';
+        return;
+    }
+
+    // Validar tamaño original (antes de comprimir) - permitir hasta 10MB para comprimir
+    if (file.size > 10 * 1024 * 1024) {
+        alert('El archivo es demasiado grande. El tamaño máximo es 10MB.');
+        event.target.value = '';
+        return;
+    }
+
+    try {
+        // Comprimir la imagen
+        const compressedFile = await compressImage(file, field);
 
         // Crear preview
         const reader = new FileReader();
         reader.onload = (e) => {
             preview.value[field] = e.target.result;
         };
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(compressedFile);
+
+        // Asignar el archivo comprimido al formulario
+        form[field] = compressedFile;
+
+    } catch (err) {
+        alert(err.message || 'Error al procesar la imagen');
+        event.target.value = '';
+        preview.value[field] = null;
+        compressionInfo.value[field] = null;
+        compressing.value[field] = false;
     }
 };
 
@@ -271,7 +436,7 @@ const todosDocumentosSubidos = computed(() => {
 });
 
 const submit = () => {
-    form.post('/verificar-credito', {
+    form.post(route('customer.subir-documentos'), {
         forceFormData: true,
         onSuccess: () => {
             // Limpiar previews si se subieron nuevos archivos

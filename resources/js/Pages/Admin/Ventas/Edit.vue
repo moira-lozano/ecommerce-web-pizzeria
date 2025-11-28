@@ -2,7 +2,7 @@
     <AdminLayout>
         <div class="container mx-auto px-4 py-8">
             <div class="mb-6">
-                <Link href="/admin/ventas" class="text-blue-600 hover:text-blue-800 flex items-center gap-2">
+                <Link :href="route('admin.ventas.index')" class="text-blue-600 hover:text-blue-800 flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
@@ -214,7 +214,7 @@
                         <span v-else>Actualizar Venta</span>
                     </button>
                     <Link
-                        href="/admin/ventas"
+                        :href="route('admin.ventas.index')"
                         class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium"
                     >
                         Cancelar
@@ -228,6 +228,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useForm, Link, usePage } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 
 const page = usePage();
@@ -238,13 +239,33 @@ const props = defineProps({
     stocks: Object
 });
 
+// Función helper para obtener la fecha local en formato YYYY-MM-DD
+const obtenerFechaLocal = (fecha) => {
+    if (!fecha) {
+        const ahora = new Date();
+        const año = ahora.getFullYear();
+        const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+        const dia = String(ahora.getDate()).padStart(2, '0');
+        return `${año}-${mes}-${dia}`;
+    }
+    
+    // Si la fecha viene del backend, puede venir como string o Date
+    const fechaObj = fecha instanceof Date ? fecha : new Date(fecha);
+    
+    // Ajustar a la zona horaria local para evitar problemas de UTC
+    const año = fechaObj.getFullYear();
+    const mes = String(fechaObj.getMonth() + 1).padStart(2, '0');
+    const dia = String(fechaObj.getDate()).padStart(2, '0');
+    return `${año}-${mes}-${dia}`;
+};
+
 const form = useForm({
     nro_venta: props.venta.nro_venta,
     cliente_id: props.venta.cliente_id,
     usuario_id: props.venta.usuario_id || page.props.auth?.user?.id || '',
-    fecha: props.venta.fecha ? new Date(props.venta.fecha).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+    fecha: obtenerFechaLocal(props.venta.fecha),
     tipo: props.venta.tipo || 'contado',
-    numero_cuotas: props.venta.numero_cuotas || null,
+    numero_cuotas: (props.venta.tipo === 'credito' && props.venta.numero_cuotas) ? props.venta.numero_cuotas : null,
     estado: props.venta.estado || 'pendiente',
     detalles: props.venta.detalles?.map(d => ({
         producto_id: d.producto_id,
@@ -289,6 +310,9 @@ const getStock = (productoId) => {
 const onTipoChange = () => {
     if (form.tipo === 'contado') {
         form.numero_cuotas = null;
+    } else if (form.tipo === 'credito' && !form.numero_cuotas) {
+        // Si cambia a crédito y no tiene número de cuotas, establecer un valor por defecto
+        form.numero_cuotas = 2;
     }
 };
 
@@ -299,7 +323,12 @@ const total = computed(() => {
 });
 
 const submit = () => {
-    form.put(`/admin/ventas/${props.venta.id}`);
+    // Asegurar que numero_cuotas sea null si el tipo es contado
+    if (form.tipo === 'contado') {
+        form.numero_cuotas = null;
+    }
+    
+    form.put(route('admin.ventas.update', props.venta.id));
 };
 </script>
 

@@ -2,7 +2,7 @@
     <AdminLayout>
         <div class="container mx-auto px-4 py-8">
             <div class="mb-6">
-                <Link href="/admin/compras" class="text-blue-600 hover:text-blue-800 flex items-center gap-2">
+                <Link :href="route('admin.compras.index')" class="text-blue-600 hover:text-blue-800 flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
@@ -167,7 +167,7 @@
                         <span v-else>Actualizar Compra</span>
                     </button>
                     <Link
-                        href="/admin/compras"
+                        :href="route('admin.compras.index')"
                         class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium"
                     >
                         Cancelar
@@ -181,6 +181,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useForm, Link, router } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 
 const props = defineProps({
@@ -197,10 +198,55 @@ const compraCancelada = computed(() => {
     return props.compra.estado === 'cancelado';
 });
 
+// Función helper para obtener la fecha local en formato YYYY-MM-DD
+const obtenerFechaLocal = (fecha) => {
+    if (!fecha) {
+        const ahora = new Date();
+        const año = ahora.getFullYear();
+        const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+        const dia = String(ahora.getDate()).padStart(2, '0');
+        return `${año}-${mes}-${dia}`;
+    }
+
+    // Si la fecha viene como string en formato YYYY-MM-DD, parsearla directamente
+    // sin usar new Date() para evitar problemas de zona horaria
+    if (typeof fecha === 'string' && /^\d{4}-\d{2}-\d{2}/.test(fecha)) {
+        // Extraer solo la parte de la fecha (ignorar hora si existe)
+        const fechaParte = fecha.split('T')[0].split(' ')[0];
+        const [año, mes, dia] = fechaParte.split('-');
+        // Retornar directamente sin conversión de zona horaria
+        return `${año}-${mes}-${dia}`;
+    }
+
+    // Si es un objeto Date, crear la fecha en zona horaria local
+    if (fecha instanceof Date) {
+        const año = fecha.getFullYear();
+        const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+        const dia = String(fecha.getDate()).padStart(2, '0');
+        return `${año}-${mes}-${dia}`;
+    }
+
+    // Si es otro formato, intentar parsear como string primero
+    if (typeof fecha === 'string') {
+        // Intentar extraer fecha en formato YYYY-MM-DD
+        const match = fecha.match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if (match) {
+            return `${match[1]}-${match[2]}-${match[3]}`;
+        }
+    }
+
+    // Último recurso: usar new Date pero crear en zona horaria local
+    const fechaObj = new Date(fecha);
+    const año = fechaObj.getFullYear();
+    const mes = String(fechaObj.getMonth() + 1).padStart(2, '0');
+    const dia = String(fechaObj.getDate()).padStart(2, '0');
+    return `${año}-${mes}-${dia}`;
+};
+
 const form = useForm({
     nro_compra: props.compra.nro_compra,
     proveedor_id: props.compra.proveedor_id,
-    fecha: props.compra.fecha ? new Date(props.compra.fecha).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+    fecha: obtenerFechaLocal(props.compra.fecha),
     descripcion: props.compra.descripcion || '',
     detalles: props.compra.detalles?.map(d => ({
         producto_id: d.producto_id,
@@ -239,7 +285,7 @@ const total = computed(() => {
 });
 
 const submit = () => {
-    form.put(`/admin/compras/${props.compra.id}`);
+    form.put(route('admin.compras.update', props.compra.id));
 };
 
 // Los productos ya vienen en props

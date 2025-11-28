@@ -2,7 +2,7 @@
     <AdminLayout>
         <div class="container mx-auto px-4 py-8">
             <div class="mb-6">
-                <Link href="/admin/creditos" class="text-blue-600 hover:text-blue-800 flex items-center gap-2">
+                <Link :href="route('admin.creditos.index')" class="text-blue-600 hover:text-blue-800 flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
@@ -84,7 +84,7 @@
                         <span v-else>Actualizar Crédito</span>
                     </button>
                     <Link
-                        href="/admin/creditos"
+                        :href="route('admin.creditos.index')"
                         class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium"
                     >
                         Cancelar
@@ -97,6 +97,7 @@
 
 <script setup>
 import { useForm, Link } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 
 const props = defineProps({
@@ -111,7 +112,7 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.put(`/admin/creditos/${props.credito.id}`);
+    form.put(route('admin.creditos.update', props.credito.id));
 };
 </script>
 

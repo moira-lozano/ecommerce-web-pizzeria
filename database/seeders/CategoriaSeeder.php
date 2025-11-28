@@ -14,11 +14,11 @@ class CategoriaSeeder extends Seeder
     public function run(): void
     {
         $categorias = [
-            ['nombre' => 'Electrónica'],
-            ['nombre' => 'Ropa'],
-            ['nombre' => 'Hogar'],
-            ['nombre' => 'Deportes'],
-            ['nombre' => 'Libros'],
+            ['nombre' => 'Retornables'],
+            ['nombre' => 'Licores'],
+            ['nombre' => 'Vinos'],
+            ['nombre' => 'Sin alcohol'],
+            ['nombre' => 'No retorables'],
         ];
 
         foreach ($categorias as $categoria) {

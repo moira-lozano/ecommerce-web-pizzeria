@@ -24,6 +24,26 @@ use App\Http\Controllers\PaymentController;
 // ====================================
 // RUTAS PÚBLICAS
 // ====================================
+// RUTA DE PRUEBA - Agregar al inicio
+Route::get('/test-routes', function () {
+    return response()->json([
+        'status' => 'OK',
+        'message' => 'Laravel está funcionando correctamente',
+        'timestamp' => now(),
+        'url' => url('/'),
+        'app_url' => config('app.url'),
+        'routes_count' => count(Route::getRoutes()),
+        'sample_routes' => [
+            'home' => url('/'),
+            'login' => url('/login'),
+            'shop' => url('/shop'),
+        ]
+    ]);
+})->name('test.routes');
+
+
+
+
 
 // Ruta de prueba para pasarela de pagos (TEMPORAL - ELIMINAR EN PRODUCCIÓN)
 Route::get('/test-payment-gateway', function () {
@@ -297,9 +317,28 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('creditos', CreditoController::class);
     Route::post('creditos/{id}/registrar-pago', [CreditoController::class, 'registrarPago'])->name('creditos.registrar-pago');
 
-    // Gestión de Usuarios (solo propietario)
+    // Gestión de Usuarios (verificar permisos)
+    // ✅ SOLUCIÓN: Rutas específicas ANTES de las rutas con parámetros
+Route::middleware('permiso:usuarios.listar')->group(function () {
+    Route::get('usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
+});
+Route::middleware('permiso:usuarios.crear')->group(function () {
+    Route::get('usuarios/create', [UsuarioController::class, 'create'])->name('usuarios.create');
+    Route::post('usuarios', [UsuarioController::class, 'store'])->name('usuarios.store');
+});
+Route::middleware('permiso:usuarios.editar')->group(function () {
+    Route::get('usuarios/{id}/edit', [UsuarioController::class, 'edit'])->name('usuarios.edit');
+    Route::put('usuarios/{id}', [UsuarioController::class, 'update'])->name('usuarios.update');
+});
+Route::middleware('permiso:usuarios.ver')->group(function () {
+    Route::get('usuarios/{id}', [UsuarioController::class, 'show'])->name('usuarios.show');
+});
+Route::middleware('permiso:usuarios.eliminar')->group(function () {
+    Route::delete('usuarios/{id}', [UsuarioController::class, 'destroy'])->name('usuarios.destroy');
+});
+
+    // Gestión de Roles (solo propietario)
     Route::middleware('role:propietario')->group(function () {
-        Route::resource('usuarios', UsuarioController::class);
         Route::resource('roles', RolController::class);
 
         // Gestión de Contadores

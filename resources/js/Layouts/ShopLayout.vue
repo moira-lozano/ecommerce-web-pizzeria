@@ -9,7 +9,7 @@
                 <div class="flex justify-between h-16">
                     <div class="flex items-center">
                         <Link
-                            href="/shop"
+                            :href="route('shop.index')"
                             class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent hover:scale-105 transition-transform duration-200"
                         >
                             🍷 Licorería TecnoWeb
@@ -18,7 +18,7 @@
 
                     <div class="flex items-center space-x-2">
                         <Link
-                            href="/shop"
+                            :href="route('shop.index')"
                             class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-blue-50"
                         >
                             Catálogo
@@ -26,13 +26,13 @@
 
                         <template v-if="$page.props.auth?.user">
                             <Link
-                                href="/my-orders"
+                                :href="route('customer.orders')"
                                 class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-blue-50"
                             >
                                 Mis Compras
                             </Link>
                             <Link
-                                href="/my-credits"
+                                :href="route('customer.credits')"
                                 class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-blue-50"
                             >
                                 Mis Créditos
@@ -41,7 +41,7 @@
 
                         <!-- Carrito -->
                         <Link
-                            href="/cart"
+                            :href="route('cart.index')"
                             class="relative text-gray-700 hover:text-blue-600 p-2 rounded-lg transition-all duration-200 hover:bg-blue-50"
                         >
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -68,13 +68,13 @@
                         <!-- Auth -->
                         <template v-if="!$page.props.auth?.user">
                             <Link
-                                href="/login"
+                                :href="route('login')"
                                 class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-blue-50"
                             >
                                 Iniciar Sesión
                             </Link>
                             <Link
-                                href="/register"
+                                :href="route('register')"
                                 class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg"
                             >
                                 Registrarse
@@ -102,20 +102,20 @@
                                 >
                                     <div v-show="showUserMenu" @click.stop class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-1 z-50 border border-gray-100">
                                         <Link
-                                            href="/profile"
+                                            :href="route('customer.profile')"
                                             class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-150"
                                         >
                                             Mi Perfil
                                         </Link>
                                         <Link
                                             v-if="$page.props.auth.user.rol?.nombre !== 'cliente'"
-                                            href="/admin/dashboard"
+                                            :href="route('admin.dashboard')"
                                             class="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors duration-150"
                                         >
                                             Panel Admin
                                         </Link>
                                         <Link
-                                            href="/logout"
+                                            :href="route('logout')"
                                             method="post"
                                             as="button"
                                             class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors duration-150"
@@ -174,7 +174,7 @@
                     <div v-motion-fade :delay="100">
                         <h3 class="text-lg font-semibold mb-4">Enlaces</h3>
                         <ul class="space-y-2 text-gray-400">
-                            <li><Link href="/shop" class="hover:text-white transition-colors duration-200">Catálogo</Link></li>
+                            <li><Link :href="route('shop.index')" class="hover:text-white transition-colors duration-200">Catálogo</Link></li>
                             <li><Link href="#" class="hover:text-white transition-colors duration-200">Sobre Nosotros</Link></li>
                             <li><Link href="#" class="hover:text-white transition-colors duration-200">Contacto</Link></li>
                         </ul>
@@ -196,6 +196,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { Link, usePage, router } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 
 const showUserMenu = ref(false);
 const cartCount = ref(0);
@@ -221,7 +222,7 @@ const closeMenu = (event) => {
 
 const loadCartCount = async () => {
     try {
-        const response = await fetch('/cart/count');
+        const response = await fetch(route('cart.count'));
         const data = await response.json();
         cartCount.value = data.count || 0;
     } catch (error) {

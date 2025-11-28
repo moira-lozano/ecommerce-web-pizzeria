@@ -89,6 +89,7 @@
 <script setup>
 import { ref, reactive } from 'vue';
 import { router, Link } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import ShopLayout from '@/Layouts/ShopLayout.vue';
 import ProductCard from '@/Components/ProductCard.vue';
 
@@ -111,7 +112,7 @@ let searchTimeout = null;
 const search = () => {
     clearTimeout(searchTimeout);
     searchTimeout = setTimeout(() => {
-        router.get('/shop', searchForm, {
+        router.get(route('shop.index'), searchForm, {
             preserveState: true,
             preserveScroll: true
         });
@@ -119,7 +120,7 @@ const search = () => {
 };
 
 const addToCart = (productoId, cantidad = 1) => {
-    router.post('/cart/add', {
+    router.post(route('cart.add'), {
         producto_id: productoId,
         cantidad: cantidad
     }, {

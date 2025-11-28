@@ -2,7 +2,7 @@
     <AdminLayout>
         <div class="container mx-auto px-4 py-8">
             <div class="mb-6">
-                <Link href="/admin/ventas" class="text-blue-600 hover:text-blue-800 flex items-center gap-2">
+                <Link :href="route('admin.ventas.index')" class="text-blue-600 hover:text-blue-800 flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
@@ -19,7 +19,7 @@
                         <dl class="space-y-2">
                             <div>
                                 <dt class="text-sm text-gray-600">Fecha:</dt>
-                                <dd class="font-medium">{{ new Date(venta.fecha).toLocaleDateString('es-ES') }}</dd>
+                                <dd class="font-medium">{{ formatearFecha(venta.fecha) }}</dd>
                             </div>
                             <div>
                                 <dt class="text-sm text-gray-600">Cliente:</dt>
@@ -105,7 +105,7 @@
                             </p>
                         </div>
                         <Link
-                            :href="`/admin/creditos/${venta.credito.id}`"
+                            :href="route('admin.creditos.show', venta.credito.id)"
                             class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium text-sm"
                         >
                             Ver Detalle del Crédito →
@@ -158,11 +158,39 @@
 <script setup>
 import { computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 
 const props = defineProps({
     venta: Object
 });
+
+// Función helper para formatear fecha sin problemas de zona horaria
+// Cuando Laravel devuelve 'YYYY-MM-DD', JavaScript lo interpreta como UTC
+// Esta función parsea la fecha manualmente para evitar conversiones de zona horaria
+const formatearFecha = (fecha) => {
+    if (!fecha) return '-';
+    
+    // Si ya es un string en formato YYYY-MM-DD, parsearlo manualmente
+    if (typeof fecha === 'string' && /^\d{4}-\d{2}-\d{2}/.test(fecha)) {
+        const [año, mes, dia] = fecha.split('T')[0].split('-');
+        // Crear fecha en zona horaria local para evitar problemas de UTC
+        const fechaLocal = new Date(parseInt(año), parseInt(mes) - 1, parseInt(dia));
+        return fechaLocal.toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        });
+    }
+    
+    // Si es un objeto Date u otro formato, usar el método estándar
+    const fechaObj = fecha instanceof Date ? fecha : new Date(fecha);
+    return fechaObj.toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    });
+};
 
 // Calcular total desde los detalles como respaldo
 const totalCalculado = computed(() => {

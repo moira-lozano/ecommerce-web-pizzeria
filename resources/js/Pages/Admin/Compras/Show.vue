@@ -2,7 +2,7 @@
     <AdminLayout>
         <div class="container mx-auto px-4 py-8">
             <div class="mb-6 flex justify-between items-center">
-                <Link href="/admin/compras" class="text-blue-600 hover:text-blue-800 flex items-center gap-2">
+                <Link :href="route('admin.compras.index')" class="text-blue-600 hover:text-blue-800 flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
@@ -10,7 +10,7 @@
                 </Link>
                 <Link
                     v-if="!esProveedor && puedeEditar && compra.estado !== 'validado'"
-                    :href="`/admin/compras/${compra.id}/edit`"
+                    :href="route('admin.compras.edit', compra.id)"
                     class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium"
                 >
                     ✏️ Editar Compra
@@ -26,7 +26,7 @@
                         <dl class="space-y-2">
                             <div>
                                 <dt class="text-sm text-gray-600">Fecha:</dt>
-                                <dd class="font-medium">{{ new Date(compra.fecha).toLocaleDateString('es-ES') }}</dd>
+                                <dd class="font-medium">{{ formatearFecha(compra.fecha) }}</dd>
                             </div>
                             <div>
                                 <dt class="text-sm text-gray-600">Proveedor:</dt>
@@ -139,6 +139,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { usePermissions } from '@/composables/usePermissions';
 
@@ -149,9 +150,37 @@ const props = defineProps({
 
 const { tienePermiso } = usePermissions();
 
-const puedeEditar = tienePermiso('compras.editar');
-const puedeValidar = tienePermiso('compras.validar');
-const puedeCancelar = tienePermiso('compras.cancelar');
+// Función helper para formatear fecha sin problemas de zona horaria
+// Cuando Laravel devuelve 'YYYY-MM-DD', JavaScript lo interpreta como UTC
+// Esta función parsea la fecha manualmente para evitar conversiones de zona horaria
+const formatearFecha = (fecha) => {
+    if (!fecha) return '-';
+    
+    // Si ya es un string en formato YYYY-MM-DD, parsearlo manualmente
+    if (typeof fecha === 'string' && /^\d{4}-\d{2}-\d{2}/.test(fecha)) {
+        const [año, mes, dia] = fecha.split('T')[0].split('-');
+        // Crear fecha en zona horaria local para evitar problemas de UTC
+        const fechaLocal = new Date(parseInt(año), parseInt(mes) - 1, parseInt(dia));
+        return fechaLocal.toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        });
+    }
+    
+    // Si es un objeto Date u otro formato, usar el método estándar
+    const fechaObj = fecha instanceof Date ? fecha : new Date(fecha);
+    return fechaObj.toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    });
+};
+
+// Hacer reactivos los permisos usando computed
+const puedeEditar = computed(() => tienePermiso('compras.editar'));
+const puedeValidar = computed(() => tienePermiso('compras.validar'));
+const puedeCancelar = computed(() => tienePermiso('compras.cancelar'));
 
 // Calcular el total si no viene del backend o como respaldo
 const totalCompra = computed(() => {
@@ -174,7 +203,7 @@ const cancelling = ref(false);
 const validarCompra = () => {
     if (confirm('¿Está seguro de validar esta compra? Esto actualizará el inventario.')) {
         validating.value = true;
-        router.post(`/admin/compras/${props.compra.id}/validar`, {}, {
+        router.post(route('admin.compras.validar', props.compra.id), {}, {
             preserveScroll: true,
             onFinish: () => {
                 validating.value = false;
@@ -186,7 +215,7 @@ const validarCompra = () => {
 const cancelarCompra = () => {
     if (confirm('¿Está seguro de cancelar esta compra? Una vez cancelada, no podrá ser validada ni editada.')) {
         cancelling.value = true;
-        router.post(`/admin/compras/${props.compra.id}/cancelar`, {}, {
+        router.post(route('admin.compras.cancelar', props.compra.id), {}, {
             preserveScroll: true,
             onFinish: () => {
                 cancelling.value = false;

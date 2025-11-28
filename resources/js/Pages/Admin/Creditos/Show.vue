@@ -2,7 +2,7 @@
     <AdminLayout>
         <div class="container mx-auto px-4 py-8">
             <div class="mb-6">
-                <Link href="/admin/creditos" class="text-blue-600 hover:text-blue-800 flex items-center gap-2">
+                <Link :href="route('admin.creditos.index')" class="text-blue-600 hover:text-blue-800 flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
@@ -16,7 +16,7 @@
                     <div class="space-x-2">
                         <Link
                             v-if="puedeEditar"
-                            :href="`/admin/creditos/${credito.id}/edit`"
+                            :href="route('admin.creditos.edit', credito.id)"
                             class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium"
                         >
                             Editar
@@ -90,7 +90,7 @@
                             <div>
                                 <Link
                                     v-if="puedeVerVenta"
-                                    :href="`/admin/ventas/${credito.venta.id}`"
+                                    :href="route('admin.ventas.show', credito.venta.id)"
                                     class="text-blue-600 hover:text-blue-800 text-sm font-medium"
                                 >
                                     Ver detalle de la venta →
@@ -204,14 +204,14 @@
                             </select>
                         </div>
 
-                        <div class="mb-4">
+                        <!-- <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Número de Transacción</label>
                             <input
                                 v-model="paymentForm.nro_transaccion"
                                 type="text"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                             />
-                        </div>
+                        </div> -->
 
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Observación</label>
@@ -248,6 +248,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useForm, Link, router } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { usePermissions } from '@/composables/usePermissions';
 
@@ -257,9 +258,10 @@ const props = defineProps({
 
 const { tienePermiso } = usePermissions();
 
-const puedeEditar = tienePermiso('creditos.editar');
-const puedeRegistrarPago = tienePermiso('creditos.pagos');
-const puedeVerVenta = tienePermiso('ventas.ver');
+// Hacer reactivos los permisos usando computed
+const puedeEditar = computed(() => tienePermiso('creditos.editar'));
+const puedeRegistrarPago = computed(() => tienePermiso('creditos.pagos'));
+const puedeVerVenta = computed(() => tienePermiso('ventas.ver'));
 
 const showPaymentModal = ref(false);
 
@@ -335,7 +337,7 @@ const montoCuota = computed(() => {
 const paymentForm = useForm({
     monto: '',
     metodo: '',
-    nro_transaccion: '',
+    nro_transaccion: '1234',
     observacion: ''
 });
 
@@ -369,7 +371,7 @@ const submitPayment = () => {
         return;
     }
 
-    paymentForm.post(`/admin/creditos/${props.credito.id}/registrar-pago`, {
+    paymentForm.post(route('admin.creditos.registrar-pago', props.credito.id), {
         preserveScroll: true,
         onSuccess: () => {
             showPaymentModal.value = false;

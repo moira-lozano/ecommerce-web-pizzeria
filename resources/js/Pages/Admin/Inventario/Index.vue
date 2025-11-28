@@ -3,7 +3,7 @@
         <div class="space-y-6">
 
             <div class="mb-6 flex gap-4">
-                <Link v-if="puedeVerMovimientos" href="/admin/inventario/movimientos">
+                <Link v-if="puedeVerMovimientos" :href="route('admin.inventario.movimientos')">
                     <Button variant="primary" size="md">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -45,7 +45,7 @@
                                 {{ producto.stock_actual || 0 }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <Link v-if="puedeVerKardex" :href="`/admin/inventario/kardex/${producto.id}`" class="text-blue-600 hover:text-blue-800">Ver Kardex</Link>
+                                <Link v-if="puedeVerKardex" :href="route('admin.inventario.kardex', producto.id)" class="text-blue-600 hover:text-blue-800">Ver Kardex</Link>
                                 <span v-else class="text-gray-400">-</span>
                             </td>
                         </tr>
@@ -183,6 +183,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useForm, Link } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import SelectInput from '@/Components/Form/SelectInput.vue';
 import NumberInput from '@/Components/Form/NumberInput.vue';
@@ -192,9 +193,10 @@ import { usePermissions } from '@/composables/usePermissions';
 
 const { tienePermiso } = usePermissions();
 
-const puedeVerMovimientos = tienePermiso('inventario.ver');
-const puedeRegistrarMovimiento = tienePermiso('inventario.crear');
-const puedeVerKardex = tienePermiso('inventario.ver');
+// Hacer reactivos los permisos usando computed
+const puedeVerMovimientos = computed(() => tienePermiso('inventario.ver'));
+const puedeRegistrarMovimiento = computed(() => tienePermiso('inventario.crear'));
+const puedeVerKardex = computed(() => tienePermiso('inventario.ver'));
 
 const tipoMovimientoOptions = [
     { value: 'INGRESO', label: '➕ Ingreso (Aumentar stock)' },
@@ -279,7 +281,7 @@ const submitAjuste = () => {
     // Asegurar que cantidad sea un número
     ajusteForm.cantidad = cantidadNum;
 
-    ajusteForm.post('/admin/inventario/ajuste', {
+    ajusteForm.post(route('admin.inventario.ajuste'), {
         preserveScroll: true,
         onSuccess: () => {
             cerrarModal();

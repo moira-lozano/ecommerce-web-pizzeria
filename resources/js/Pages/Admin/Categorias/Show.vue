@@ -5,15 +5,17 @@
             <div class="bg-white shadow rounded-lg p-6">
                 <p class="text-gray-700"><strong>Productos:</strong> {{ categoria.productos?.length || 0 }}</p>
                 <div class="mt-4">
-                    <Link v-if="puedeEditar" :href="`/admin/categorias/${categoria.id}/edit`" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium mr-2">Editar</Link>
-                    <Link href="/admin/categorias" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium">Volver</Link>
+                    <Link v-if="puedeEditar" :href="route('admin.categorias.edit', categoria.id)" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium mr-2">Editar</Link>
+                    <Link :href="route('admin.categorias.index')" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium">Volver</Link>
                 </div>
             </div>
         </div>
     </AdminLayout>
 </template>
 <script setup>
+import { computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { usePermissions } from '@/composables/usePermissions';
 
@@ -21,6 +23,7 @@ defineProps({ categoria: Object });
 
 const { tienePermiso } = usePermissions();
 
-const puedeEditar = tienePermiso('categorias.editar');
+// Hacer reactivos los permisos usando computed
+const puedeEditar = computed(() => tienePermiso('categorias.editar'));
 </script>
 

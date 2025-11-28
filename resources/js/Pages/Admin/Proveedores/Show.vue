@@ -4,10 +4,10 @@
             <div class="flex justify-between items-center mb-6">
                 <h1 class="text-3xl font-bold">Detalle del Proveedor</h1>
                 <div class="space-x-2">
-                    <Link v-if="puedeEditar" :href="`/admin/proveedores/${proveedor.id}/edit`" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium">
+                    <Link v-if="puedeEditar" :href="route('admin.proveedores.edit', proveedor.id)" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium">
                         Editar
                     </Link>
-                    <Link href="/admin/proveedores" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium">
+                    <Link :href="route('admin.proveedores.index')" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium">
                         Volver
                     </Link>
                 </div>
@@ -45,7 +45,7 @@
                                     <p class="text-xs text-gray-600">{{ proveedor.usuario.email }}</p>
                                     <p class="text-xs text-blue-600">Rol: {{ proveedor.usuario.rol?.nombre || 'Sin rol' }}</p>
                                 </div>
-                                <Link v-if="puedeVerUsuario" :href="`/admin/usuarios/${proveedor.usuario.id}`" class="ml-2 text-blue-600 hover:text-blue-900 text-sm">
+                                <Link v-if="puedeVerUsuario" :href="route('admin.usuarios.show', proveedor.usuario.id)" class="ml-2 text-blue-600 hover:text-blue-900 text-sm">
                                     Ver Usuario →
                                 </Link>
                             </div>
@@ -73,12 +73,12 @@
                         <tbody class="bg-white divide-y divide-gray-200">
                             <tr v-for="compra in proveedor.compras" :key="compra.id">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm">#{{ compra.id }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm">{{ compra.fecha || '-' }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">{{ formatearFecha(compra.fecha) }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
-                                    Bs. {{ Number(compra.total).toFixed(2) }}
+                                    Bs. {{ formatearTotal(compra.total) }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <Link v-if="puedeVerCompras" :href="`/admin/compras/${compra.id}`" class="text-blue-600 hover:text-blue-900">
+                                    <Link v-if="puedeVerCompras" :href="route('admin.compras.show', compra.id)" class="text-blue-600 hover:text-blue-900">
                                         Ver Detalle
                                     </Link>
                                     <span v-else class="text-gray-400">-</span>
@@ -97,7 +97,9 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { usePermissions } from '@/composables/usePermissions';
 
@@ -107,8 +109,42 @@ defineProps({
 
 const { tienePermiso } = usePermissions();
 
-const puedeEditar = tienePermiso('proveedores.editar');
-const puedeVerCompras = tienePermiso('compras.ver');
-const puedeVerUsuario = tienePermiso('usuarios.ver');
+// Hacer reactivos los permisos usando computed
+const puedeEditar = computed(() => tienePermiso('proveedores.editar'));
+const puedeVerCompras = computed(() => tienePermiso('compras.ver'));
+const puedeVerUsuario = computed(() => tienePermiso('usuarios.ver'));
+
+// Función helper para formatear fecha sin problemas de zona horaria
+const formatearFecha = (fecha) => {
+    if (!fecha) return '-';
+
+    // Si ya es un string en formato YYYY-MM-DD, parsearlo manualmente
+    if (typeof fecha === 'string' && /^\d{4}-\d{2}-\d{2}/.test(fecha)) {
+        const [año, mes, dia] = fecha.split('T')[0].split('-');
+        // Crear fecha en zona horaria local para evitar problemas de UTC
+        const fechaLocal = new Date(parseInt(año), parseInt(mes) - 1, parseInt(dia));
+        return fechaLocal.toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        });
+    }
+
+    // Si es un objeto Date u otro formato, usar el método estándar
+    const fechaObj = fecha instanceof Date ? fecha : new Date(fecha);
+    return fechaObj.toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    });
+};
+
+// Función helper para formatear el total y evitar NaN
+const formatearTotal = (total) => {
+    if (total === null || total === undefined || total === '') return '0.00';
+    const numTotal = Number(total);
+    if (isNaN(numTotal)) return '0.00';
+    return numTotal.toFixed(2);
+};
 </script>
 

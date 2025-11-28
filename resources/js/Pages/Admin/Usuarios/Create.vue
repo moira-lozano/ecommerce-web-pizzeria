@@ -26,7 +26,7 @@
                 </div>
                 <div class="flex gap-4">
                     <button type="submit" :disabled="form.processing" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium">Guardar</button>
-                    <Link href="/admin/usuarios" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-medium">Cancelar</Link>
+                    <Link :href="route('admin.usuarios.index')" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-medium">Cancelar</Link>
                 </div>
             </form>
         </div>
@@ -34,9 +34,10 @@
 </template>
 <script setup>
 import { useForm, Link } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 const props = defineProps({ roles: Array });
 const form = useForm({ nombre: '', email: '', password: '', id_rol: '', estado: 'activo' });
-const submit = () => form.post('/admin/usuarios');
+const submit = () => form.post(route('admin.usuarios.store'));
 </script>
 

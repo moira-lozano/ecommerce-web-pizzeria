@@ -9,8 +9,16 @@
                     <div class="bg-white rounded-lg shadow-md">
                         <div v-for="(item, index) in cart.items" :key="index" class="p-6 border-b last:border-b-0">
                             <div class="flex gap-4">
-                                <div class="w-24 h-24 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                    <div class="text-4xl">🍷</div>
+                                <div class="w-24 h-24 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                    <img
+                                        v-if="item.imagen"
+
+                                        :src="storageUrl(item.imagen)"
+
+                                        :alt="item.nombre"
+                                        class="w-full h-full object-cover"
+                                    />
+                                    <div v-else class="text-4xl">📦</div>
                                 </div>
 
                                 <div class="flex-1">
@@ -67,10 +75,10 @@
                                 <span>Productos ({{ cart.itemCount }})</span>
                                 <span>Bs. {{ Number(cart.total).toFixed(2) }}</span>
                             </div>
-                            <div class="flex justify-between text-gray-600">
+                            <!-- <div class="flex justify-between text-gray-600">
                                 <span>Envío</span>
                                 <span>Gratis</span>
-                            </div>
+                            </div> -->
                             <div class="border-t pt-3 flex justify-between text-xl font-bold">
                                 <span>Total</span>
                                 <span class="text-green-600">Bs. {{ Number(cart.total).toFixed(2) }}</span>
@@ -79,21 +87,21 @@
 
                         <Link
                             v-if="$page.props.auth?.user"
-                            href="/checkout"
+                            :href="route('checkout.index')"
                             class="block w-full bg-blue-500 hover:bg-blue-600 text-white text-center px-6 py-3 rounded-lg font-medium transition-colors duration-200 mb-3"
                         >
                             Proceder al Pago
                         </Link>
                         <Link
                             v-else
-                            href="/login"
+                            :href="route('login')"
                             class="block w-full bg-blue-500 hover:bg-blue-600 text-white text-center px-6 py-3 rounded-lg font-medium transition-colors duration-200 mb-3"
                         >
                             Iniciar Sesión para Comprar
                         </Link>
 
                         <Link
-                            href="/shop"
+                            :href="route('shop.index')"
                             class="block w-full text-center text-blue-600 hover:text-blue-800 font-medium"
                         >
                             Continuar Comprando
@@ -108,7 +116,7 @@
                 <h2 class="text-2xl font-semibold text-gray-800 mb-2">Tu carrito está vacío</h2>
                 <p class="text-gray-600 mb-6">Agrega productos para comenzar tu compra</p>
                 <Link
-                    href="/shop"
+                    :href="route('shop.index')"
                     class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium"
                 >
                     Ir al Catálogo
@@ -120,8 +128,10 @@
 
 <script setup>
 import { router, Link } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import ShopLayout from '@/Layouts/ShopLayout.vue';
-
+import { useStorage } from '@/composables/useStorage';
+const { storageUrl } = useStorage();
 defineProps({
     cart: Object
 });
@@ -131,7 +141,7 @@ const updateQuantity = (productoId, cantidad) => {
         removeItem(productoId);
         return;
     }
-    router.put('/cart/update', {
+    router.put(route('cart.update'), {
         producto_id: productoId,
         cantidad: cantidad
     }, {
@@ -145,7 +155,7 @@ const updateQuantity = (productoId, cantidad) => {
 };
 
 const removeItem = (productoId) => {
-    router.delete(`/cart/remove/${productoId}`, {
+    router.delete(route('cart.remove', productoId), {
         preserveScroll: true,
         onSuccess: () => {
             if (window.updateCartCount) {

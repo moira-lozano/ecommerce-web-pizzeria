@@ -4,19 +4,26 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <!-- Imagen del producto -->
                 <div>
-                    <div class="bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg h-96 flex items-center justify-center">
-                        <div class="text-9xl">🍷</div>
+                    <div class="bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg h-96 flex items-center justify-center overflow-hidden">
+                        <img
+                            v-if="producto.imagen"
+                            :src="storageUrl(producto.imagen)"
+
+                            :alt="producto.nombre"
+                            class="w-full h-full object-contain"
+                        />
+                        <div v-else class="text-9xl">📦</div>
                     </div>
                 </div>
 
                 <!-- Información del producto -->
                 <div>
                     <nav class="text-sm mb-4">
-                        <Link href="/shop" class="text-blue-600 hover:underline">Catálogo</Link>
+                        <Link :href="route('shop.index')" class="text-blue-600 hover:underline">Catálogo</Link>
                         <span class="mx-2">/</span>
                         <Link
                             v-if="producto.categoria"
-                            :href="`/shop/category/${producto.categoria.id}`"
+                            :href="route('shop.category', producto.categoria.id)"
                             class="text-blue-600 hover:underline"
                         >
                             {{ producto.categoria.nombre }}
@@ -85,7 +92,7 @@
 
                     <!-- Botón ir al carrito -->
                     <Link
-                        href="/cart"
+                        :href="route('cart.index')"
                         class="block text-center text-blue-600 hover:text-blue-800 font-medium"
                     >
                         Ver mi carrito
@@ -112,9 +119,11 @@
 <script setup>
 import { ref } from 'vue';
 import { router, Link } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import ShopLayout from '@/Layouts/ShopLayout.vue';
 import ProductCard from '@/Components/ProductCard.vue';
-
+import { useStorage } from '@/composables/useStorage';
+const { storageUrl } = useStorage();
 const props = defineProps({
     producto: Object,
     relacionados: Array
@@ -123,7 +132,7 @@ const props = defineProps({
 const cantidad = ref(1);
 
 const addToCart = () => {
-    router.post('/cart/add', {
+    router.post(route('cart.add'), {
         producto_id: props.producto.id,
         cantidad: cantidad.value
     }, {
@@ -142,7 +151,7 @@ const addToCart = () => {
 };
 
 const addToCartRelated = (productoId) => {
-    router.post('/cart/add', {
+    router.post(route('cart.add'), {
         producto_id: productoId,
         cantidad: 1
     }, {

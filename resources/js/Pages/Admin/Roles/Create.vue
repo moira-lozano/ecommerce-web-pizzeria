@@ -80,7 +80,7 @@
                                 {{ form.processing ? 'Guardando...' : 'Guardar Rol' }}
                             </button>
                             <Link
-                                href="/admin/roles"
+                                :href="route('admin.roles.index')"
                                 class="px-6 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg font-medium transition-colors"
                             >
                                 Cancelar
@@ -95,6 +95,7 @@
 
 <script setup>
 import { useForm, Link } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 
 const props = defineProps({
@@ -108,7 +109,7 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.post('/admin/roles');
+    form.post(route('admin.roles.store'));
 };
 
 const getModuloIcon = (modulo) => {

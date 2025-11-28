@@ -17,12 +17,12 @@
                         Ir al Dashboard
                     </Link>
 
-                    <a
-                        href="/productos"
+                    <Link
+                        :href="route('admin.productos.index')"
                         class="bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-lg text-center transition duration-200"
                     >
                         Ver Productos
-                    </a>
+                    </Link>
                 </div>
 
                 <div class="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
@@ -50,6 +50,7 @@
 
 <script setup>
 import { Link } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 
 defineOptions({
     layout: null

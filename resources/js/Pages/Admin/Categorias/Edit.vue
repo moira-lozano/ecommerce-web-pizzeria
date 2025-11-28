@@ -26,7 +26,7 @@
                         >
                             Actualizar Categoría
                         </Button>
-                        <Link href="/admin/categorias">
+                        <Link :href="route('admin.categorias.index')">
                             <Button
                                 type="button"
                                 variant="outline"
@@ -45,11 +45,12 @@
 
 <script setup>
 import { useForm, Link } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import TextInput from '@/Components/Form/TextInput.vue';
 import Button from '@/Components/Button.vue';
 
 const props = defineProps({ categoria: Object });
 const form = useForm({ nombre: props.categoria.nombre });
-const submit = () => form.put(`/admin/categorias/${props.categoria.id}`);
+const submit = () => form.put(route('admin.categorias.update', props.categoria.id));
 </script>

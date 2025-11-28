@@ -10,15 +10,16 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch, onBeforeUnmount } from 'vue';
+import { ref, computed, onMounted, watch, onBeforeUnmount, nextTick } from 'vue';
 import {
     Chart,
     ArcElement,
+    DoughnutController,
     Tooltip,
     Legend
 } from 'chart.js';
 
-Chart.register(ArcElement, Tooltip, Legend);
+Chart.register(ArcElement, DoughnutController, Tooltip, Legend);
 
 const props = defineProps({
     data: {
@@ -45,14 +46,17 @@ let chartInstance = null;
 const hasData = computed(() => {
     const labels = props.data?.labels || [];
     const values = props.data?.values || props.data?.total || [];
-    return labels.length > 0 && values.length > 0 && values.some(v => v > 0);
+    // Verificar que haya labels y values, y que al menos un valor sea mayor a 0
+    return labels.length > 0 && values.length > 0 && values.length === labels.length && values.some(v => Number(v) > 0);
 });
 
 const createChart = () => {
     if (!chartCanvas.value) return;
 
+    // Destruir gráfico anterior si existe
     if (chartInstance) {
         chartInstance.destroy();
+        chartInstance = null;
     }
 
     const labels = props.data?.labels || [];
@@ -62,13 +66,19 @@ const createChart = () => {
         return;
     }
 
-    chartInstance = new Chart(chartCanvas.value, {
+    // Verificar que el canvas no esté siendo usado por otro gráfico
+    const canvas = chartCanvas.value;
+    if (canvas && Chart.getChart(canvas)) {
+        Chart.getChart(canvas).destroy();
+    }
+    
+    chartInstance = new Chart(canvas, {
         type: 'doughnut',
         data: {
             labels: props.data.labels || [],
             datasets: [{
-                data: props.data.values || [],
-                backgroundColor: props.colors.slice(0, props.data.values?.length || 0),
+                data: values,
+                backgroundColor: props.colors.slice(0, values.length),
                 borderWidth: 2,
                 borderColor: '#fff'
             }]
@@ -102,27 +112,42 @@ const createChart = () => {
 };
 
 onMounted(() => {
-    createChart();
+    nextTick(() => {
+        setTimeout(() => {
+            createChart();
+        }, 100);
+    });
 });
 
 watch(() => props.data, () => {
-    if (hasData.value) {
-        if (chartInstance) {
-            const labels = props.data?.labels || [];
-            const values = props.data?.values || props.data?.total || [];
-            chartInstance.data.labels = labels;
-            chartInstance.data.datasets[0].data = values;
-            chartInstance.update();
-        } else {
-            createChart();
-        }
-    } else {
-        if (chartInstance) {
-            chartInstance.destroy();
-            chartInstance = null;
-        }
-    }
-}, { deep: true });
+    // Pequeño delay para asegurar que el DOM esté listo
+    nextTick(() => {
+        setTimeout(() => {
+            if (hasData.value) {
+                if (chartInstance) {
+                    const labels = props.data?.labels || [];
+                    const values = props.data?.values || props.data?.total || [];
+                    if (labels.length > 0 && values.length > 0 && labels.length === values.length) {
+                        chartInstance.data.labels = labels;
+                        chartInstance.data.datasets[0].data = values;
+                        chartInstance.update('none');
+                    } else {
+                        chartInstance.destroy();
+                        chartInstance = null;
+                        createChart();
+                    }
+                } else {
+                    createChart();
+                }
+            } else {
+                if (chartInstance) {
+                    chartInstance.destroy();
+                    chartInstance = null;
+                }
+            }
+        }, 100);
+    });
+}, { deep: true, immediate: false });
 
 onBeforeUnmount(() => {
     if (chartInstance) {

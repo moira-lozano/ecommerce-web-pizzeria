@@ -52,6 +52,8 @@ class CompraController extends BaseController
 
     public function create()
     {
+        $this->verificarPermiso('compras.crear');
+        
         $proveedores = Proveedor::all();
         $productos = \App\Models\Producto::with('categoria')->get();
         return Inertia::render('Admin/Compras/Create', [
@@ -62,6 +64,8 @@ class CompraController extends BaseController
 
     public function store(Request $request)
     {
+        $this->verificarPermiso('compras.crear');
+        
         $validated = $request->validate([
             'nro_compra' => 'nullable|string|max:50',
             'descripcion' => 'nullable|string|max:200',
@@ -75,6 +79,19 @@ class CompraController extends BaseController
 
         try {
             DB::transaction(function () use ($validated) {
+                // Asegurar que la fecha se guarde correctamente sin conversión de zona horaria
+                // Si viene como string YYYY-MM-DD, usarla directamente
+                $fechaCompra = $validated['fecha'];
+                if ($fechaCompra instanceof \DateTime || $fechaCompra instanceof \Carbon\Carbon) {
+                    $fechaCompra = $fechaCompra->format('Y-m-d');
+                } elseif (is_string($fechaCompra) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $fechaCompra)) {
+                    // Ya está en formato correcto, usar directamente
+                    $fechaCompra = $fechaCompra;
+                } else {
+                    // Intentar parsear y formatear
+                    $fechaCompra = \Carbon\Carbon::parse($fechaCompra)->format('Y-m-d');
+                }
+                
                 // Generar número de compra si no se proporciona usando CounterService
                 if (empty($validated['nro_compra'])) {
                     $counterService = app(\App\Services\CounterService::class);
@@ -86,7 +103,7 @@ class CompraController extends BaseController
                     'nro_compra' => $validated['nro_compra'],
                     'descripcion' => $validated['descripcion'] ?? null,
                     'proveedor_id' => $validated['proveedor_id'],
-                    'fecha' => $validated['fecha'],
+                    'fecha' => $fechaCompra,
                     'estado' => 'pendiente',
                 ]);
 
@@ -147,6 +164,8 @@ class CompraController extends BaseController
 
     public function edit(string $id)
     {
+        $this->verificarPermiso('compras.editar');
+        
         $compra = Compra::with('detalles.producto', 'detalles.inventarios')->findOrFail($id);
         $proveedores = Proveedor::all();
         $productos = \App\Models\Producto::with('categoria')->get();
@@ -159,6 +178,8 @@ class CompraController extends BaseController
 
     public function update(Request $request, string $id)
     {
+        $this->verificarPermiso('compras.editar');
+        
         $compra = Compra::findOrFail($id);
 
         // No permitir editar compras canceladas
@@ -184,12 +205,25 @@ class CompraController extends BaseController
 
         try {
             DB::transaction(function () use ($compra, $validated) {
+                // Asegurar que la fecha se guarde correctamente sin conversión de zona horaria
+                // Si viene como string YYYY-MM-DD, usarla directamente
+                $fechaCompra = $validated['fecha'];
+                if ($fechaCompra instanceof \DateTime || $fechaCompra instanceof \Carbon\Carbon) {
+                    $fechaCompra = $fechaCompra->format('Y-m-d');
+                } elseif (is_string($fechaCompra) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $fechaCompra)) {
+                    // Ya está en formato correcto, usar directamente
+                    $fechaCompra = $fechaCompra;
+                } else {
+                    // Intentar parsear y formatear
+                    $fechaCompra = \Carbon\Carbon::parse($fechaCompra)->format('Y-m-d');
+                }
+                
                 // Actualizar compra
                 $compra->update([
                     'nro_compra' => $validated['nro_compra'],
                     'descripcion' => $validated['descripcion'] ?? null,
                     'proveedor_id' => $validated['proveedor_id'],
-                    'fecha' => $validated['fecha'],
+                    'fecha' => $fechaCompra,
                 ]);
 
                 // Eliminar detalles antiguos
@@ -217,6 +251,8 @@ class CompraController extends BaseController
 
     public function destroy(string $id)
     {
+        $this->verificarPermiso('compras.eliminar');
+        
         $compra = Compra::findOrFail($id);
 
         // No permitir eliminar compras validadas
@@ -232,6 +268,8 @@ class CompraController extends BaseController
 
     public function validar(string $id)
     {
+        $this->verificarPermiso('compras.validar');
+        
         $compra = Compra::with('detalles.producto', 'proveedor')->findOrFail($id);
 
         // No permitir validar compras canceladas
@@ -267,6 +305,8 @@ class CompraController extends BaseController
 
     public function cancelar(string $id)
     {
+        $this->verificarPermiso('compras.cancelar');
+        
         $compra = Compra::with('detalles.inventarios')->findOrFail($id);
 
         // No permitir cancelar compras ya validadas (que tienen inventario)

@@ -4,14 +4,14 @@
             <div class="flex justify-between items-center mb-6">
                 <h1 class="text-3xl font-bold">Clientes</h1>
                 <div class="flex gap-3">
-                    <Link 
-                        v-if="puedeVer" 
-                        href="/admin/clientes/verificar-documentos" 
+                    <Link
+                        v-if="puedeVer"
+                        :href="route('admin.clientes.verificar-documentos')"
                         class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2"
                     >
                         📋 Verificar Documentos
                     </Link>
-                    <Link v-if="puedeCrear" href="/admin/clientes/create" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium">
+                    <Link v-if="puedeCrear" :href="route('admin.clientes.create')" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium">
                         ➕ Nuevo Cliente
                     </Link>
                 </div>
@@ -35,7 +35,7 @@
                                 <span :class="cliente.estado === 'A' ? 'text-green-600' : 'text-red-600'">{{ cliente.estado === 'A' ? 'Activo' : 'Inactivo' }}</span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                <span 
+                                <span
                                     v-if="cliente.estado_verificacion"
                                     class="px-2 py-1 rounded-full text-xs font-medium"
                                     :class="{
@@ -53,11 +53,11 @@
                                 <span v-else class="text-gray-400 text-xs">Sin documentos</span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                <Link v-if="puedeVer" :href="`/admin/clientes/${cliente.id}`" class="text-blue-600 hover:text-blue-900">Ver</Link>
-                                <Link v-if="puedeEditar" :href="`/admin/clientes/${cliente.id}/edit`" class="text-indigo-600 hover:text-indigo-900">Editar</Link>
-                                <Link 
-                                    v-if="puedeVer && (cliente.estado_verificacion === 'en_revision' || cliente.estado_verificacion === 'pendiente')" 
-                                    :href="`/admin/clientes/verificar-documentos?cliente=${cliente.id}`" 
+                                <Link v-if="puedeVer" :href="route('admin.clientes.show', cliente.id)" class="text-blue-600 hover:text-blue-900">Ver</Link>
+                                <Link v-if="puedeEditar" :href="route('admin.clientes.edit', cliente.id)" class="text-indigo-600 hover:text-indigo-900">Editar</Link>
+                                <Link
+                                    v-if="puedeVer && (cliente.estado_verificacion === 'en_revision' || cliente.estado_verificacion === 'pendiente')"
+                                    :href="route('admin.clientes.verificar-documentos', { cliente: cliente.id })"
                                     class="text-purple-600 hover:text-purple-900"
                                 >
                                     Verificar
@@ -88,7 +88,9 @@
     </AdminLayout>
 </template>
 <script setup>
+import { computed } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { usePermissions } from '@/composables/usePermissions';
 
@@ -96,14 +98,15 @@ defineProps({ clientes: Object });
 
 const { tienePermiso } = usePermissions();
 
-const puedeCrear = tienePermiso('clientes.crear');
-const puedeVer = tienePermiso('clientes.ver');
-const puedeEditar = tienePermiso('clientes.editar');
-const puedeEliminar = tienePermiso('clientes.eliminar');
+// Hacer reactivos los permisos usando computed
+const puedeCrear = computed(() => tienePermiso('clientes.crear'));
+const puedeVer = computed(() => tienePermiso('clientes.ver'));
+const puedeEditar = computed(() => tienePermiso('clientes.editar'));
+const puedeEliminar = computed(() => tienePermiso('clientes.eliminar'));
 
 const deleteItem = (id) => {
     if(confirm('¿Está seguro de eliminar este cliente?')) {
-        router.delete(`/admin/clientes/${id}`);
+        router.delete(route('admin.clientes.destroy', id));
     }
 };
 </script>

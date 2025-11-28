@@ -58,6 +58,7 @@
 </template>
 
 <script setup>
+import { route } from 'ziggy-js';
 import MainLayout from '@/Layouts/MainLayout.vue';
 import DashboardCard from '@/Components/DashboardCard.vue';
 </script>

@@ -11,15 +11,17 @@
                     <div><dt class="text-sm font-medium text-gray-500">Estado</dt><dd class="mt-1 text-sm text-gray-900">{{ cliente.estado === 'A' ? 'Activo' : 'Inactivo' }}</dd></div>
                 </dl>
                 <div class="mt-4">
-                    <Link v-if="puedeEditar" :href="`/admin/clientes/${cliente.id}/edit`" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium mr-2">Editar</Link>
-                    <Link href="/admin/clientes" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium">Volver</Link>
+                    <Link v-if="puedeEditar" :href="route('admin.clientes.edit', cliente.id)" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium mr-2">Editar</Link>
+                    <Link :href="route('admin.clientes.index')" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium">Volver</Link>
                 </div>
             </div>
         </div>
     </AdminLayout>
 </template>
 <script setup>
+import { computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { usePermissions } from '@/composables/usePermissions';
 
@@ -27,6 +29,7 @@ defineProps({ cliente: Object });
 
 const { tienePermiso } = usePermissions();
 
-const puedeEditar = tienePermiso('clientes.editar');
+// Hacer reactivos los permisos usando computed
+const puedeEditar = computed(() => tienePermiso('clientes.editar'));
 </script>
 

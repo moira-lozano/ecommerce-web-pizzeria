@@ -10,7 +10,7 @@
                     <div class="flex">
                         <div class="flex-shrink-0 flex items-center">
                             <Link
-                                href="/admin/dashboard"
+                                :href="route('admin.dashboard')"
                                 class="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent hover:scale-105 transition-transform duration-200"
                             >
                                 🏢 Sistema Tecnoweb
@@ -37,7 +37,7 @@
                     </div>
                     <div class="flex items-center space-x-4">
                         <Link
-                            href="/shop"
+                            :href="route('shop.index')"
                             class="text-gray-600 hover:text-blue-600 text-sm font-medium transition-colors duration-200 flex items-center gap-1"
                         >
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -64,14 +64,14 @@
                                 leave-to-class="transform opacity-0 scale-95"
                             >
                                 <div v-show="showUserMenu" @click.stop class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-1 z-50 border border-gray-100">
-                                    <Link
+                                    <!-- <Link
                                         href="/profile"
                                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-150"
                                     >
                                         Mi Perfil
-                                    </Link>
+                                    </Link> -->
                                     <Link
-                                        href="/logout"
+                                        :href="route('logout')"
                                         method="post"
                                         as="button"
                                         class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors duration-150"
@@ -96,27 +96,28 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 
 const showUserMenu = ref(false);
 const page = usePage();
 
 const navLinks = computed(() => {
     const links = [
-        { href: '/admin/dashboard', label: 'Dashboard' },
-        { href: '/admin/productos', label: 'Productos' },
-        { href: '/admin/categorias', label: 'Categorías' },
-        { href: '/admin/clientes', label: 'Clientes' },
-        { href: '/admin/ventas', label: 'Ventas' },
-        { href: '/admin/compras', label: 'Compras' },
-        { href: '/admin/proveedores', label: 'Proveedores' },
-        { href: '/admin/inventario', label: 'Inventario' },
-        { href: '/admin/creditos', label: 'Créditos' }
+        { href: route('admin.dashboard'), label: 'Dashboard' },
+        { href: route('admin.productos.index'), label: 'Productos' },
+        { href: route('admin.categorias.index'), label: 'Categorías' },
+        { href: route('admin.clientes.index'), label: 'Clientes' },
+        { href: route('admin.ventas.index'), label: 'Ventas' },
+        { href: route('admin.compras.index'), label: 'Compras' },
+        { href: route('admin.proveedores.index'), label: 'Proveedores' },
+        { href: route('admin.inventario.index'), label: 'Inventario' },
+        { href: route('admin.creditos.index'), label: 'Créditos' }
     ];
 
     if (page.props.auth?.user?.rol?.nombre === 'propietario') {
         links.push(
-            { href: '/admin/usuarios', label: 'Usuarios' },
-            { href: '/admin/roles', label: 'Roles' }
+            { href: route('admin.usuarios.index'), label: 'Usuarios' },
+            { href: route('admin.roles.index'), label: 'Roles' }
         );
     }
 

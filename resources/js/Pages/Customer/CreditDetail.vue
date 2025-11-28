@@ -2,7 +2,7 @@
     <ShopLayout>
         <div class="container mx-auto px-4 py-8">
             <div class="mb-6">
-                <Link href="/my-credits" class="text-blue-600 hover:text-blue-800 flex items-center gap-2">
+                <Link :href="route('customer.credits')" class="text-blue-600 hover:text-blue-800 flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
@@ -49,7 +49,7 @@
                             </div>
                             <div>
                                 <dt class="text-sm text-gray-600">Fecha Inicio:</dt>
-                                <dd class="font-medium">{{ new Date(credito.fecha_inicio).toLocaleDateString('es-ES') }}</dd>
+                                <dd class="font-medium">{{ formatDate(credito.fecha_inicio) }}</dd>
                             </div>
                             <div>
                                 <dt class="text-sm text-gray-600">Número de Cuotas:</dt>
@@ -70,11 +70,11 @@
                             </div>
                             <div>
                                 <dt class="text-sm text-gray-600">Fecha:</dt>
-                                <dd class="font-medium">{{ new Date(credito.venta.fecha).toLocaleDateString('es-ES') }}</dd>
+                                <dd class="font-medium">{{ formatDate(credito.venta.fecha) }}</dd>
                             </div>
                             <div>
                                 <Link
-                                    :href="`/my-order/${credito.venta.id}`"
+                                    :href="route('customer.order.detail', credito.venta.id)"
                                     class="text-blue-600 hover:text-blue-800 text-sm font-medium"
                                 >
                                     Ver detalle de la venta →
@@ -108,7 +108,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm">Bs. {{ Number(pago.monto).toFixed(2) }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                                     <span v-if="pago.fecha_pago">
-                                        {{ new Date(pago.fecha_pago).toLocaleDateString('es-ES') }}
+                                        {{ formatDate(pago.fecha_pago) }}
                                     </span>
                                     <span v-else class="text-gray-400">Pendiente</span>
                                 </td>
@@ -180,14 +180,14 @@
                             </p>
                         </div>
 
-                        <div class="mb-4">
+                        <!-- <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Número de Transacción</label>
                             <input
                                 v-model="paymentForm.nro_transaccion"
                                 type="text"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                             />
-                        </div>
+                        </div> -->
 
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Observación</label>
@@ -224,11 +224,44 @@
 <script setup>
 import { ref } from 'vue';
 import { useForm, Link, router } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import ShopLayout from '@/Layouts/ShopLayout.vue';
 
 const props = defineProps({
     credito: Object
 });
+
+const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    try {
+        // Manejar formato ISO con timezone (ej: "2025-11-23T00:00:00.000000Z")
+        // Extraer solo la parte de la fecha antes de 'T' o espacio
+        let datePart = dateString;
+        if (dateString.includes('T')) {
+            datePart = dateString.split('T')[0];
+        } else if (dateString.includes(' ')) {
+            datePart = dateString.split(' ')[0];
+        }
+
+        const [year, month, day] = datePart.split('-').map(Number);
+
+        // Crear Date usando componentes locales (no UTC) para evitar el desfase de un día
+        const dateObj = new Date(year, month - 1, day);
+
+        // Verificar que la fecha sea válida
+        if (isNaN(dateObj.getTime())) {
+            return dateString;
+        }
+
+        return dateObj.toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    } catch (e) {
+        return dateString;
+    }
+};
 
 const showPaymentModal = ref(false);
 const selectedPago = ref(null);
@@ -236,12 +269,12 @@ const selectedPago = ref(null);
 const paymentForm = useForm({
     monto: 0,
     metodo: '',
-    nro_transaccion: '',
+    nro_transaccion: '1234',
     observacion: ''
 });
 
 const submitPayment = () => {
-    paymentForm.post(`/credit/pay-cuota/${props.credito.id}`, {
+    paymentForm.post(route('customer.credit.pay', props.credito.id), {
         preserveScroll: true,
         onSuccess: (page) => {
             // Si es QR, la redirección se maneja en el backend

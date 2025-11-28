@@ -9,8 +9,8 @@
                         @click="filtroEstado = 'todos'"
                         :class="[
                             'px-3 py-1 rounded-lg text-sm font-medium transition-colors',
-                            filtroEstado === 'todos' 
-                                ? 'bg-blue-600 text-white' 
+                            filtroEstado === 'todos'
+                                ? 'bg-blue-600 text-white'
                                 : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                         ]"
                     >
@@ -20,8 +20,8 @@
                         @click="filtroEstado = 'en_revision'"
                         :class="[
                             'px-3 py-1 rounded-lg text-sm font-medium transition-colors',
-                            filtroEstado === 'en_revision' 
-                                ? 'bg-blue-600 text-white' 
+                            filtroEstado === 'en_revision'
+                                ? 'bg-blue-600 text-white'
                                 : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                         ]"
                     >
@@ -31,8 +31,8 @@
                         @click="filtroEstado = 'pendiente'"
                         :class="[
                             'px-3 py-1 rounded-lg text-sm font-medium transition-colors',
-                            filtroEstado === 'pendiente' 
-                                ? 'bg-blue-600 text-white' 
+                            filtroEstado === 'pendiente'
+                                ? 'bg-blue-600 text-white'
                                 : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                         ]"
                     >
@@ -83,8 +83,8 @@
                             </label>
                             <div class="relative group">
                                 <img
-                                    :src="`/storage/${cliente.carnet_anverso}`"
-                                    alt="Carnet Anverso"
+                                :src="storageUrl(cliente.carnet_anverso)"
+                                alt="Carnet Anverso"
                                     class="w-full h-32 object-contain border rounded-lg bg-gray-50 dark:bg-gray-700 cursor-pointer hover:opacity-90 transition-opacity"
                                     @click="abrirModal(cliente.carnet_anverso, 'Carnet Anverso')"
                                 />
@@ -101,7 +101,8 @@
                             </label>
                             <div class="relative group">
                                 <img
-                                    :src="`/storage/${cliente.carnet_reverso}`"
+                                    :src="storageUrl(cliente.carnet_reverso)"
+
                                     alt="Carnet Reverso"
                                     class="w-full h-32 object-contain border rounded-lg bg-gray-50 dark:bg-gray-700 cursor-pointer hover:opacity-90 transition-opacity"
                                     @click="abrirModal(cliente.carnet_reverso, 'Carnet Reverso')"
@@ -119,7 +120,8 @@
                             </label>
                             <div class="relative group">
                                 <img
-                                    :src="`/storage/${cliente.foto_luz}`"
+                                    :src="storageUrl(cliente.foto_luz)"
+
                                     alt="Factura de Luz"
                                     class="w-full h-32 object-contain border rounded-lg bg-gray-50 dark:bg-gray-700 cursor-pointer hover:opacity-90 transition-opacity"
                                     @click="abrirModal(cliente.foto_luz, 'Factura de Luz')"
@@ -137,7 +139,8 @@
                             </label>
                             <div class="relative group">
                                 <img
-                                    :src="`/storage/${cliente.foto_agua}`"
+                                    :src="storageUrl(cliente.foto_agua)"
+
                                     alt="Factura de Agua"
                                     class="w-full h-32 object-contain border rounded-lg bg-gray-50 dark:bg-gray-700 cursor-pointer hover:opacity-90 transition-opacity"
                                     @click="abrirModal(cliente.foto_agua, 'Factura de Agua')"
@@ -155,7 +158,8 @@
                             </label>
                             <div class="relative group">
                                 <img
-                                    :src="`/storage/${cliente.foto_garantia}`"
+                                    :src="storageUrl(cliente.foto_garantia)"
+
                                     alt="Objeto de Garantía"
                                     class="w-full h-32 object-contain border rounded-lg bg-gray-50 dark:bg-gray-700 cursor-pointer hover:opacity-90 transition-opacity"
                                     @click="abrirModal(cliente.foto_garantia, 'Objeto de Garantía')"
@@ -317,7 +321,8 @@
                             </button>
                         </div>
                         <img
-                            :src="`/storage/${imagenModal}`"
+                            :src="storageUrl(imagenModal)"
+
                             :alt="tituloModal"
                             class="w-full h-auto max-h-[80vh] object-contain rounded-lg"
                         />
@@ -331,8 +336,10 @@
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue';
 import { Link, router, useForm, usePage } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
-
+import { useStorage } from '@/composables/useStorage';
+const { storageUrl } = useStorage();
 const props = defineProps({
     clientes: Object
 });
@@ -391,7 +398,7 @@ const cancelarAccion = () => {
 };
 
 const aprobarCliente = (clienteId) => {
-    formAprobar.post(`/admin/clientes/${clienteId}/aprobar-documentos`, {
+    formAprobar.post(route('admin.clientes.aprobar-documentos', clienteId), {
         onSuccess: () => {
             cancelarAccion();
         }
@@ -399,7 +406,7 @@ const aprobarCliente = (clienteId) => {
 };
 
 const rechazarCliente = (clienteId) => {
-    formRechazar.post(`/admin/clientes/${clienteId}/rechazar-documentos`, {
+    formRechazar.post(route('admin.clientes.rechazar-documentos', clienteId), {
         onSuccess: () => {
             cancelarAccion();
         }
@@ -410,16 +417,16 @@ const rechazarCliente = (clienteId) => {
 onMounted(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const clienteId = urlParams.get('cliente');
-    
+
     if (clienteId) {
         clienteSeleccionado.value = parseInt(clienteId);
-        
+
         // Esperar a que el DOM se renderice y hacer scroll
         nextTick(() => {
             const elemento = document.getElementById(`cliente-${clienteId}`);
             if (elemento) {
                 elemento.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                
+
                 // Remover el highlight después de 3 segundos
                 setTimeout(() => {
                     clienteSeleccionado.value = null;

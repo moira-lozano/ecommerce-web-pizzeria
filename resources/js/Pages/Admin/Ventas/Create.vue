@@ -2,7 +2,7 @@
     <AdminLayout>
         <div class="container mx-auto px-4 py-8">
             <div class="mb-6">
-                <Link href="/admin/ventas" class="text-blue-600 hover:text-blue-800 flex items-center gap-2">
+                <Link :href="route('admin.ventas.index')" class="text-blue-600 hover:text-blue-800 flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
@@ -244,7 +244,7 @@
                         <span v-else>Guardar Venta</span>
                     </button>
                     <Link
-                        href="/admin/ventas"
+                        :href="route('admin.ventas.index')"
                         class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium"
                     >
                         Cancelar
@@ -258,6 +258,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useForm, Link, usePage } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import axios from 'axios';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 
@@ -269,10 +270,19 @@ const props = defineProps({
     stocks: Object
 });
 
+// Función helper para obtener la fecha local en formato YYYY-MM-DD
+const obtenerFechaLocal = () => {
+    const ahora = new Date();
+    const año = ahora.getFullYear();
+    const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+    const dia = String(ahora.getDate()).padStart(2, '0');
+    return `${año}-${mes}-${dia}`;
+};
+
 const form = useForm({
     cliente_id: '',
     usuario_id: props.usuario_id || '',
-    fecha: new Date().toISOString().split('T')[0],
+    fecha: obtenerFechaLocal(),
     tipo: 'contado',
     numero_cuotas: null,
     detalles: []
@@ -305,7 +315,7 @@ const buscarClientes = () => {
     timeoutBusqueda.value = setTimeout(async () => {
         buscandoClientes.value = true;
         try {
-            const response = await axios.get('/admin/ventas/buscar-clientes', {
+            const response = await axios.get(route('admin.ventas.buscar-clientes'), {
                 params: { q: clienteBusqueda.value }
             });
             clientesSugeridos.value = response.data;
@@ -389,6 +399,6 @@ const total = computed(() => {
 });
 
 const submit = () => {
-    form.post('/admin/ventas');
+    form.post(route('admin.ventas.store'));
 };
 </script>

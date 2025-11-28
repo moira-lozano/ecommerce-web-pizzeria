@@ -72,7 +72,7 @@
                         </dl>
                         <div v-if="!cliente.credito_aprobado || cliente.estado_verificacion !== 'aprobado'" class="pt-4 border-t">
                             <Link
-                                href="/verificar-credito"
+                                :href="route('customer.verificar-credito')"
                                 class="block w-full bg-indigo-500 hover:bg-indigo-600 text-white text-center px-4 py-2 rounded-lg font-medium transition-colors"
                             >
                                 {{ cliente.estado_verificacion === 'rechazado' ? 'Actualizar Documentos' : 'Solicitar Verificación de Crédito' }}
@@ -87,19 +87,19 @@
                         <h2 class="text-xl font-semibold mb-4">Acciones Rápidas</h2>
                         <div class="space-y-3">
                             <Link
-                                href="/my-orders"
+                                :href="route('customer.orders')"
                                 class="block w-full bg-blue-500 hover:bg-blue-600 text-white text-center px-4 py-2 rounded-lg font-medium transition-colors"
                             >
                                 Mis Compras
                             </Link>
                             <Link
-                                href="/my-credits"
+                                :href="route('customer.credits')"
                                 class="block w-full bg-green-500 hover:bg-green-600 text-white text-center px-4 py-2 rounded-lg font-medium transition-colors"
                             >
                                 Mis Créditos
                             </Link>
                             <Link
-                                href="/shop"
+                                :href="route('shop.index')"
                                 class="block w-full bg-gray-500 hover:bg-gray-600 text-white text-center px-4 py-2 rounded-lg font-medium transition-colors"
                             >
                                 Ir a la Tienda
@@ -114,6 +114,7 @@
 
 <script setup>
 import { Link } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import ShopLayout from '@/Layouts/ShopLayout.vue';
 
 defineProps({

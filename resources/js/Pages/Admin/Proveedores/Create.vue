@@ -174,7 +174,7 @@
                         >
                             Guardar Proveedor
                         </Button>
-                        <Link href="/admin/proveedores">
+                        <Link :href="route('admin.proveedores.index')">
                             <Button
                                 type="button"
                                 variant="outline"
@@ -193,6 +193,7 @@
 <script setup>
 import { useForm, Link } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import { route } from 'ziggy-js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import TextInput from '@/Components/Form/TextInput.vue';
 import SelectInput from '@/Components/Form/SelectInput.vue';
@@ -239,7 +240,7 @@ const submit = () => {
         form.usuario_rol_id = null;
     }
 
-    form.post('/admin/proveedores', {
+    form.post(route('admin.proveedores.store'), {
         onSuccess: () => {
             // El mensaje de éxito se mostrará automáticamente desde el layout
         }

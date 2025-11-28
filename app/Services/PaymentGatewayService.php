@@ -16,27 +16,31 @@ class PaymentGatewayService
 {
     private $client_guzzle;
     private $url_login;
+    private $url_list_methods;
     private $url_qr;
-    private $url_consultar;
+    private $url_query;
     private $clientCode;
     private $callbackUrl;
     private $tokenService;
     private $tokenSecret;
+    private $paymentMethodId;
     private const CACHE_KEY_ACCESS_TOKEN = 'pagofacil_access_token';
     private const CACHE_KEY_TOKEN_EXPIRES = 'pagofacil_token_expires';
+    private const CACHE_KEY_PAYMENT_METHOD_ID = 'pagofacil_payment_method_id';
 
     public function __construct()
     {
         $this->client_guzzle = new Client();
         $this->url_login = "https://masterqr.pagofacil.com.bo/api/services/v2/login";
+        $this->url_list_methods = "https://masterqr.pagofacil.com.bo/api/services/v2/list-enabled-services";
         $this->url_qr = "https://masterqr.pagofacil.com.bo/api/services/v2/generate-qr";
-        $this->url_consultar = "https://serviciostigomoney.pagofacil.com.bo/api/servicio/consultartransaccion";
+        $this->url_query = "https://masterqr.pagofacil.com.bo/api/services/v2/query-transaction";
 
         // Obtener credenciales del .env
         $this->tokenService = env('PAGO_FACIL_TCTOKEN_SERVICE');
         $this->tokenSecret = env('PAGO_FACIL_TCTOKEN_SECRET');
         $this->clientCode = env('PAGO_FACIL_CLIENT_CODE', env('PAGO_FACIL_COMERCE_ID')); // Código de cliente
-        $this->callbackUrl = env('PAGO_FACIL_CALLBACK_URL', 'https://db17d557a193.ngrok-free.app/payment/callback');
+        $this->callbackUrl = env('PAGO_FACIL_CALLBACK_URL', 'http://64.227.111.150:8085/payment/callback');
     }
 
     /**
@@ -115,6 +119,91 @@ class PaymentGatewayService
     }
 
     /**
+     * PASO 2: Listar métodos de pago habilitados y obtener paymentMethodId
+     * Según documentación oficial: /list-enabled-services
+     */
+    private function getPaymentMethodId()
+    {
+        // Verificar si hay paymentMethodId en cache
+        $paymentMethodId = Cache::get(self::CACHE_KEY_PAYMENT_METHOD_ID);
+
+        if ($paymentMethodId) {
+            return $paymentMethodId;
+        }
+
+        try {
+            // Obtener accessToken válido
+            $accessToken = $this->getAccessToken();
+
+            $headers = [
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . $accessToken
+            ];
+
+            Log::info('Listando métodos de pago habilitados', ['url' => $this->url_list_methods]);
+
+            $response = $this->client_guzzle->get($this->url_list_methods, [
+                'headers' => $headers
+            ]);
+
+            $result = json_decode($response->getBody()->getContents());
+
+            if (isset($result->error) && $result->error == 1) {
+                throw new \Exception('Error al listar métodos: ' . ($result->message ?? 'Error desconocido'));
+            }
+
+            // Buscar el método QR (generalmente el primero o el que tenga "QR" en el nombre)
+            $paymentMethodId = null;
+            if (isset($result->values) && is_array($result->values)) {
+                foreach ($result->values as $method) {
+                    if (isset($method->paymentMethodName) &&
+                        (stripos($method->paymentMethodName, 'QR') !== false ||
+                         stripos($method->paymentMethodName, 'qr') !== false)) {
+                        $paymentMethodId = $method->paymentMethodId;
+                        Log::info('Método QR encontrado', [
+                            'paymentMethodId' => $paymentMethodId,
+                            'paymentMethodName' => $method->paymentMethodName ?? null
+                        ]);
+                        break;
+                    }
+                }
+
+                // Si no se encontró uno específico, usar el primero disponible
+                if (!$paymentMethodId && isset($result->values[0]->paymentMethodId)) {
+                    $paymentMethodId = $result->values[0]->paymentMethodId;
+                    Log::info('Usando primer método disponible', ['paymentMethodId' => $paymentMethodId]);
+                }
+            }
+
+            if (!$paymentMethodId) {
+                // Valor por defecto según documentación (4 = QR BNB, pero puede variar)
+                $paymentMethodId = env('PAGO_FACIL_PAYMENT_METHOD_ID', 4);
+                Log::warning('No se encontró paymentMethodId en respuesta, usando valor por defecto', [
+                    'paymentMethodId' => $paymentMethodId
+                ]);
+            }
+
+            // Guardar en cache (24 horas)
+            Cache::put(self::CACHE_KEY_PAYMENT_METHOD_ID, $paymentMethodId, 86400);
+
+            return $paymentMethodId;
+
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
+            // Log::error('Error al listar métodos de pago', [
+            //     'message' => $e->getMessage(),
+            //     'response' => $e->hasResponse() ? $e->getResponse()->getBody()->getContents() : null
+            // ]);
+
+            // Usar valor por defecto si falla
+            $paymentMethodId = env('PAGO_FACIL_PAYMENT_METHOD_ID', 4);
+            Log::warning('Usando paymentMethodId por defecto debido a error', [
+                'paymentMethodId' => $paymentMethodId
+            ]);
+            return $paymentMethodId;
+        }
+    }
+
+    /**
      * Procesar pago con pasarela QR
      */
     public function processQRPayment(Venta $venta, $cliente)
@@ -178,9 +267,12 @@ class PaymentGatewayService
             $qrImage = null;
             $transactionId = null;
 
-            // La API devuelve el QR en result->values->qrBase64 (base64)
+            // Según documentación oficial, el QR viene en result->values->qrBase64 o result->qrBase64
+            // También puede venir en result->data->qrBase64 según versiones anteriores
             if (isset($result->values->qrBase64)) {
                 $qrImage = $result->values->qrBase64;
+            } elseif (isset($result->qrBase64)) {
+                $qrImage = $result->qrBase64;
             } elseif (isset($result->values->qrImage)) {
                 $qrImage = $result->values->qrImage;
             } elseif (isset($result->data->qrBase64)) {
@@ -210,19 +302,43 @@ class PaymentGatewayService
                 ]);
             }
 
-            // Guardar número de transacción si viene en la respuesta
+            // Guardar número de transacción según documentación oficial
+            // transactionId = ID de PagoFácil (lo usaremos para consultar estado)
+            // paymentMethodTransactionId = nuestro ID interno (paymentNumber)
             if (isset($result->values->transactionId)) {
                 $transactionId = $result->values->transactionId;
-            } elseif (isset($result->values->paymentMethodTransactionId)) {
-                $transactionId = $result->values->paymentMethodTransactionId;
-            } elseif (isset($result->data->transactionId)) {
-                $transactionId = $result->data->transactionId;
+                $pago->nro_transaccion = $transactionId;
             } elseif (isset($result->transactionId)) {
                 $transactionId = $result->transactionId;
+                $pago->nro_transaccion = $transactionId;
             }
 
-            if ($transactionId) {
-                $pago->nro_transaccion = $transactionId;
+            // Guardar también nuestro ID interno si viene separado
+            if (isset($result->values->paymentMethodTransactionId)) {
+                // Este debería ser igual a nuestro paymentNumber
+                Log::info('PaymentMethodTransactionId recibido', [
+                    'paymentMethodTransactionId' => $result->values->paymentMethodTransactionId,
+                    'nro_pago' => $pago->nro_pago
+                ]);
+            }
+
+            // Guardar fecha de expiración del QR si viene (opcional, solo si el campo existe en BD)
+            if (isset($result->values->expirationDate)) {
+                try {
+                    $expirationDate = \Carbon\Carbon::parse($result->values->expirationDate);
+                    // Solo guardar si el campo existe en el modelo
+                    if (in_array('qr_expires_at', $pago->getFillable()) || $pago->getConnection()->getSchemaBuilder()->hasColumn($pago->getTable(), 'qr_expires_at')) {
+                        $pago->qr_expires_at = $expirationDate;
+                    } else {
+                        Log::info('Campo qr_expires_at no existe en tabla, guardando en observaciones', [
+                            'expirationDate' => $result->values->expirationDate
+                        ]);
+                        // Guardar en observaciones como alternativa
+                        $pago->observaciones = ($pago->observaciones ?? '') . ' | QR expira: ' . $expirationDate->format('Y-m-d H:i:s');
+                    }
+                } catch (\Exception $e) {
+                    Log::warning('Error parseando expirationDate', ['date' => $result->values->expirationDate, 'error' => $e->getMessage()]);
+                }
             }
 
             $pago->estado = 'pendiente';
@@ -369,46 +485,122 @@ class PaymentGatewayService
     }
 
     /**
-     * Consultar estado de pago
+     * PASO 5B: Consultar estado de pago manualmente
+     * Según documentación oficial: /query-transaction
+     * Se usa cuando no hay callback o para verificar manualmente
      */
     public function consultPaymentStatus(Pago $pago)
     {
-        if (!$pago->nro_transaccion) {
-            return null;
-        }
-
         try {
             // Obtener accessToken válido
             $accessToken = $this->getAccessToken();
 
             $headers = [
-                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
                 'Authorization' => 'Bearer ' . $accessToken
             ];
 
-            $body = ["TransaccionDePago" => $pago->nro_transaccion];
+            // Según documentación, podemos consultar por:
+            // - pagofacilTransactionId (transactionId de PagoFácil)
+            // - companyTransactionId (nuestro paymentNumber)
+            $body = [];
 
-            $response = $this->client_guzzle->post($this->url_consultar, [
+            if ($pago->nro_transaccion) {
+                // Usar transactionId de PagoFácil si está disponible
+                $body['pagofacilTransactionId'] = $pago->nro_transaccion;
+            } else {
+                // Usar nuestro paymentNumber (nro_pago)
+                $body['companyTransactionId'] = $pago->nro_pago;
+            }
+
+            Log::info('Consultando estado de pago', [
+                'url' => $this->url_query,
+                'body' => $body
+            ]);
+
+            $response = $this->client_guzzle->post($this->url_query, [
                 'headers' => $headers,
                 'json' => $body
             ]);
 
             $result = json_decode($response->getBody()->getContents());
 
-            // Estado 3 = Completado, Estado 0 = Pendiente
-            if (isset($result->values->estadoPago) && $result->values->estadoPago == 3) {
-                $this->confirmPayment($pago->nro_pago);
+            Log::info('Respuesta de consulta de estado', ['result' => $result]);
+
+            // Según documentación oficial:
+            // paymentStatus: 1 = PAGADO, 2 = PENDIENTE, 3 = EXPIRADO, 4 = CANCELADO
+            $paymentInfo = null;
+
+            if (isset($result->values)) {
+                $values = $result->values;
+                $paymentStatus = $values->paymentStatus ?? null;
+
+                // Si el pago está completado (status = 1) y aún no está confirmado en nuestro sistema
+                if ($paymentStatus == 1 && $pago->estado !== 'completado') {
+                    Log::info('Pago confirmado desde consulta manual', [
+                        'nro_pago' => $pago->nro_pago,
+                        'paymentStatus' => $paymentStatus
+                    ]);
+                    $this->confirmPayment($pago->nro_pago);
+                }
+
+                // Actualizar información adicional si viene
+                if (isset($values->amount)) {
+                    $pago->monto = $values->amount;
+                }
+                if (isset($values->paymentDate) && isset($values->paymentTime)) {
+                    try {
+                        $pago->fecha_confirmacion = \Carbon\Carbon::parse(
+                            $values->paymentDate . ' ' . $values->paymentTime
+                        );
+                    } catch (\Exception $e) {
+                        Log::warning('Error parseando fecha de pago', [
+                            'date' => $values->paymentDate,
+                            'time' => $values->paymentTime
+                        ]);
+                    }
+                }
+                $pago->save();
+
+                // Extraer datos relevantes para mostrar en el modal
+                $paymentInfo = [
+                    'paymentStatus' => $paymentStatus,
+                    'paymentStatusDescription' => $values->paymentStatusDescription ?? null,
+                    'amount' => $values->amount ?? null,
+                    'currencyCode' => $values->currencyCode ?? 'BOB',
+                    'paymentMethodId' => $values->paymentMethodId ?? null,
+                    'paymentMethodDetail' => $values->paymentMethodDetail ?? null,
+                    'pagofacilTransactionId' => $values->pagofacilTransactionId ?? null,
+                    'companyTransactionId' => $values->companyTransactionId ?? null,
+                    'requestDate' => $values->requestDate ?? null,
+                    'requestTime' => $values->requestTime ?? null,
+                    'paymentDate' => $values->paymentDate ?? null,
+                    'paymentTime' => $values->paymentTime ?? null,
+                    'payerName' => $values->payerName ?? null,
+                    'payerDocument' => $values->payerDocument ?? null,
+                    'payerAccount' => $values->payerAccount ?? null,
+                    'payerBank' => $values->payerBank ?? null,
+                ];
             }
 
-            return $result;
+            return [
+                'result' => $result,
+                'paymentInfo' => $paymentInfo
+            ];
         } catch (\Throwable $th) {
-            Log::error('Error consultando estado de pago: ' . $th->getMessage());
-            return null;
+            Log::error('Error consultando estado de pago: ' . $th->getMessage(), [
+                'trace' => $th->getTraceAsString()
+            ]);
+            return [
+                'result' => null,
+                'paymentInfo' => null
+            ];
         }
     }
 
     /**
-     * Generar QR en la pasarela usando la nueva API v2
+     * PASO 3: Generar QR en la pasarela usando la nueva API v2
+     * Según documentación oficial: /generate-qr
      */
     private function generateQR(Pago $pago, $detalles, $cliente)
     {
@@ -429,25 +621,30 @@ class PaymentGatewayService
         // Obtener accessToken válido (se renueva automáticamente si es necesario)
         $accessToken = $this->getAccessToken();
 
+        // PASO 2: Obtener paymentMethodId (ID del método de pago habilitado)
+        $paymentMethodId = $this->getPaymentMethodId();
+
         // Headers con Authorization Bearer usando el accessToken de PagoFacil
         $headers = [
             'Content-Type' => 'application/json',
             'Authorization' => 'Bearer ' . $accessToken
         ];
 
-        // Body según la nueva estructura de la API
+        // Body según documentación oficial
+        // paymentNumber = ID interno nuestro del pedido
+        // callbackUrl = URL donde PagoFácil enviará el resultado del pago
         $body = [
-            "paymentMethod" => 4, // 4 = QR
+            "paymentMethod" => $paymentMethodId, // ID obtenido del list-enabled-services
             "clientName" => $pago->nombre_persona,
             "documentType" => 1, // 1 = CI
             "documentId" => $pago->nit,
             "phoneNumber" => $pago->telefono,
             "email" => $pago->email ?? '',
-            "paymentNumber" => (string) $pago->nro_pago,
+            "paymentNumber" => (string) $pago->nro_pago, // Nuestro ID interno
             "amount" => (float) $pago->monto,
             "currency" => 2, // 2 = Bs (Bolivianos)
             "clientCode" => $this->clientCode,
-            "callbackUrl" => $this->callbackUrl,
+            "callbackUrl" => $this->callbackUrl, // URL donde recibiremos el callback
             "orderDetail" => $orderDetail
         ];
 

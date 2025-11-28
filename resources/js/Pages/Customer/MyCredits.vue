@@ -21,7 +21,7 @@
                                 </span>
                             </div>
                             <p class="text-sm text-gray-500 mb-2">
-                                Fecha inicio: {{ new Date(credito.fecha_inicio).toLocaleDateString('es-ES') }}
+                                Fecha inicio: {{ formatDate(credito.fecha_inicio) }}
                             </p>
                             <div class="grid grid-cols-2 gap-4 mt-3">
                                 <div>
@@ -43,7 +43,7 @@
                             </div>
                         </div>
                         <Link
-                            :href="`/my-credit/${credito.id}`"
+                            :href="route('customer.credit.detail', credito.id)"
                             class="ml-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                         >
                             Ver Detalle
@@ -73,7 +73,7 @@
                 <h2 class="text-2xl font-semibold text-gray-800 mb-2">No tienes créditos registrados</h2>
                 <p class="text-gray-600 mb-6">Realiza una compra a crédito para ver tus cuotas aquí</p>
                 <Link
-                    href="/shop"
+                    :href="route('shop.index')"
                     class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium"
                 >
                     Ir al Catálogo
@@ -85,9 +85,42 @@
 
 <script setup>
 import { Link } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 import ShopLayout from '@/Layouts/ShopLayout.vue';
 
 defineProps({
     creditos: Object
 });
+
+const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    try {
+        // Manejar formato ISO con timezone (ej: "2025-11-23T00:00:00.000000Z")
+        // Extraer solo la parte de la fecha antes de 'T' o espacio
+        let datePart = dateString;
+        if (dateString.includes('T')) {
+            datePart = dateString.split('T')[0];
+        } else if (dateString.includes(' ')) {
+            datePart = dateString.split(' ')[0];
+        }
+        
+        const [year, month, day] = datePart.split('-').map(Number);
+        
+        // Crear Date usando componentes locales (no UTC) para evitar el desfase de un día
+        const dateObj = new Date(year, month - 1, day);
+        
+        // Verificar que la fecha sea válida
+        if (isNaN(dateObj.getTime())) {
+            return dateString;
+        }
+        
+        return dateObj.toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    } catch (e) {
+        return dateString;
+    }
+};
 </script>
