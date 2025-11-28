@@ -73,9 +73,9 @@
                         <tbody class="bg-white divide-y divide-gray-200">
                             <tr v-for="compra in proveedor.compras" :key="compra.id">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm">#{{ compra.id }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm">{{ compra.fecha || '-' }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">{{ formatearFecha(compra.fecha) }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
-                                    Bs. {{ Number(compra.total).toFixed(2) }}
+                                    Bs. {{ formatearTotal(compra.total) }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <Link v-if="puedeVerCompras" :href="route('admin.compras.show', compra.id)" class="text-blue-600 hover:text-blue-900">
@@ -113,5 +113,38 @@ const { tienePermiso } = usePermissions();
 const puedeEditar = computed(() => tienePermiso('proveedores.editar'));
 const puedeVerCompras = computed(() => tienePermiso('compras.ver'));
 const puedeVerUsuario = computed(() => tienePermiso('usuarios.ver'));
+
+// Función helper para formatear fecha sin problemas de zona horaria
+const formatearFecha = (fecha) => {
+    if (!fecha) return '-';
+
+    // Si ya es un string en formato YYYY-MM-DD, parsearlo manualmente
+    if (typeof fecha === 'string' && /^\d{4}-\d{2}-\d{2}/.test(fecha)) {
+        const [año, mes, dia] = fecha.split('T')[0].split('-');
+        // Crear fecha en zona horaria local para evitar problemas de UTC
+        const fechaLocal = new Date(parseInt(año), parseInt(mes) - 1, parseInt(dia));
+        return fechaLocal.toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        });
+    }
+
+    // Si es un objeto Date u otro formato, usar el método estándar
+    const fechaObj = fecha instanceof Date ? fecha : new Date(fecha);
+    return fechaObj.toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    });
+};
+
+// Función helper para formatear el total y evitar NaN
+const formatearTotal = (total) => {
+    if (total === null || total === undefined || total === '') return '0.00';
+    const numTotal = Number(total);
+    if (isNaN(numTotal)) return '0.00';
+    return numTotal.toFixed(2);
+};
 </script>
 
