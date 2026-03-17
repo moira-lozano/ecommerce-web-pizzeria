@@ -1,5 +1,6 @@
 export function useStorage() {
-    const baseUrl = 'https://www.tecnoweb.org.bo/inf513/grupo12sa/proyecto2/public';
+    //const baseUrl = 'https://www.tecnoweb.org.bo/inf513/grupo12sa/proyecto2/public';   ///ANTIGUA RUTA PARA EL DESPLIEGUE EN SERVIDOR
+    const baseUrl = 'http://127.0.0.1:8000';
 
     // Función normal para productos, documentos, etc.
     const storageUrl = (path) => {

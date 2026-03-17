@@ -19,6 +19,20 @@ class AppServiceProvider extends ServiceProvider
      * Bootstrap any application services.
      */
     public function boot(): void
+{
+    if ($this->app->environment('local')) {
+        URL::forceRootUrl('http://localhost:8000');
+    }
+
+    if ($this->app->environment('production')) {
+        URL::forceScheme('https');
+        URL::forceRootUrl('https://www.tecnoweb.org.bo/inf513/grupo12sa/proyecto2/public');
+    }
+}
+
+
+////////ASI ESTA ORIGINALMENTE, PERO NO FUNCIONA EN LOCAL, SOLO EN PRODUCCION////
+ /*public function boot(): void
     {
         // Forzar esquema HTTPS
         if ($this->app->environment('production')) {
@@ -32,4 +46,6 @@ class AppServiceProvider extends ServiceProvider
             return config('app.url') . '/storage/' . ltrim($path, '/');
         });
     }
+*/        
+
 }
