@@ -20,6 +20,7 @@ use App\Http\Controllers\CreditoController;
 use App\Http\Controllers\PagosController;
 use App\Http\Controllers\InventarioController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\Admin\AdminPaymentController;
 
 // ====================================
 // RUTAS PÚBLICAS
@@ -205,8 +206,13 @@ Route::middleware(['auth', 'role:cliente'])->group(function () {
     Route::post('/verificar-credito', [CustomerController::class, 'subirDocumentos'])->name('customer.subir-documentos');
 
     // Pagos
-    Route::get('/payment/confirm/{id}', [\App\Http\Controllers\PaymentController::class, 'confirm'])->name('payment.confirm');
+
+    Route::get('/payment/confirm/{id}', [CheckoutController::class, 'confirmacionPago'])->name('payment.confirm');
+    Route::post('/payment/upload', [CheckoutController::class, 'guardarComprobante'])->name('payment.upload');
+
+    //Route::get('/payment/confirm/{id}', [\App\Http\Controllers\PaymentController::class, 'confirm'])->name('payment.confirm');
     Route::get('/payment/check-status/{id}', [\App\Http\Controllers\PaymentController::class, 'checkStatus'])->name('payment.check-status');
+
 });
 
 // ====================================
@@ -346,4 +352,8 @@ Route::middleware('permiso:usuarios.eliminar')->group(function () {
         Route::post('contadores/sincronizar', [\App\Http\Controllers\Admin\ContadorController::class, 'sincronizar'])->name('contadores.sincronizar');
         Route::put('contadores/{id}', [\App\Http\Controllers\Admin\ContadorController::class, 'actualizar'])->name('contadores.update');
     });
+
+    //Gestión para ver y actualizar pagos pendientes (propietario, empleado con permiso administrativo)
+    Route::get('/payments', [AdminPaymentController::class, 'index'])->name('payments.index');
+    Route::patch('/payments/{pago}', [AdminPaymentController::class, 'updateStatus'])->name('payments.update');
 });

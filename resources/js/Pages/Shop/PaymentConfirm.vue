@@ -1,264 +1,218 @@
 <template>
     <ShopLayout>
         <div class="container mx-auto px-4 py-8 max-w-4xl">
-            <div class="bg-white shadow rounded-lg p-6">
-                <h1 class="text-3xl font-bold mb-6">Confirmación de Pago</h1>
+            <div class="bg-white shadow-xl rounded-2xl p-6 border border-gray-100">
+                <h1 class="text-3xl font-bold mb-6 text-gray-800">Confirmación de Pago</h1>
 
-                <!-- Estado del Pago -->
-                <div class="mb-6 p-4 rounded-lg"
+                <div class="mb-6 p-5 rounded-xl transition-all duration-300"
                      :class="{
-                         'bg-yellow-50 border border-yellow-200': pago.estado === 'pendiente' || pago.estado === 'procesando',
+                         'bg-yellow-50 border border-yellow-200': ['pendiente', 'procesando'].includes(pago.estado),
                          'bg-green-50 border border-green-200': pago.estado === 'completado',
-                         'bg-red-50 border border-red-200': pago.estado === 'rechazado' || pago.estado === 'cancelado'
+                         'bg-red-50 border border-red-200': ['rechazado', 'cancelado'].includes(pago.estado)
                      }">
-                    <div class="flex items-center gap-3">
-                        <span class="text-3xl">
-                            <span v-if="pago.estado === 'pendiente' || pago.estado === 'procesando'">⏳</span>
+                    <div class="flex items-center gap-4">
+                        <span class="text-4xl">
+                            <span v-if="['pendiente', 'procesando'].includes(pago.estado)">⏳</span>
                             <span v-else-if="pago.estado === 'completado'">✅</span>
                             <span v-else>❌</span>
                         </span>
                         <div>
-                            <h3 class="font-semibold text-lg">
-                                <span v-if="pago.estado === 'pendiente'">Pago Pendiente</span>
-                                <span v-else-if="pago.estado === 'procesando'">Procesando Pago</span>
-                                <span v-else-if="pago.estado === 'completado'">Pago Completado</span>
-                                <span v-else>Pago Rechazado</span>
+                            <h3 class="font-bold text-lg capitalize text-gray-800">
+                                {{ pago.estado === 'pendiente' ? 'Esperando Pago o Verificación' : 'Pago ' + pago.estado }}
                             </h3>
-                            <p class="text-sm text-gray-600">
-                                Número de pago: {{ pago.nro_pago }}
-                            </p>
+                            <p class="text-sm text-gray-600">Referencia: #{{ pago.nro_pago }}</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Información de la Venta o Cuota -->
-                <div class="mb-6">
-                    <h2 class="text-xl font-semibold mb-4">
-                        <span v-if="pago.cuota_pago">Detalles del Pago de Cuota</span>
-                        <span v-else>Detalles de la Compra</span>
+                <div class="mb-8">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                        {{ pago.cuota_pago ? 'Detalles de Cuota' : 'Detalles de Compra' }}
                     </h2>
-                    <div class="bg-gray-50 rounded-lg p-4 space-y-2">
-                        <div v-if="pago.cuota_pago && pago.cuota_pago.credito" class="flex justify-between">
-                            <span class="text-gray-600">Crédito:</span>
-                            <span class="font-medium">#{{ pago.cuota_pago.credito.id }}</span>
+                    <div class="bg-gray-50 rounded-xl p-5 space-y-3 border border-gray-100">
+                        <div v-if="pago.cuota_pago" class="flex justify-between border-b border-gray-200 pb-2">
+                            <span class="text-gray-500">Crédito / Cuota:</span>
+                            <span class="font-semibold">ID #{{ pago.cuota_pago.credito?.id }} - Cuota {{ pago.cuota_pago.numero_cuota }}</span>
                         </div>
-                        <div v-if="pago.cuota_pago" class="flex justify-between">
-                            <span class="text-gray-600">Cuota:</span>
-                            <span class="font-medium">Cuota {{ pago.cuota_pago.numero_cuota }}</span>
+                        <div v-if="pago.venta && !pago.cuota_pago" class="flex justify-between border-b border-gray-200 pb-2">
+                            <span class="text-gray-500">Número de Venta:</span>
+                            <span class="font-semibold">{{ pago.venta?.nro_venta }}</span>
                         </div>
-                        <div v-if="pago.venta && !pago.cuota_pago" class="flex justify-between">
-                            <span class="text-gray-600">Venta:</span>
-                            <span class="font-medium">{{ pago.venta?.nro_venta }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Monto Total:</span>
-                            <span class="font-bold text-green-600">Bs. {{ Number(pago.monto).toFixed(2) }}</span>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-500">Monto Total:</span>
+                            <span class="text-2xl font-black text-green-700">Bs. {{ Number(pago.monto).toFixed(2) }}</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-600">Método de Pago:</span>
-                            <span class="font-medium">
-                                <span v-if="pago.tipo_pago === 'qr'">📱 QR PagoFácil</span>
-                                <span v-else-if="pago.tipo_pago === 'tigo_money'">📲 Tigo Money</span>
-                                <span v-else>{{ pago.tipo_pago }}</span>
+                            <span class="text-gray-500">Método:</span>
+                            <span class="font-medium bg-white px-2 py-1 rounded shadow-sm border text-sm">
+                                {{ pago.metodo_pago === 'qr' ? '📱 QR PagoFácil' : (pago.metodo_pago === 'tigo_money' ? '📲 Tigo Money' : pago.metodo_pago) }}
                             </span>
                         </div>
                     </div>
                 </div>
 
-                <!-- QR Code -->
-                <div v-if="pago.tipo_pago === 'qr' && pago.qr_image" class="mb-6">
-                    <h2 class="text-xl font-semibold mb-4">Escanea el Código QR</h2>
-                    <div class="flex justify-center">
-                        <div class="bg-white p-4 rounded-lg border-2 border-gray-200">
-                            <img
-                            :src="storageUrlSafe(pago.qr_image)"
-                            alt="Código QR" class="w-64 h-64 mx-auto" />
+               <!-- 🔵 MOSTRAR QR SI ES PAGO QR Y AÚN NO HAY COMPROBANTE -->
+                <div v-if= true>
+                    <div class="text-center bg-blue-50 p-6 rounded-2xl border-2 border-blue-100">
+                        <h2 class="text-xl font-bold mb-4 text-blue-900">
+                            Escanea para pagar
+                        </h2>
+                        
+                        <div class="relative inline-block">
+                            <img 
+                                src="/images/qr_pago.jpeg"
+                                alt="QR de Pago"
+                                class="w-72 h-72 mx-auto object-contain bg-white p-3 shadow-lg rounded-xl border"
+                            />
                         </div>
+                        
+                        <p class="mt-4 text-sm text-blue-700 italic">
+                            Abre la app de tu banco, escanea el código y realiza la transferencia por el monto exacto.
+                        </p>
                     </div>
-                    <p class="text-center text-sm text-gray-600 mt-4">
-                        Usa la app de tu banco o billetera móvil para escanear este código y completar el pago
+                </div>
+
+
+<div v-if="!pago.comprobante_path || pago.estado === 'rechazado'">
+    
+    <div v-if="pago.estado === 'rechazado'" class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-xl">
+        <h4 class="text-red-800 font-bold">Pago Rechazado</h4>
+        <p class="text-red-700 text-sm">
+            Motivo: <span class="italic font-medium">"{{ pago.observaciones || 'Comprobante no válido o ilegible.' }}"</span>
+        </p>
+        <p class="text-red-700 text-xs mt-1 font-semibold underline">Por favor, intenta subir el comprobante correcto nuevamente.</p>
+    </div>
+
+    <h3 class="text-center font-bold text-gray-800 mb-4">
+       <!--  {{ pago.estado === 'rechazado' ? 'Vuelve a subir tu comprobante:' : '¿Ya realizaste el pago? Sube tu comprobante:' }} -->
+    </h3>
+
+    <form @submit.prevent="submitComprobante" class="space-y-4">
+        <div class="flex items-center justify-center w-full">
+            <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-white hover:bg-gray-50 transition-colors">
+                <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                    <svg class="w-8 h-8 mb-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+
+                    <p class="text-sm text-gray-500 font-medium">
+                        Click para seleccionar imagen del comprobante
+                    </p>
+
+                    <p v-if="uploadForm.comprobante" class="text-blue-600 font-bold mt-1 text-sm">
+                        📍 {{ uploadForm.comprobante.name }}
                     </p>
                 </div>
 
-                <!-- Tigo Money -->
-                <div v-if="pago.tipo_pago === 'tigo_money'" class="mb-6">
-                    <h2 class="text-xl font-semibold mb-4">Pago con Tigo Money</h2>
-                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <p class="text-sm text-blue-800 mb-2">
-                            Se ha enviado una solicitud de pago a tu número de Tigo Money.
-                        </p>
-                        <p class="text-sm text-blue-700" v-if="pago.nro_transaccion">
-                            Número de transacción: <strong>{{ pago.nro_transaccion }}</strong>
-                        </p>
-                        <p class="text-sm text-blue-700 mt-2">
-                            Revisa tu teléfono y confirma el pago desde la app de Tigo Money.
-                        </p>
-                    </div>
-                </div>
+                <input 
+                    type="file" 
+                    class="hidden" 
+                    @change="handleFileSelect" 
+                    accept="image/*" 
+                />
+            </label>
+        </div>
 
-                <!-- Botones de Acción -->
-                <div class="flex gap-4 mt-6">
-                    <button
-                        v-if="pago.estado === 'pendiente' || pago.estado === 'procesando'"
-                        @click="checkStatus"
-                        :disabled="checking"
-                        class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium disabled:opacity-50"
-                    >
-                        <span v-if="checking">Verificando...</span>
-                        <span v-else>Verificar Estado del Pago</span>
+        <button 
+            type="submit" 
+            :disabled="uploadForm.processing || !uploadForm.comprobante"
+            class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl shadow-md transition-all disabled:opacity-50 flex justify-center items-center"
+        >
+            <span v-if="uploadForm.processing">
+                <svg class="animate-spin h-5 w-5 mr-3 text-white" viewBox="0 0 24 24"></svg>
+                Enviando...
+            </span>
+            <span v-else>Enviar Comprobante para Verificación</span>
+        </button>
+    </form>
+</div>
+
+<div 
+    v-else-if="pago.comprobante_path && pago.estado === 'pendiente'"
+    class="mt-6 p-8 bg-orange-50 border border-orange-200 rounded-2xl text-center shadow-inner"
+>
+    <span class="text-5xl mb-3 block animate-bounce">📁</span>
+
+    <h3 class="font-bold text-orange-800 text-lg">
+        Comprobante en revisión
+    </h3>
+
+    <p class="text-orange-700 mt-2">
+        Hemos recibido tu comprobante con éxito. <br>
+        <span class="font-semibold text-orange-900">
+            Un administrador está realizando la verificación.
+        </span>
+    </p>
+
+    <p class="text-xs text-orange-600 mt-4 italic">
+        Te notificaremos una vez que el pago sea validado.
+    </p>
+</div>
+
+                <!-- <div v-if="pago.metodo_pago === 'tigo_money' && pago.estado === 'pendiente'" class="mb-6">
+                    <div class="bg-blue-600 text-white rounded-xl p-5 shadow-lg">
+                        <h2 class="text-xl font-bold mb-2">📲 Esperando Tigo Money</h2>
+                        <p class="text-sm opacity-90">Revisa tu teléfono. Debes confirmar la transacción con tu PIN en la app o menú Tigo Money.</p>
+                        <p v-if="pago.nro_transaccion" class="mt-3 text-xs bg-blue-800 p-2 rounded">ID de Transacción: {{ pago.nro_transaccion }}</p>
+                    </div>
+                </div> -->
+
+                <div class="flex flex-wrap gap-4 mt-10">
+                    <div class="flex-1 min-w-[200px] flex flex-col gap-2">
+                        <button v-if="['pendiente', 'procesando'].includes(pago.estado)"
+                                @click="checkStatus" :disabled="checking"
+                                class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg transition-all disabled:opacity-50">
+                            {{ checking ? 'Verificando...' : 'Verificar Estado del Pago' }}
+                        </button>
+                    </div>
+
+                    <button v-if="infoPagoActiva" @click="showPaymentInfoModal = true"
+                            class="flex-1 min-w-[200px] bg-gray-100 hover:bg-gray-200 text-gray-800 px-6 py-3 rounded-xl font-medium transition-colors">
+                        Ver Logs del Estado
                     </button>
-                    <button
-                        v-if="paymentInfo"
-                        @click="showPaymentInfoModal = true"
-                        class="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium"
-                    >
-                        Ver Detalles del Estado
-                    </button>
-                    <Link
-                        v-if="pago.estado === 'completado'"
-                        :href="pago.cuota_pago && pago.cuota_pago.credito ? route('customer.credit.detail', pago.cuota_pago.credito.id) : route('customer.orders')"
-                        class="flex-1 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium text-center"
-                    >
-                        <span v-if="pago.cuota_pago">Volver al Crédito</span>
-                        <span v-else>Ver Mis Compras</span>
+
+                    <Link v-if="pago.estado === 'completado'" 
+                          :href="pago.cuota_pago?.credito ? route('customer.credit.detail', pago.cuota_pago.credito.id) : route('customer.orders')"
+                          class="flex-1 min-w-[200px] bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-bold text-center shadow-lg">
+                        {{ pago.cuota_pago ? 'Volver al Crédito' : 'Ver Mis Compras' }}
                     </Link>
-                    <Link
-                        :href="route('shop.index')"
-                        class="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium text-center"
-                    >
+
+                    <Link :href="route('shop.index')"
+                          class="flex-1 min-w-[200px] bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-xl font-medium text-center">
                         Continuar Comprando
                     </Link>
                 </div>
 
-                <!-- Auto-refresh para pagos pendientes -->
-                <div v-if="(pago.estado === 'pendiente' || pago.estado === 'procesando') && autoCheck" class="mt-4 text-center">
-                    <p class="text-sm text-gray-500">
-                        Verificando automáticamente cada 30 segundos...
-                    </p>
+                <div v-if="['pendiente', 'procesando'].includes(pago.estado) && autoCheck" class="mt-6">
+                    <div class="flex items-center justify-center gap-2 text-gray-400 text-xs">
+                        <div class="w-2 h-2 bg-blue-400 rounded-full animate-ping"></div>
+                        Actualizando automáticamente cada 30 segundos...
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Modal de Información de Estado del Pago -->
-        <div v-if="showPaymentInfoModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @click.self="showPaymentInfoModal = false">
-            <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <div v-if="showPaymentInfoModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" @click.self="showPaymentInfoModal = false">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden">
                 <div class="p-6">
-                    <!-- Header del Modal -->
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-2xl font-bold text-gray-800">Información del Estado del Pago</h2>
-                        <button
-                            @click="showPaymentInfoModal = false"
-                            class="text-gray-400 hover:text-gray-600 transition-colors"
-                        >
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold text-gray-800">Detalles técnicos del Pago</h2>
+                        <button @click="showPaymentInfoModal = false" class="text-gray-400 hover:text-gray-600">✖</button>
                     </div>
 
-                    <!-- Contenido del Modal -->
-                    <div v-if="paymentInfo" class="space-y-4">
-                        <!-- Estado del Pago -->
-                        <div class="bg-gray-50 rounded-lg p-4">
-                            <h3 class="font-semibold text-lg mb-3 text-gray-800">Estado del Pago</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                <div>
-                                    <p class="text-sm text-gray-600">Estado:</p>
-                                    <p class="font-medium" :class="{
-                                        'text-green-600': paymentInfo.paymentStatus === 1,
-                                        'text-yellow-600': paymentInfo.paymentStatus === 2,
-                                        'text-red-600': paymentInfo.paymentStatus === 3 || paymentInfo.paymentStatus === 4
-                                    }">
-                                        {{ paymentInfo.paymentStatusDescription || getStatusText(paymentInfo.paymentStatus) }}
-                                    </p>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-600">Código de Estado:</p>
-                                    <p class="font-medium">{{ paymentInfo.paymentStatus }}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Información de Transacción -->
-                        <div class="bg-gray-50 rounded-lg p-4">
-                            <h3 class="font-semibold text-lg mb-3 text-gray-800">Información de Transacción</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                <div v-if="paymentInfo.pagofacilTransactionId">
-                                    <p class="text-sm text-gray-600">ID Transacción PagoFácil:</p>
-                                    <p class="font-medium">{{ paymentInfo.pagofacilTransactionId }}</p>
-                                </div>
-                                <div v-if="paymentInfo.companyTransactionId">
-                                    <p class="text-sm text-gray-600">ID Transacción Interna:</p>
-                                    <p class="font-medium">{{ paymentInfo.companyTransactionId }}</p>
-                                </div>
-                                <div v-if="paymentInfo.amount">
-                                    <p class="text-sm text-gray-600">Monto:</p>
-                                    <p class="font-medium text-green-600">{{ paymentInfo.currencyCode }} {{ Number(paymentInfo.amount).toFixed(2) }}</p>
-                                </div>
-                                <div v-if="paymentInfo.paymentMethodDetail">
-                                    <p class="text-sm text-gray-600">Método de Pago:</p>
-                                    <p class="font-medium">{{ paymentInfo.paymentMethodDetail }}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Fechas -->
-                        <div class="bg-gray-50 rounded-lg p-4">
-                            <h3 class="font-semibold text-lg mb-3 text-gray-800">Fechas</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                <div v-if="paymentInfo.requestDate && paymentInfo.requestTime">
-                                    <p class="text-sm text-gray-600">Fecha de Solicitud:</p>
-                                    <p class="font-medium">{{ formatDateTime(paymentInfo.requestDate, paymentInfo.requestTime) }}</p>
-                                </div>
-                                <div v-if="paymentInfo.paymentDate && paymentInfo.paymentTime">
-                                    <p class="text-sm text-gray-600">Fecha de Pago:</p>
-                                    <p class="font-medium text-green-600">{{ formatDateTime(paymentInfo.paymentDate, paymentInfo.paymentTime) }}</p>
-                                </div>
-                                <div v-else-if="paymentInfo.paymentStatus === 2">
-                                    <p class="text-sm text-gray-600">Fecha de Pago:</p>
-                                    <p class="font-medium text-yellow-600">Pendiente</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Información del Pagador (si está disponible) -->
-                        <div v-if="paymentInfo.payerName || paymentInfo.payerDocument" class="bg-gray-50 rounded-lg p-4">
-                            <h3 class="font-semibold text-lg mb-3 text-gray-800">Información del Pagador</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                <div v-if="paymentInfo.payerName">
-                                    <p class="text-sm text-gray-600">Nombre:</p>
-                                    <p class="font-medium">{{ paymentInfo.payerName }}</p>
-                                </div>
-                                <div v-if="paymentInfo.payerDocument">
-                                    <p class="text-sm text-gray-600">Documento:</p>
-                                    <p class="font-medium">{{ paymentInfo.payerDocument }}</p>
-                                </div>
-                                <div v-if="paymentInfo.payerAccount">
-                                    <p class="text-sm text-gray-600">Cuenta:</p>
-                                    <p class="font-medium">{{ paymentInfo.payerAccount }}</p>
-                                </div>
-                                <div v-if="paymentInfo.payerBank">
-                                    <p class="text-sm text-gray-600">Banco:</p>
-                                    <p class="font-medium">{{ paymentInfo.payerBank }}</p>
-                                </div>
-                            </div>
+                    <div v-if="infoPagoActiva" class="space-y-3">
+                        <div class="grid grid-cols-2 gap-2 bg-gray-50 p-4 rounded-lg border">
+                            <span class="text-gray-500 text-sm">Estado API:</span>
+                            <span class="font-bold text-right" :class="infoPagoActiva.paymentStatus === 1 ? 'text-green-600' : 'text-yellow-600'">
+                                {{ infoPagoActiva.paymentStatusDescription || getStatusText(infoPagoActiva.paymentStatus) }}
+                            </span>
+                            <span class="text-gray-500 text-sm">ID Pasarela:</span>
+                            <span class="text-right text-xs font-mono">{{ infoPagoActiva.pagofacilTransactionId }}</span>
                         </div>
                     </div>
 
-                    <!-- Sin información disponible -->
-                    <div v-else class="text-center py-8">
-                        <p class="text-gray-500">No hay información de estado disponible</p>
-                    </div>
-
-                    <!-- Botón Cerrar -->
-                    <div class="mt-6 flex justify-end">
-                        <button
-                            @click="showPaymentInfoModal = false"
-                            class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
-                        >
-                            Cerrar
-                        </button>
-                    </div>
+                    <button @click="showPaymentInfoModal = false" class="mt-6 w-full py-2 bg-gray-800 text-white rounded-lg">Cerrar</button>
                 </div>
             </div>
         </div>
@@ -267,11 +221,9 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
-import { Link, router } from '@inertiajs/vue3';
+import { Link, router, useForm } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
 import ShopLayout from '@/Layouts/ShopLayout.vue';
-import { useStorage } from '@/composables/useStorage';
-const { storageUrlSafe } = useStorage();
 
 const props = defineProps({
     pago: Object,
@@ -281,7 +233,7 @@ const props = defineProps({
 const checking = ref(false);
 const autoCheck = ref(true);
 const showPaymentInfoModal = ref(false);
-const paymentInfo = ref(props.paymentInfo || null);
+const infoPagoActiva = ref(props.paymentInfo || null);
 let intervalId = null;
 
 const checkStatus = async () => {
@@ -291,21 +243,10 @@ const checkStatus = async () => {
             preserveState: true,
             preserveScroll: true,
             onSuccess: (page) => {
-                // Actualizar paymentInfo si viene en la respuesta
-                if (page.props.paymentInfo) {
-                    paymentInfo.value = page.props.paymentInfo;
-                    // Mostrar modal automáticamente cuando hay nueva información
-                    if (paymentInfo.value) {
-                        showPaymentInfoModal.value = true;
-                    }
-                }
-
-                // El estado se actualizará automáticamente cuando se recargue la página
+                if (page.props.paymentInfo) infoPagoActiva.value = page.props.paymentInfo;
                 if (page.props.pago?.estado === 'completado') {
                     autoCheck.value = false;
-                    if (intervalId) {
-                        clearInterval(intervalId);
-                    }
+                    if (intervalId) clearInterval(intervalId);
                 }
             }
         });
@@ -316,59 +257,33 @@ const checkStatus = async () => {
     }
 };
 
-const getStatusText = (status) => {
-    const statusMap = {
-        1: 'PAGADO',
-        2: 'PENDIENTE',
-        3: 'EXPIRADO',
-        4: 'CANCELADO'
-    };
-    return statusMap[status] || 'DESCONOCIDO';
+const uploadForm = useForm({
+    pago_id: props.pago.id,
+    comprobante: null, // Este es el campo que valida el :disabled del botón
+});
+
+const handleFileSelect = (event) => {
+    // Asignamos el archivo capturado al formulario
+    uploadForm.comprobante = event.target.files[0];
+    
+    // Opcional: Log para verificar en consola que el archivo se cargó
+    console.log("Archivo seleccionado:", uploadForm.comprobante.name);
 };
 
-const formatDateTime = (date, time) => {
-    if (!date || !time) return 'N/A';
-    try {
-        // Formato de PagoFácil: "2025-11-23" y "01:58:17"
-        // Parsear la fecha y hora manualmente para evitar problemas de zona horaria
-        const [year, month, day] = date.split('-').map(Number);
-        const [hour, minute, second] = time.split(':').map(Number);
-
-        // Crear Date usando componentes locales (no UTC) para evitar el desfase de un día
-        const dateObj = new Date(year, month - 1, day, hour, minute, second || 0);
-
-        // Verificar que la fecha sea válida
-        if (isNaN(dateObj.getTime())) {
-            return `${date} ${time}`;
-        }
-
-        const formatted = dateObj.toLocaleString('es-BO', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit'
-        });
-        return formatted;
-    } catch (e) {
-        return `${date} ${time}`;
-    }
+const submitComprobante = () => {
+    uploadForm.post(route('payment.upload'), {
+        forceFormData: true,
+        preserveScroll: true,
+    });
 };
+
+const getStatusText = (s) => ({ 1: 'PAGADO', 2: 'PENDIENTE', 3: 'EXPIRADO', 4: 'CANCELADO' }[s] || 'DESCONOCIDO');
 
 onMounted(() => {
-    // Auto-verificar cada 30 segundos si el pago está pendiente
-    if (props.pago.estado === 'pendiente' || props.pago.estado === 'procesando') {
-        intervalId = setInterval(() => {
-            checkStatus();
-        }, 30000);
+    if (['pendiente', 'procesando'].includes(props.pago.estado)) {
+        intervalId = setInterval(checkStatus, 30000);
     }
 });
 
-onUnmounted(() => {
-    if (intervalId) {
-        clearInterval(intervalId);
-    }
-});
+onUnmounted(() => { if (intervalId) clearInterval(intervalId); });
 </script>
-

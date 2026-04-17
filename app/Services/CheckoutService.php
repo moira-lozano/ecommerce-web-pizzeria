@@ -64,14 +64,29 @@ class CheckoutService
             }
 
             // Procesar pago según método
-            $paymentGatewayService = app(\App\Services\PaymentGatewayService::class);
+            //$paymentGatewayService = app(\App\Services\PaymentGatewayService::class);
 
             if ($metodoPago === 'qr') {
-                // Procesar con pasarela QR
-                $resultadoPago = $paymentGatewayService->processQRPayment($venta, $cliente);
-                return ['venta' => $venta, 'pago' => $resultadoPago['pago'], 'result' => $resultadoPago];
+            // CREACIÓN MANUAL DEL PAGO (Bypass de PagoFácil)
+            $pago = \App\Models\Pago::create([
+                'nro_pago' => 'PAGO-QR-' . time(),
+                'monto' => $cart['total'],
+                'fecha' => now(),
+                'metodo_pago' => 'qr',
+                'estado' => 'pendiente', // Se queda en pendiente hasta que suban la foto
+                'venta_id' => $venta->id,
+                'cliente_id' => $cliente->id,
+            ]);
+
+            // Retornamos el pago creado manualmente
+            return [
+                'venta' => $venta, 
+                'pago' => $pago, 
+                'result' => ['status' => 'success'] // Simulamos un resultado exitoso
+            ];
             } else {
-                // Procesar efectivo
+                // Para pago en efectivo, se registra el pago como completado de inmediato
+                $paymentGatewayService = app(\App\Services\PaymentGatewayService::class);
                 $pago = $paymentGatewayService->processCashPayment($venta, $cliente);
                 return ['venta' => $venta, 'pago' => $pago];
             }

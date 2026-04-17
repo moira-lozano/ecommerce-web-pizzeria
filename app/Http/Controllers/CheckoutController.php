@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use App\Services\CartService;
 use App\Services\CheckoutService;
+use App\Models\Pago;
 
 class CheckoutController extends Controller
 {
@@ -156,7 +157,7 @@ class CheckoutController extends Controller
                 // Si requiere pasarela (QR), redirigir a página de confirmación
                 if ($metodoPago === 'qr' && isset($resultado['pago'])) {
                     return redirect()->route('payment.confirm', ['id' => $resultado['pago']->id])
-                        ->with('success', 'Pago iniciado. Completa el proceso de pago.');
+                        ->with('success', 'Pedido registrado. Por favor, sube tu comprobante de pago.');
                 }
 
                 return redirect('/my-orders')
@@ -183,5 +184,40 @@ class CheckoutController extends Controller
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
+    }
+
+    // Muestra la página donde sale el QR y el input para subir la foto
+    public function confirmacionPago($id)
+    {
+        $pago = Pago::findOrFail($id);
+        
+        return Inertia::render('Shop/PaymentConfirm', [
+            'pago' => $pago,
+            'venta_id' => $pago->venta_id
+        ]);
+    }
+
+    // Procesa la subida de la imagen
+    public function guardarComprobante(Request $request)
+    {
+        $request->validate([
+            'pago_id' => 'required|exists:pago,id',
+            'comprobante' => 'required|image|max:2048',
+        ]);
+
+        $pago = Pago::find($request->pago_id);
+        
+        if ($request->hasFile('comprobante')) {
+            // Guardar físicamente
+            $path = $request->file('comprobante')->store('comprobantes', 'public');
+            
+            // Actualizar base de datos
+            $pago->update([
+                'comprobante_path' => $path,
+                'estado' => 'pendiente' // Esperando que el admin lo vea
+            ]);
+        }
+
+        return redirect('/my-orders')->with('success', 'Comprobante enviado. Tu pedido será procesado tras la verificación.');
     }
 }

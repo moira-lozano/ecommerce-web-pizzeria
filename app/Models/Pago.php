@@ -23,7 +23,8 @@ class Pago extends Model
         'detalles_pago',
         'fecha_pago',
         'fecha_confirmacion',
-        'observaciones'
+        'observaciones',
+        'comprobante_path'
     ];
 
     protected $casts = [

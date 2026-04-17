@@ -172,34 +172,27 @@ class PaymentController extends Controller
             'cuotaPago.credito'
         ])->findOrFail($id);
 
-        $paymentGatewayService = app(PaymentGatewayService::class);
-        $result = $paymentGatewayService->consultPaymentStatus($pago);
+        // ESTAS DOS LÍNEAS SON SIMULADAS PARA EL SERVICIO CON PAGOS FÁCIL, YA QUE NO TENEMOS UN SERVICIO REAL DE CONSULTA
+        // $paymentGatewayService = app(PaymentGatewayService::class);
+        // $result = $paymentGatewayService->consultPaymentStatus($pago);
 
         $pago->refresh();
 
-        // Extraer paymentInfo si está disponible
-        $paymentInfo = null;
-        if (is_array($result) && isset($result['paymentInfo'])) {
-            $paymentInfo = $result['paymentInfo'];
-        }
+        $paymentInfo = [
+            'paymentStatus' => ($pago->estado === 'completado') ? 1 : 2,
+            'paymentStatusDescription' => strtoupper($pago->estado),
+            'amount' => $pago->monto,
+            'currencyCode' => 'Bs.'
+        ];
 
-        // Si es una petición Inertia, redirigir a la página de confirmación
         if (request()->wantsJson() || request()->header('X-Inertia')) {
             return \Inertia\Inertia::render('Shop/PaymentConfirm', [
-                'pago' => $pago->fresh([
-                    'venta.cliente',
-                    'venta.detalles.producto',
-                    'cuotaPago.credito'
-                ]),
+                'pago' => $pago,
                 'paymentInfo' => $paymentInfo
             ]);
         }
 
-        return response()->json([
-            'pago' => $pago,
-            'result' => $result,
-            'paymentInfo' => $paymentInfo
-        ]);
+        return response()->json(['pago' => $pago, 'paymentInfo' => $paymentInfo]);
     }
 }
 
