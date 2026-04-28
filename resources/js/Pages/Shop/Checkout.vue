@@ -195,9 +195,12 @@ watch(() => form.tipo_pago, (newTipo) => {
 });
 
 const submit = () => {
+
+    console.log("Enviando método de pago:", form.metodo_pago);
     // Transformamos los datos para asegurar limpieza antes de enviar al backend
     form.transform((data) => ({
         ...data,
+        metodo_pago: data.metodo_pago,
         // Si no es crédito, nos aseguramos de que numero_cuotas sea nulo
         numero_cuotas: data.tipo_pago === 'credito' ? data.numero_cuotas : null
     })).post(route('checkout.process'));

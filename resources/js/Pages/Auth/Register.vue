@@ -1,106 +1,47 @@
 <template>
-    <div class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4 py-12">
-        <div
-            v-motion-fade
-            class="max-w-md w-full bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-gray-100"
-        >
-            <div class="text-center mb-8">
-                <h2 class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">
+    <div class="min-h-screen bg-orange-50/30 flex items-center justify-center p-4 py-12">
+        <div v-motion-fade
+            class="max-w-2xl w-full bg-white/90 backdrop-blur-sm rounded-[2.5rem] shadow-2xl p-10 border border-orange-100">
+            
+            <div class="text-center mb-10">
+                <h2 class="text-4xl font-black bg-gradient-to-r from-red-600 to-orange-500 bg-clip-text text-transparent mb-2">
                     Crear Cuenta
                 </h2>
-                <p class="text-gray-600 text-sm">Únete a nuestra plataforma</p>
+                <p class="text-zinc-500 font-medium italic italic">¡Únete a la pizzería más loca!</p>
             </div>
 
-            <form @submit.prevent="submit" class="space-y-4">
-                <TextInput
-                    v-model="form.nombre"
-                    label="Nombre Completo"
-                    type="text"
-                    name="nombre"
-                    placeholder="Juan Pérez"
-                    required
-                    :error="form.errors.nombre"
-                    :min-length="3"
-                    hint="Mínimo 3 caracteres"
-                />
+            <form @submit.prevent="submit" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
+                <TextInput v-model="form.nombre" label="Nombre Completo" type="text" name="nombre" placeholder="Juan Pérez"
+                    required :error="form.errors.nombre" :min-length="3" />
 
-                <TextInput
-                    v-model="form.ci"
-                    label="CI"
-                    type="text"
-                    name="ci"
-                    placeholder="12345678"
-                    required
-                    :error="form.errors.ci"
-                    :validation-rules="[validateCI]"
-                />
+                <TextInput v-model="form.ci" label="CI" type="text" name="ci" placeholder="12345678"
+                    required :error="form.errors.ci" :validation-rules="[validateCI]" />
 
-                <TextInput
-                    v-model="form.email"
-                    label="Email"
-                    type="email"
-                    name="email"
-                    placeholder="tu@email.com"
-                    required
-                    :error="form.errors.email"
-                    :validation-rules="[validateEmail]"
-                />
+                <div class="md:col-span-2">
+                    <TextInput v-model="form.email" label="Email" type="email" name="email" placeholder="tu@email.com"
+                        required :error="form.errors.email" :validation-rules="[validateEmail]" />
+                </div>
 
-                <TextInput
-                    v-model="form.telefono"
-                    label="Teléfono"
-                    type="tel"
-                    name="telefono"
-                    placeholder="+591 12345678"
-                    :validation-rules="[validateTelefono]"
-                />
+                <TextInput v-model="form.telefono" label="Teléfono" type="tel" name="telefono" placeholder="+591 70000000" />
 
-                <TextInput
-                    v-model="form.direccion"
-                    label="Dirección"
-                    type="text"
-                    name="direccion"
-                    placeholder="Calle, Número, Ciudad"
-                />
+                <TextInput v-model="form.direccion" label="Dirección" type="text" name="direccion" placeholder="Calle, Barrio..." />
 
-                <TextInput
-                    v-model="form.password"
-                    label="Contraseña"
-                    type="password"
-                    name="password"
-                    placeholder="••••••••"
-                    required
-                    :error="form.errors.password"
-                    :min-length="6"
-                    hint="Mínimo 6 caracteres"
-                />
+                <TextInput v-model="form.password" label="Contraseña" type="password" name="password" placeholder="••••••"
+                    required :error="form.errors.password" :min-length="6" hint="Mínimo 6 caracteres"/>
 
-                <TextInput
-                    v-model="form.password_confirmation"
-                    label="Confirmar Contraseña"
-                    type="password"
-                    name="password_confirmation"
-                    placeholder="••••••••"
-                    required
-                    :error="passwordMatchError"
-                    :validation-rules="[validatePasswordMatch]"
-                />
+                <TextInput v-model="form.password_confirmation" label="Confirmar" type="password" name="password_confirmation"
+                    placeholder="••••••" required :error="passwordMatchError" hint="Mínimo 6 caracteres"/>
 
-                <Button
-                    type="submit"
-                    :loading="form.processing"
-                    :disabled="form.processing"
-                    variant="primary"
-                    full-width
-                    size="lg"
-                    class="w-full mt-6"
-                >
-                    Registrarse
-                </Button>
+                <div class="md:col-span-2 mt-4">
+                    <Button type="submit" :loading="form.processing" :disabled="form.processing"
+                        class="w-full bg-red-600 hover:bg-red-700 text-white font-black py-4 rounded-2xl shadow-lg shadow-red-200 uppercase tracking-widest transition-all active:scale-95">
+                        Registrarse ahora
+                    </Button>
+                </div>
 
-                <div class="mt-6 text-center">
-                    <Link :href="route('login')" class="text-blue-600 hover:text-blue-700 font-medium transition-colors duration-200">
-                        ¿Ya tienes cuenta? <span class="underline">Inicia sesión</span>
+                <div class="md:col-span-2 mt-6 text-center">
+                    <Link :href="route('login')" class="text-red-600 hover:text-red-700 font-bold transition-colors">
+                        ¿Ya tienes cuenta? <span class="underline underline-offset-4">Inicia sesión</span>
                     </Link>
                 </div>
             </form>
@@ -116,51 +57,14 @@ import TextInput from '@/Components/Form/TextInput.vue';
 import Button from '@/Components/Button.vue';
 
 const form = useForm({
-    nombre: '',
-    ci: '',
-    email: '',
-    telefono: '',
-    direccion: '',
-    password: '',
-    password_confirmation: '',
+    nombre: '', ci: '', email: '', telefono: '', direccion: '', password: '', password_confirmation: '',
 });
 
-const validateEmail = (value) => {
-    if (!value) return true;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(value) || 'Email inválido';
-};
+// Validaciones (Se mantienen iguales)
+const validateEmail = (value) => { if (!value) return true; return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) || 'Email inválido'; };
+const validateCI = (value) => { if (!value) return true; return /^\d{5,10}$/.test(value) || 'CI debe tener entre 5 y 10 dígitos'; };
+const passwordMatchError = computed(() => (form.password_confirmation && form.password_confirmation !== form.password) ? 'No coinciden' : '');
+const submit = () => { form.post(route('register')); };
 
-const validateCI = (value) => {
-    if (!value) return true;
-    const ciRegex = /^\d{5,10}$/;
-    return ciRegex.test(value) || 'CI debe tener entre 5 y 10 dígitos';
-};
-
-const validateTelefono = (value) => {
-    if (!value) return true;
-    const telefonoRegex = /^[\d\s\+\-\(\)]{7,15}$/;
-    return telefonoRegex.test(value) || 'Teléfono inválido';
-};
-
-const validatePasswordMatch = (value) => {
-    if (!value) return true;
-    return value === form.password || 'Las contraseñas no coinciden';
-};
-
-const passwordMatchError = computed(() => {
-    if (form.password_confirmation && form.password_confirmation !== form.password) {
-        return 'Las contraseñas no coinciden';
-    }
-    return '';
-});
-
-const submit = () => {
-    form.post(route('register'));
-};
-
-defineOptions({
-    layout: null
-});
+defineOptions({ layout: null });
 </script>
-

@@ -1,0 +1,1 @@
+function n(){const e="http://127.0.0.1:8000";return{storageUrl:t=>{if(!t)return"";const r=t.replace(/^\/+/,"");return`${e}/storage/${r}`},storageUrlSafe:t=>{if(!t)return"";let r=t.replace(/^\/+/,"");return r.startsWith("storage/")&&(r=r.substring(8)),`${e}/storage/${r}`}}}export{n as u};

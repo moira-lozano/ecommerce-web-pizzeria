@@ -15,7 +15,10 @@ class ProductoController extends BaseController
     {
         $this->verificarPermiso('productos.listar');
 
-        $productos = Producto::with('categoria')->paginate(15);
+        $productos = Producto::with('categoria')
+            ->orderBy('id', 'asc') // Ordenamos por la columna 'id'
+            ->paginate(15);
+
         return Inertia::render('Admin/Productos/Index', [
             'productos' => $productos
         ]);

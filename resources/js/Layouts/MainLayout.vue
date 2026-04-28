@@ -101,6 +101,9 @@ import { route } from 'ziggy-js';
 const showUserMenu = ref(false);
 const page = usePage();
 
+// Accedemos al dato que compartimos en el backend
+const pagosPendientes = computed(() => page.props.auth.user?.notificaciones?.pagos_pendientes ?? 0);
+
 const navLinks = computed(() => {
     const links = [
         { href: route('admin.dashboard'), label: 'Dashboard' },

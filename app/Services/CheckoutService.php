@@ -20,7 +20,7 @@ class CheckoutService
         $this->inventoryService = $inventoryService;
     }
 
-    public function processContado($cart, $cliente, $metodoPago = 'efectivo')
+    public function processContado($cart, $cliente, $metodoPago)
     {
         return DB::transaction(function () use ($cart, $cliente, $metodoPago) {
             // Determinar estado inicial según método de pago
@@ -63,31 +63,36 @@ class CheckoutService
                 ]);
             }
 
-            // Procesar pago según método
-            //$paymentGatewayService = app(\App\Services\PaymentGatewayService::class);
-
+            // --- SOLUCIÓN UNIFICADA ---
             if ($metodoPago === 'qr') {
-            // CREACIÓN MANUAL DEL PAGO (Bypass de PagoFácil)
-            $pago = \App\Models\Pago::create([
-                'nro_pago' => 'PAGO-QR-' . time(),
-                'monto' => $cart['total'],
-                'fecha' => now(),
-                'metodo_pago' => 'qr',
-                'estado' => 'pendiente', // Se queda en pendiente hasta que suban la foto
-                'venta_id' => $venta->id,
-                'cliente_id' => $cliente->id,
-            ]);
+                // Crear pago para QR (Pendiente de comprobante)
+               $pago = \App\Models\Pago::create([
+                    'nro_pago' => 'PAGO-QR-' . time(),
+                    'monto' => $cart['total'],
+                    'fecha' => now(),
+                    'tipo_pago' => 'qr', // Enviamos 'qr' a la columna 'tipo_pago'
+                    'estado' => 'pendiente',
+                    'venta_id' => $venta->id,
+                    'cliente_id' => $cliente->id,
+                ]);
 
-            // Retornamos el pago creado manualmente
-            return [
-                'venta' => $venta, 
-                'pago' => $pago, 
-                'result' => ['status' => 'success'] // Simulamos un resultado exitoso
-            ];
+                return [
+                    'venta' => $venta, 
+                    'pago' => $pago, 
+                    'result' => ['status' => 'success']
+                ];
             } else {
-                // Para pago en efectivo, se registra el pago como completado de inmediato
-                $paymentGatewayService = app(\App\Services\PaymentGatewayService::class);
-                $pago = $paymentGatewayService->processCashPayment($venta, $cliente);
+                // Crear pago para EFECTIVO (Completado de inmediato)
+                $pago = \App\Models\Pago::create([
+                    'nro_pago' => 'PAGO-EFECTIVO-' . time(),
+                    'monto' => $cart['total'],
+                    'fecha' => now(),
+                    'tipo_pago' => 'efectivo', // <--- Forzamos efectivo
+                    'estado' => 'completado',
+                    'venta_id' => $venta->id,
+                    'cliente_id' => $cliente->id,
+                ]);
+
                 return ['venta' => $venta, 'pago' => $pago];
             }
         });

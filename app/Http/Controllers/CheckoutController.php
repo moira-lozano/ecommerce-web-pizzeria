@@ -216,6 +216,7 @@ class CheckoutController extends Controller
                 'comprobante_path' => $path,
                 'estado' => 'pendiente' // Esperando que el admin lo vea
             ]);
+
         }
 
         return redirect('/my-orders')->with('success', 'Comprobante enviado. Tu pedido será procesado tras la verificación.');

@@ -150,13 +150,7 @@
     </p>
 </div>
 
-                <!-- <div v-if="pago.metodo_pago === 'tigo_money' && pago.estado === 'pendiente'" class="mb-6">
-                    <div class="bg-blue-600 text-white rounded-xl p-5 shadow-lg">
-                        <h2 class="text-xl font-bold mb-2">📲 Esperando Tigo Money</h2>
-                        <p class="text-sm opacity-90">Revisa tu teléfono. Debes confirmar la transacción con tu PIN en la app o menú Tigo Money.</p>
-                        <p v-if="pago.nro_transaccion" class="mt-3 text-xs bg-blue-800 p-2 rounded">ID de Transacción: {{ pago.nro_transaccion }}</p>
-                    </div>
-                </div> -->
+
 
                 <div class="flex flex-wrap gap-4 mt-10">
                     <div class="flex-1 min-w-[200px] flex flex-col gap-2">

@@ -79,7 +79,7 @@ const form = useForm({
 
 const confirmarAprobacion = (id) => {
     if (confirm('¿Estás seguro de que deseas aprobar este pago? Esto marcará la venta como pagada.')) {
-        router.patch(route('admin.payments.update', id), {
+        router.patch(route('admin.pagos.update', id), {
             status: 'completado',
             observaciones: 'Pago verificado por administración.'
         });
@@ -93,7 +93,7 @@ const prepararRechazo = (id) => {
 };
 
 const ejecutarRechazo = () => {
-    router.patch(route('admin.payments.update', selectedPagoId.value), {
+    router.patch(route('admin.pagos.update', selectedPagoId.value), {
         status: 'rechazado',
         observaciones: form.observaciones
     }, {

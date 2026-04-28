@@ -38,7 +38,7 @@
                 <div class="p-4 lg:p-6 border-b border-slate-700 dark:border-slate-600 flex items-center justify-between">
                     <Link :href="route('admin.dashboard')" @click="sidebarOpen = false" class="flex-1">
                         <h1 class="text-xl lg:text-2xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent hover:scale-105 transition-transform duration-200">
-                            🏢 TecnoWeb
+                            🏢 Pizzeria
                         </h1>
                         <p class="text-xs lg:text-sm text-slate-400 dark:text-slate-300 mt-1 hidden lg:block">Panel Administrativo</p>
                     </Link>
@@ -401,6 +401,7 @@
                             </Transition>
                         </div>
 
+
                         <!-- Desktop Layout -->
                         <div class="hidden lg:flex items-center justify-between gap-4">
                             <!-- Title Section -->
@@ -529,6 +530,22 @@
                                     </Transition>
                                 </div>
                             </div>
+
+                            <Link 
+                                    :href="route('admin.pagos.index')" 
+                                    class="relative group p-2.5 rounded-xl border transition-all duration-300 shadow-sm"
+                                    :class="[themeClasses.input, themeClasses.contrast.border, 'hover:border-red-500/50']"
+                                    title="Pagos por verificar"
+                                >
+                                    <span class="text-xl group-hover:scale-110 transition-transform inline-block">🔔</span>
+                                    
+                                    <span 
+                                        v-if="$page.props.auth.user?.notificaciones?.pagos_pendientes > 0"
+                                        class="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-[10px] font-black text-white ring-2 ring-white dark:ring-gray-900 animate-pulse shadow-md"
+                                    >
+                                        {{ $page.props.auth.user.notificaciones.pagos_pendientes > 9 ? '9+' : $page.props.auth.user.notificaciones.pagos_pendientes }}
+                                    </span>
+                            </Link>
 
                             <!-- Theme, Contrast & Dark Mode Selectors -->
                             <div class="flex items-center gap-2">
@@ -910,12 +927,13 @@ const pageTitle = computed(() => {
     if (url.includes('/clientes')) return 'Clientes';
     if (url.includes('/ventas')) return 'Ventas';
     if (url.includes('/compras')) return 'Compras';
-    if (url.includes('/proveedores')) return 'Proveedores';
+    //if (url.includes('/proveedores')) return 'Proveedores';
     if (url.includes('/inventario')) return 'Inventario';
-    if (url.includes('/creditos')) return 'Créditos';
+    //if (url.includes('/creditos')) return 'Créditos';
     if (url.includes('/usuarios')) return 'Usuarios';
     if (url.includes('/roles')) return 'Roles';
     if (url.includes('/dashboard')) return 'Dashboard';
+    if (url.includes('/pagos')) return 'Pagos';
 
     return 'Panel Administrativo';
 });
@@ -939,12 +957,12 @@ const menuItems = computed(() => {
     }
 
     // Clientes
-    if (tieneAccesoModulo('clientes')) {
+    /* if (tieneAccesoModulo('clientes')) {
         items.push({ href: route('admin.clientes.index'), icon: '👥', label: 'Clientes', description: 'Gestionar clientes', permiso: 'clientes.listar' });
         if (tienePermiso('clientes.ver')) {
             items.push({ href: route('admin.clientes.verificar-documentos'), icon: '📋', label: 'Verificar Documentos', description: 'Revisar documentos de crédito', permiso: 'clientes.ver' });
         }
-    }
+    } */
 
     // Ventas
     if (tieneAccesoModulo('ventas')) {
@@ -957,9 +975,9 @@ const menuItems = computed(() => {
     }
 
     // Proveedores
-    if (tieneAccesoModulo('proveedores')) {
+    /* if (tieneAccesoModulo('proveedores')) {
         items.push({ href: route('admin.proveedores.index'), icon: '🏢', label: 'Proveedores', description: 'Gestionar proveedores', permiso: 'proveedores.listar' });
-    }
+    } */
 
     // Inventario
     if (tieneAccesoModulo('inventario')) {
@@ -967,9 +985,9 @@ const menuItems = computed(() => {
     }
 
     // Créditos
-    if (tieneAccesoModulo('creditos')) {
+   /*  if (tieneAccesoModulo('creditos')) {
         items.push({ href: route('admin.creditos.index'), icon: '💳', label: 'Créditos', description: 'Gestionar créditos', permiso: 'creditos.listar' });
-    }
+    } */
 
     // Estadísticas, Usuarios y Roles - verificar permisos
     if (tieneAccesoModulo('estadisticas')) {
@@ -1001,15 +1019,15 @@ const allSearchableItems = computed(() => {
     if (tienePermiso('clientes.crear')) {
         items.push({ href: route('admin.clientes.create'), icon: '➕', label: 'Nuevo Cliente', description: 'Registrar nuevo cliente' });
     }
-    if (tienePermiso('clientes.ver')) {
+    /* if (tienePermiso('clientes.ver')) {
         items.push({ href: route('admin.clientes.verificar-documentos'), icon: '📋', label: 'Verificar Documentos', description: 'Revisar documentos de crédito' });
-    }
+    } */
     if (tienePermiso('categorias.crear')) {
         items.push({ href: route('admin.categorias.create'), icon: '➕', label: 'Nueva Categoría', description: 'Crear nueva categoría' });
     }
-    if (tienePermiso('proveedores.crear')) {
+    /* if (tienePermiso('proveedores.crear')) {
         items.push({ href: route('admin.proveedores.create'), icon: '➕', label: 'Nuevo Proveedor', description: 'Registrar nuevo proveedor' });
-    }
+    } */
     if (tienePermiso('inventario.ver')) {
         items.push({ href: route('admin.inventario.movimientos'), icon: '📋', label: 'Movimientos de Inventario', description: 'Ver movimientos' });
     }

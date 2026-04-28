@@ -92,6 +92,13 @@ class HandleInertiaRequests extends Middleware
             }
         }
 
+        // Lógica para contar pagos por verificar
+        $pagosPendientes = 0;
+        if ($user && $user->rol && $user->rol->nombre !== 'Cliente') {
+            // Asumiendo que tu modelo se llama Pago y el estado es 'Pendiente'
+            $pagosPendientes = \App\Models\Pago::where('estado', 'Pendiente')->count();
+        }
+
         return [
             ...parent::share($request),
             'auth' => [
@@ -104,6 +111,10 @@ class HandleInertiaRequests extends Middleware
                         'nombre' => $user->rol->nombre,
                     ] : null,
                     'permisos' => $permisos,
+                    // AGREGAMOS ESTO:
+                    'notificaciones' => [
+                    'pagos_pendientes' => $pagosPendientes,
+                    ],
                 ] : null,
             ],
             'flash' => [

@@ -32,7 +32,7 @@
                         </dl>
                     </div>
 
-                    <div v-if="cliente" class="bg-white shadow rounded-lg p-6">
+<!--                     <div v-if="cliente" class="bg-white shadow rounded-lg p-6">
                         <h2 class="text-xl font-semibold mb-4">Información de Crédito</h2>
                         <dl class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div>
@@ -78,7 +78,7 @@
                                 {{ cliente.estado_verificacion === 'rechazado' ? 'Actualizar Documentos' : 'Solicitar Verificación de Crédito' }}
                             </Link>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
 
                 <!-- Acciones Rápidas -->
@@ -88,16 +88,16 @@
                         <div class="space-y-3">
                             <Link
                                 :href="route('customer.orders')"
-                                class="block w-full bg-blue-500 hover:bg-blue-600 text-white text-center px-4 py-2 rounded-lg font-medium transition-colors"
+                                class="block w-full bg-red-500 hover:bg-red-600 text-white text-center px-4 py-2 rounded-lg font-medium transition-colors"
                             >
                                 Mis Compras
                             </Link>
-                            <Link
+<!--                             <Link
                                 :href="route('customer.credits')"
                                 class="block w-full bg-green-500 hover:bg-green-600 text-white text-center px-4 py-2 rounded-lg font-medium transition-colors"
                             >
                                 Mis Créditos
-                            </Link>
+                            </Link> -->
                             <Link
                                 :href="route('shop.index')"
                                 class="block w-full bg-gray-500 hover:bg-gray-600 text-white text-center px-4 py-2 rounded-lg font-medium transition-colors"

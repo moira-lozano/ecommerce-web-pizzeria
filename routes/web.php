@@ -354,6 +354,6 @@ Route::middleware('permiso:usuarios.eliminar')->group(function () {
     });
 
     //Gestión para ver y actualizar pagos pendientes (propietario, empleado con permiso administrativo)
-    Route::get('/payments', [AdminPaymentController::class, 'index'])->name('payments.index');
-    Route::patch('/payments/{pago}', [AdminPaymentController::class, 'updateStatus'])->name('payments.update');
+    Route::get('/pagos', [AdminPaymentController::class, 'index'])->name('pagos.index');
+    Route::patch('/pagos/{pago}', [AdminPaymentController::class, 'updateStatus'])->name('pagos.update');
 });

@@ -10,40 +10,43 @@ use Inertia\Inertia;
 class ShopController extends Controller
 {
     public function index(Request $request)
-    {
-        $query = Producto::with('categoria');
+{
+    $query = Producto::with('categoria');
 
-        // Filtro por categoría
-        if ($request->categoria_id) {
-            $query->where('categoria_id', $request->categoria_id);
-        }
-
-        // Búsqueda
-        if ($request->search) {
-            $query->where(function($q) use ($request) {
-                $q->where('nombre', 'like', '%' . $request->search . '%')
-                  ->orWhere('descripcion', 'like', '%' . $request->search . '%')
-                  ->orWhere('marca', 'like', '%' . $request->search . '%');
-            });
-        }
-
-        // Filtro por precio
-        if ($request->precio_min) {
-            $query->where('precio', '>=', $request->precio_min);
-        }
-        if ($request->precio_max) {
-            $query->where('precio', '<=', $request->precio_max);
-        }
-
-        $productos = $query->paginate(12);
-        $categorias = Categoria::all();
-
-        return Inertia::render('Shop/Index', [
-            'productos' => $productos,
-            'categorias' => $categorias,
-            'filters' => $request->only(['categoria_id', 'search', 'precio_min', 'precio_max'])
-        ]);
+    // Filtro por categoría
+    if ($request->categoria_id) {
+        $query->where('categoria_id', $request->categoria_id);
     }
+
+    // Búsqueda
+    if ($request->search) {
+        $query->where(function($q) use ($request) {
+            $q->where('nombre', 'like', '%' . $request->search . '%')
+              ->orWhere('descripcion', 'like', '%' . $request->search . '%')
+              ->orWhere('marca', 'like', '%' . $request->search . '%');
+        });
+    }
+
+    // Filtro por precio
+    if ($request->precio_min) {
+        $query->where('precio', '>=', $request->precio_min);
+    }
+    if ($request->precio_max) {
+        $query->where('precio', '<=', $request->precio_max);
+    }
+
+    // ORDENAR POR ID (Ascendente)
+    // Usamos orderBy antes de paginar
+    $productos = $query->orderBy('id', 'asc')->paginate(12);
+
+    $categorias = Categoria::all();
+
+    return Inertia::render('Shop/Index', [
+        'productos' => $productos,
+        'categorias' => $categorias,
+        'filters' => $request->only(['categoria_id', 'search', 'precio_min', 'precio_max'])
+    ]);
+}
 
     public function show($id)
     {
